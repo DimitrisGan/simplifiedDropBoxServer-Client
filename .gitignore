@@ -26,3 +26,11 @@
 *.exe
 *.out
 *.app
+
+Server/cmake-build-debug/
+
+Server/\.idea/
+
+Client/\.idea/
+
+Client/cmake-build-debug/
