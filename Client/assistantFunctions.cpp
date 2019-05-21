@@ -341,7 +341,7 @@ void argmParser(int &argc, char **argv, struct ArgumentsKeeper &argmKeeper){
         if(strcmp(argv[i],"-sp")==0 && !flagServerPort && argv[i + 1] != nullptr){
 //            if (! isNumber(argv[++i])) {fprintf(stderr, "ARGUMENT : %s IS NOT A NUMBER\n", argv[i]);exit(UNKNOWN_CMDARGUMENT);}
 //            argmKeeper.serverPort = atoi(argv[i]);
-            argmKeeper.serverPort = argv[i++];
+            argmKeeper.serverPort = argv[++i];
             flagServerPort = true;
             i++;
             continue;
