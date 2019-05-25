@@ -3,4 +3,4 @@ project(Server)
 
 set(CMAKE_CXX_STANDARD 11)
 
-add_executable(Server main.cpp assistantFunctions.cpp mylinkedList.h myString.cpp ErrorsCodes.h hashFunction.cpp)
+add_executable(Server main.cpp assistantFunctions.cpp mylinkedList.h myString.cpp ErrorsCodes.h hashFunction.cpp serverProtocol.h)

@@ -21,12 +21,22 @@ struct ArgumentsKeeper{
 
     ArgumentsKeeper();
 
-    ArgumentsKeeper(const ArgumentsKeeper &right); //move operator maybe not needed because of not existing simple constructor
+//    ArgumentsKeeper(const ArgumentsKeeper &right); //move operator maybe not needed because of not existing simple constructor
 
 
 };
 
 
+void print_ip(unsigned int ip);
+
+void checkHostName(int hostname);
+void checkHostEntry(struct hostent * hostentry);
+void checkIPbuffer(char *IPbuffer);
+
+
+myString zip_it(myString IP , myString port);
+
+void perror_exit(char *message);
 int remove_directory(const char *path);
 
 void getNewlyAddedIdsList(linkedList<myString> newIdsFilesList ,linkedList<myString>& newIdsList);

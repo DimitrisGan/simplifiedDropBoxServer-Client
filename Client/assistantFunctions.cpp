@@ -15,7 +15,62 @@
 # define PERMS 0644 //set access p e r m i s s i o n s
 
 
+myString zip_it(myString IP , myString port){
+    myString zip("<");
+    zip = IP + "," + port + ">";
+    return zip;
+}
 
+void unzip_it(myString toUnzip,myString& IP ,myString& port){
+//    toUnzip
+//todo
+}
+
+
+// Returns hostname for the local computer
+void checkHostName(int hostname)
+{
+    if (hostname == -1)
+    {
+        perror("gethostname");
+        exit(1);
+    }
+}
+
+// Returns host information corresponding to host name
+void checkHostEntry(struct hostent * hostentry)
+{
+    if (hostentry == NULL)
+    {
+        perror("gethostbyname");
+        exit(1);
+    }
+}
+
+// Converts space-delimited IPv4 addresses
+// to dotted-decimal format
+void checkIPbuffer(char *IPbuffer)
+{
+    if (NULL == IPbuffer)
+    {
+        perror("inet_ntoa");
+        exit(1);
+    }
+}
+
+
+
+void perror_exit(char *message)
+{
+    perror(message);
+    exit(EXIT_FAILURE);
+}
+
+//=================================================================
+//=================================================================
+//=================================================================
+//=================================================================
+//=================================================================
 
 /* Call unlink or rmdir on the path, as appropriate. */
 int remove_directory(const char *path)
@@ -569,7 +624,17 @@ void ArgumentsKeeper::printArgs() {
 
 ArgumentsKeeper::ArgumentsKeeper() {}
 
-ArgumentsKeeper::ArgumentsKeeper(const ArgumentsKeeper &right) {
+//ArgumentsKeeper::ArgumentsKeeper(const ArgumentsKeeper &right) {
+//
+//}
 
+
+void print_ip(unsigned int ip)
+{
+    unsigned char bytes[4];
+    bytes[0] = ip & 0xFF;
+    bytes[1] = (ip >> 8) & 0xFF;
+    bytes[2] = (ip >> 16) & 0xFF;
+    bytes[3] = (ip >> 24) & 0xFF;
+    printf("%d.%d.%d.%d\n", bytes[3], bytes[2], bytes[1], bytes[0]);
 }
-

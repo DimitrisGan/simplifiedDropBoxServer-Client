@@ -27,4 +27,7 @@ typedef enum ERRORCODE { OK=0,
     FILE_ACCESS  //could NOT open a file
 } ERRORCODE;
 
+
+
+
 #endif //SERVER_ERRORSCODES_H

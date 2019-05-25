@@ -1,5 +1,6 @@
 #include <iostream>
 #include "assistantFunctions.h"
+#include "serverProtocol.h"
 
 #include <stdio.h>
 #include <sys/wait.h>	     /* sockets */
@@ -7,15 +8,20 @@
 #include <sys/socket.h>	     /* sockets */
 #include <netinet/in.h>	     /* internet sockets */
 #include <netdb.h>	         /* gethostbyaddr */
-#include <unistd.h>	         /* fork */		
+#include <unistd.h>	         /* fork */
 #include <stdlib.h>	         /* exit */
 #include <ctype.h>	         /* toupper */
 #include <signal.h>          /* signal */
+#include <arpa/inet.h>
 
 
-void child_server(int newsock);
-void perror_exit(char *message);
+void child_server(int newsock,Protocol prot);
+
 void sigchld_handler (int sig);
+
+
+int diavasa=0;
+
 
 
 int main(int argc, char **argv) {
@@ -25,6 +31,10 @@ int main(int argc, char **argv) {
     argmParser(argc, argv , argmKeeper);
 
     cout<<argmKeeper.portNumber<<endl;
+
+
+    Protocol prot(argmKeeper);
+
 
 
     int             port, sock, newsock;
@@ -55,48 +65,78 @@ int main(int argc, char **argv) {
     /* Listen for connections */
     if (listen(sock, 5) < 0) perror_exit("listen");
     printf("Listening for connections to port %d\n", port);
-    while (1) {
+    while (true) {
         /* accept connection */
-    	if ((newsock = accept(sock, clientptr, &clientlen)) < 0) perror_exit("accept");
-    	/* Find client's address */
-    	//if ((rem = gethostbyaddr((char *) &client.sin_addr.s_addr, sizeof(client.sin_addr.s_addr), client.sin_family)) == NULL) {
-   	    //herror("gethostbyaddr"); exit(1);}
-    	//printf("Accepted connection from %s\n", rem->h_name);
-    	printf("Accepted connection\n");
-    	switch (fork()) {    /* Create child for serving client */
-    	case -1:     /* Error */
-    	    perror("fork"); break;
-    	case 0:	     /* Child process */
-    	    close(sock); child_server(newsock);
-    	    exit(0);
-    	}
-    	close(newsock); /* parent closes socket to client            */
-			/* must be closed before it gets re-assigned */
+        if ((newsock = accept(sock, clientptr, &clientlen)) < 0) perror_exit("accept");
+
+
+        printf("Accepted connection\n");
+        switch (fork()) {    /* Create child for serving client */
+            case -1:     /* Error */
+                perror("fork"); break;
+            case 0:	     /* Child process */
+                close(sock); child_server(newsock,prot);
+                exit(0);
+        }
+        close(newsock); /* parent closes socket to client            */
+        /* must be closed before it gets re-assigned */
+
+
+        printf("Accepted connection\n");
+//                 child_server(newsock);close(sock);
+        /* must be closed before it gets re-assigned */
+
     }
 
-    return 0;
 }
 
-void child_server(int newsock) {
+void child_server(int newsock,Protocol prot) {
     char buf[1];
+    myString whitespace(" ");
+    myString instruction("");
+
+    bool flagLOG_ON     = false;
+    bool flagGET_CLIENTS= false;
+    bool flagLOG_OFF    = false;
+
     while(read(newsock, buf, 1) > 0) {  /* Receive 1 char */
-    	putchar(buf[0]);           /* Print received char */
-    	/* Capitalize character */
-    	buf[0] = toupper(buf[0]);
-    	/* Reply */
-    	if (write(newsock, buf, 1) < 0)
-    	    perror_exit("write");
+        printf("diavasa %d bytes\n", ++diavasa);
+
+        instruction += buf;
+
+        cout << "To instruction exei timh = " << instruction << endl;
+        if (instruction == "LOG_ON") {
+            flagLOG_ON = true;
+            cout << instruction;
+            break;
+        }
+
+        if (instruction == "GET_CLIENTS") {
+            flagGET_CLIENTS = true;
+            cout << instruction;
+            break;
+        }
+
+        if (instruction == "LOG_OFF") {
+            flagLOG_OFF = true;
+            cout << instruction;
+            break;
+        }
+
+
     }
-    printf("Closing connection.\n");
-    close(newsock);	  /* Close socket */
+
+
+    if (flagLOG_ON)
+        prot.recv_LOG_ON(newsock);
+
+
 }
+
+
+
 
 /* Wait for all dead child processes */
 void sigchld_handler (int sig) {
-	while (waitpid(-1, NULL, WNOHANG) > 0);
-}
-
-void perror_exit(char *message) {
-    perror(message);
-    exit(EXIT_FAILURE);
+    while (waitpid(-1, NULL, WNOHANG) > 0);
 }

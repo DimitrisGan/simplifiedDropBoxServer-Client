@@ -1,5 +1,6 @@
 #include <iostream>
 #include "assistantFunctions.h"
+#include "clientProtocol.h"
 
 
 //#include <sys/socket.h>             /* sockets */
@@ -34,6 +35,7 @@ int main(int argc, char **argv) {
 //    if(( sock = socket ( AF_INET , SOCK_STREAM ,0) ) ==-1)
 //            perror ( " Socket creation failed ! " ) ;
 
+    Protocol prot(argmKeeper);
 
     int             port, sock, i;
     char            buf[256];
@@ -66,30 +68,30 @@ int main(int argc, char **argv) {
     if (connect(sock, serverptr, sizeof(server)) < 0)
         perror_exit("connect");
     printf("Connecting to %s port %d\n",argmKeeper.serverIp.getMyStr() , port);
-    do {
-        printf("Give input string: ");
-        fgets(buf, sizeof(buf), stdin);	/* Read from stdin*/
-        for(i=0; buf[i] != '\0'; i++) { /* For every char */ //KAKO GT GRAFEI 1-1 TA BYTES
-            /* Send i-th character */
-            if (write(sock, buf + i, 1) < 0)
-                perror_exit("write");
-            /* receive i-th character transformed */
-            if (read(sock, buf + i, 1) < 0) //PARATHRW OTI DIAVAZEI ME IDIO TROPO
-                perror_exit("read");
-        }
-        printf("Received string: %s", buf);
-    } while (strcmp(buf, "END\n") != 0); /* Finish on "end" */
-    close(sock);                 /* Close socket and exit */
+
+    //todo send_GET_CLIENTS_to_server()
+
+    prot.send_LOG_ON(sock);
+//    do {
+//        printf("Give input string: ");
+//        fgets(buf, sizeof(buf), stdin);	/* Read from stdin*/
+//        for(i=0; buf[i] != '\0'; i++) { /* For every char */
+//            /* Send i-th character */
+//            if (write(sock, buf + i, 1) < 0)
+//                perror_exit("write");
+//            /* receive i-th character transformed */
+//            if (read(sock, buf + i, 1) < 0)
+//                perror_exit("read");
+//        }
+//        printf("Received string: %s", buf);
+//    } while (strcmp(buf, "END\n") != 0); /* Finish on "end" */
+
+//    close(sock);                 /* Close socket and exit */
 
 
     return 0;
 }
 
-void perror_exit(char *message)
-{
-    perror(message);
-    exit(EXIT_FAILURE);
-}
 
 //int bind_on_port ( int sock , short port ) {
 //    struct sockaddr_in server ;
