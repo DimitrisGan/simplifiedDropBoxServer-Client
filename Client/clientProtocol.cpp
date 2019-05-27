@@ -69,7 +69,7 @@ int Protocol::send_LOG_ON(int sock) {
         perror_exit("write IP");
 
 
-    uint16_t portBinary = htons(this->args.portNum.to_int());
+    uint16_t portBinary = htons(static_cast<uint16_t>(this->args.portNum.to_int()));
 
     if (write(sock, &portBinary , sizeof(uint16_t)) < 0)
         perror_exit("write PORT");
@@ -191,6 +191,6 @@ read_from_others (int filedes ,Protocol &prot )
 
  */
 
-    return 0;
+    return -1;
 
 }

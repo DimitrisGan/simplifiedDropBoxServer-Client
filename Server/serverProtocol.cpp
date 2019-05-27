@@ -65,9 +65,14 @@ int Protocol::recv_LOG_ON(int newsock /*, uint32_t &retClientsIp, uint32_t &retC
 
     // now get it back and print it
     inet_ntop(AF_INET, &(sa.sin_addr), str, INET_ADDRSTRLEN);
+    myString clientIp(str);
 
-    printf("MAN MOU TO IP SE STRING TOU FILOU CLIENT MAS EINIA: %s ",str);
+
+    printf("MAN MOU TO IP SE STRING TOU FILOU CLIENT MAS EINIA: %s ",clientIp.getMyStr());
     printf(" KAI TO PORT : %d \n",afterCastnewClientsPort);
+
+    // store this IP address in sa:
+//    inet_pton(AF_INET, clientIp.getMyStr(), &(sa.sin_addr));
 
 
 
@@ -89,7 +94,7 @@ int Protocol::recv_LOG_ON(int newsock /*, uint32_t &retClientsIp, uint32_t &retC
 //    }
 
 
-sleep(2);
+//sleep(1);
     cout << " GRAFW MHNUMA STON CLIENT !\n";
 
     int     sock2write2client;
@@ -97,9 +102,9 @@ sleep(2);
     if ((sock2write2client = socket(AF_INET, SOCK_STREAM, 0)) < 0)
         perror_exit("socket");
 
-    myString clientIp(str);
     /* Connect to the server. */
-    init_sockaddr(&name, clientIp.getMyStr() , newClientsPort);
+    init_sockaddr(&name, clientIp.getMyStr() , afterCastnewClientsPort);
+
 
 
     if (0 > connect (sock2write2client, (struct sockaddr *) &name, sizeof (name)))
@@ -108,13 +113,13 @@ sleep(2);
         exit (EXIT_FAILURE);
     }
 
-
+    cout << "eftasa edw kai einai katorthwma!!\n";
 
     if (write(sock2write2client,hi.getMyStr(), hi.size()) < 0)
         perror_exit("write LOG ON");
 
 
-
+    close(sock2write2client);
 
     clientsTuple tupl(afterCastIp,afterCastnewClientsPort);
 
@@ -271,6 +276,6 @@ read_from_client (int filedes ,Protocol &prot )
 
 
 
-
+    return -1;
 
 }
