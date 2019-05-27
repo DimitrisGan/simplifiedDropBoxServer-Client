@@ -23,65 +23,33 @@
 
 class Protocol{
     ArgumentsKeeper args;
+
+    linkedList <clientsTuple> connectedClients_list;
+
 //    int sock;
 
 //    linkedList<myTuple> tupl_list;
 
+
+    int broadcast_USER_ON(int newsock,clientsTuple tupl);
+
+    int broadcast_USER_OFF(int newsock,clientsTuple tupl);
+
 public:
     explicit Protocol( ArgumentsKeeper args);
 
-    int recv_LOG_ON(int newsock);
+    int recv_LOG_ON(int newsock /*, uint32_t &retClientsIp, uint32_t &retClientsPort*/);
 
     int recv_GET_CLIENTS();
 
+    int recv_LOG_OFF(int newsock);
 
-    int recv_CLIENTS_LIST();
+
+    int send_CLIENTS_LIST();
 
 
 };
 
-int Protocol::recv_LOG_ON(int newsock) {
-    myString logOn("LOG_ON");
-
-//    if (read(sock,logOn.getMyStr(), logOn.size()) < 0)
-//        perror_exit("write in LOG ON");
-//
-    uint32_t ipAddr;
-
-    read(newsock, &ipAddr, sizeof(uint32_t)) ; //todo needs while () defensive programming
-
-    uint32_t  afterCastIp = ntohl(ipAddr);
-
-    cout <<" "<<afterCastIp;
-
-    uint32_t  newClientsPort;
-    read(newsock, &newClientsPort, sizeof(uint32_t)) ; //todo needs while () defensive programming
-
-    uint32_t  afterCastnewClientsPort = ntohl(newClientsPort);
-
-
-    cout << "newClientsPort = "<<newClientsPort<<endl;
-    cout << "afterCastnewClientsPort = "<<afterCastnewClientsPort<<endl;
-
-
-//    	putchar(buf[0]);           /* Print received char */
-//    	/* Capitalize character */
-//    	buf[0] = toupper(buf[0]);
-//    	/* Reply */
-//    	if (write(newsock, buf, 1) < 0)
-//    	    perror_exit("write");
-
-    printf("Closing connection.\n");
-    close(newsock);	  /* Close socket */
-
-
-    print_ip(afterCastIp);
-
-
-    return 0;
-}
-
-Protocol::Protocol(ArgumentsKeeper args) : args(args) {}
 
 
 

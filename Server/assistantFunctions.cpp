@@ -16,6 +16,69 @@
 
 
 
+int
+make_socket (uint16_t port)
+{
+    int sock;
+    struct sockaddr_in name;
+
+    /* Create the socket. */
+    sock = socket (PF_INET, SOCK_STREAM, 0);
+    if (sock < 0)
+    {
+        perror ("socket");
+        exit (EXIT_FAILURE);
+    }
+
+    /* Give the socket a name. */
+    name.sin_family = AF_INET;  /* Internet domain */
+    name.sin_port = htons (port);   /* The given port */
+    name.sin_addr.s_addr = htonl (INADDR_ANY);
+    /* Bind socket to address */
+    if (bind (sock, (struct sockaddr *) &name, sizeof (name)) < 0)
+    {
+        perror ("bind");
+        exit (EXIT_FAILURE);
+    }
+
+    return sock;
+}
+
+
+void
+init_sockaddr (struct sockaddr_in *name,
+               const char *hostname,
+               uint16_t port)
+{
+    struct hostent *hostinfo;
+
+    name->sin_family = AF_INET;
+    name->sin_port = htons (port);
+    hostinfo = gethostbyname (hostname);
+    if (hostinfo == NULL)
+    {
+        fprintf (stderr, "Unknown host %s.\n", hostname);
+        exit (EXIT_FAILURE);
+    }
+    name->sin_addr = *(struct in_addr *) hostinfo->h_addr;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 void print_ip(unsigned int ip)
 {
     unsigned char bytes[4];
@@ -536,3 +599,13 @@ ArgumentsKeeper::ArgumentsKeeper(const ArgumentsKeeper &right) {
 
 ArgumentsKeeper::ArgumentsKeeper() {}
 
+clientsTuple::clientsTuple(uint32_t ip, uint16_t port) : ip(ip), port(port) {}
+
+bool clientsTuple::operator==(const clientsTuple &rhs) const {
+    return ip == rhs.ip &&
+           port == rhs.port;
+}
+
+bool clientsTuple::operator!=(const clientsTuple &rhs) const {
+    return !(rhs == *this);
+}

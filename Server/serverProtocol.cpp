@@ -1,0 +1,174 @@
+//
+// Created by dimitrisgan on 25/5/2019.
+//
+
+#include "serverProtocol.h"
+
+
+Protocol::Protocol(ArgumentsKeeper args) : args(args) {}
+
+
+int Protocol::recv_LOG_ON(int newsock /*, uint32_t &retClientsIp, uint32_t &retClientsPort*/) {
+    myString logOn("LOG_ON");
+
+//    if (read(sock,logOn.getMyStr(), logOn.size()) < 0)
+//        perror_exit("write in LOG ON");
+//
+    uint32_t ipAddr;
+
+    read(newsock, &ipAddr, sizeof(uint32_t)) ; //todo needs while () defensive programming
+
+    uint32_t  afterCastIp = ntohl(ipAddr);
+
+    cout <<" "<<afterCastIp;
+
+    uint16_t  newClientsPort;
+    read(newsock, &newClientsPort, sizeof(uint16_t)) ; //todo needs while () defensive programming
+
+    uint16_t  afterCastnewClientsPort = ntohs(newClientsPort);
+
+
+    cout << "newClientsPort = "<<newClientsPort<<endl;
+    cout << "afterCastnewClientsPort = "<<afterCastnewClientsPort<<endl;
+
+
+//    	putchar(buf[0]);           /* Print received char */
+//    	/* Capitalize character */
+//    	buf[0] = toupper(buf[0]);
+//    	/* Reply */
+//    	if (write(newsock, buf, 1) < 0)
+//    	    perror_exit("write");
+
+//    printf("Closing connection.\n");
+//    close(newsock);	  /* Close socket */
+
+
+    print_ip(afterCastIp);
+
+////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
+//todo na fugei olo to apo katw
+////////////////////////////////////////////////////////////////
+
+    myString hi("GET_CLIENTS");
+
+    struct sockaddr_in name;
+
+//    init_sockaddr(&name, ipOfClient, afterCastnewClientsPort);
+//    init_sockaddr(&name, "127.0.1.1", afterCastnewClientsPort);
+
+
+//    char saddr[INET_ADDRSTRLEN];
+    struct sockaddr_in sa;
+    char str[INET_ADDRSTRLEN];
+    sa.sin_addr.s_addr = afterCastIp;
+
+    // now get it back and print it
+    inet_ntop(AF_INET, &(sa.sin_addr), str, INET_ADDRSTRLEN);
+
+    printf("MAN MOU TO IP SE STRING TOU FILOU CLIENT MAS EINIA: %s ",str);
+    printf(" KAI TO PORT : %d \n",afterCastnewClientsPort);
+
+
+
+//    int sock2respondLOG_ON;
+//    struct sockaddr_in clientName;
+//
+//    /* Create socket */
+//    if ((sock2respondLOG_ON = socket(AF_INET, SOCK_STREAM, 0)) < 0)
+//        perror_exit("socket");
+//
+//    /* Connect to the server. */
+//    init_sockaddr(&clientName, clientIp, clientPort);
+//
+//
+//    if (0 > connect (sock2respondLOG_ON,(struct sockaddr *) &clientName,sizeof (clientName)))
+//    {
+//        perror ("connect (client)");
+//        exit (EXIT_FAILURE);
+//    }
+
+
+sleep(2);
+    cout << " GRAFW MHNUMA STON CLIENT !\n";
+
+    int     sock2write2client;
+    /* Create socket */
+    if ((sock2write2client = socket(AF_INET, SOCK_STREAM, 0)) < 0)
+        perror_exit("socket");
+
+    /* Connect to the server. */
+    init_sockaddr(&name, str, newClientsPort);
+
+
+    if (0 > connect (sock2write2client,(struct sockaddr *) &name,sizeof (name)))
+    {
+        perror ("connect (client)");
+        exit (EXIT_FAILURE);
+    }
+
+
+
+    if (write(sock2write2client,hi.getMyStr(), hi.size()) < 0)
+        perror_exit("write LOG ON");
+
+
+
+
+    clientsTuple tupl(afterCastIp,afterCastnewClientsPort);
+
+    if (! this->connectedClients_list.exists(tupl))
+        this->connectedClients_list.insert_last(tupl);
+
+
+
+//    this->broadcast_USER_ON(newsock,tupl);
+    return 0;
+}
+
+int Protocol::broadcast_USER_ON(int newsock,clientsTuple tupl) {
+
+
+    myString userOn("USER_ON");
+
+    for (auto &item : this->connectedClients_list) {
+
+        if (item == tupl)
+            continue;
+
+        //todo edw kanw to broadcast
+        if (write(newsock , userOn.getMyStr() , userOn.size()) < 0)
+            perror_exit("write USER_ON");
+
+        uint32_t ipToSend = htonl(item.ip);
+        if (write(newsock, &ipToSend , sizeof(uint32_t)) < 0)
+            perror_exit("write  IP");
+
+        uint16_t portToSend = htons(item.port);
+        if (write(newsock, &portToSend , sizeof(uint16_t)) < 0)
+            perror_exit("write  PORT");
+
+    }
+
+    return 0;
+}
+
+int Protocol::recv_GET_CLIENTS() {
+
+    send_CLIENTS_LIST();
+
+    return 0;
+}
+
+int Protocol::send_CLIENTS_LIST() {
+    return 0;
+}
+
+int Protocol::broadcast_USER_OFF(int newsock, clientsTuple tupl) {
+    //TODO KANEI BROADCAST PANTOU KAI O CLIENT POU VLEPEI OTI AFORA TON IDIO APLA TO AGNOEI
+    //TODO OPOTE STELNW KAI TO <IP,PORT>
+
+    return 0;
+}
+
+
