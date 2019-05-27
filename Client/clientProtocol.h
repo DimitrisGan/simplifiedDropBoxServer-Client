@@ -23,6 +23,7 @@
 #include <stdint.h>
 
 
+
 class Protocol{
     ArgumentsKeeper args;
 //    int sock;
@@ -46,5 +47,7 @@ public:
 
 };
 
+int
+read_from_others (int filedes ,Protocol &prot );
 
 #endif //CLIENT_CLIENTPROTOCOL_H

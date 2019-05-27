@@ -19,134 +19,12 @@
 #include <string.h>	         /* strlen */
 
 
-int diavasa=0;
 
 void perror_exit(char *message);
 
-int
-make_socket (uint16_t port)
-{
-    int sock;
-    struct sockaddr_in name;
-
-    /* Create the socket. */
-    sock = socket (PF_INET, SOCK_STREAM, 0);
-    if (sock < 0)
-    {
-        perror ("socket");
-        exit (EXIT_FAILURE);
-    }
-
-    /* Give the socket a name. */
-    name.sin_family = AF_INET;  /* Internet domain */
-    name.sin_port = htons (port);   /* The given port */
-    name.sin_addr.s_addr = htonl (INADDR_ANY);
-    /* Bind socket to address */
-    if (bind (sock, (struct sockaddr *) &name, sizeof (name)) < 0)
-    {
-        perror ("bind");
-        exit (EXIT_FAILURE);
-    }
-
-    return sock;
-}
-
-void
-init_sockaddr (struct sockaddr_in *name,
-               const char *hostname,
-               uint16_t port)
-{
-    struct hostent *hostinfo;
-
-    name->sin_family = AF_INET;
-    name->sin_port = htons (port);
-    hostinfo = gethostbyname (hostname);
-    if (hostinfo == NULL)
-    {
-        fprintf (stderr, "Unknown host %s.\n", hostname);
-        exit (EXIT_FAILURE);
-    }
-    name->sin_addr = *(struct in_addr *) hostinfo->h_addr;
-}
 
 
-int
-read_from_others (int filedes ,Protocol &prot )
-{
-//    char buffer[MAXMSG];
-//    int nbytes;
-//    nbytes = read (filedes, buffer, MAXMSG);
-//    if (nbytes < 0)
-//    {
-//        /* Read error. */
-//        perror ("read");
-//        exit (EXIT_FAILURE);
-//    }
-//    else if (nbytes == 0)
-//        /* End-of-file. */
-//        return -1;
-//    else
-//    {
-//        /* Data read. */
-//        fprintf (stderr, "Server: got message: `%s'\n", buffer);
-//        return 0;
-//    }
 
-    cout << "EKANA CONNECT APO SERVER!\n";
-
-    char buf[1];
-    myString whitespace(" ");
-    myString instruction("");
-
-    bool flagLOG_ON     = false;
-    bool flagGET_CLIENTS= false;
-    bool flagLOG_OFF    = false;
-
-    while(read(filedes, buf, 1) > 0) {  /* Receive 1 char */
-        printf("diavasa %d bytes\n", ++diavasa);
-
-        instruction += buf;
-
-        cout << "To instruction exei timh = " << instruction << endl;
-
-        if (instruction == "LOG_ON") {
-            flagLOG_ON = true;
-            cout << instruction;
-            break;
-        }
-
-        if (instruction == "GET_CLIENTS") {
-            flagGET_CLIENTS = true;
-            cout << instruction;
-            break;
-        }
-
-        if (instruction == "LOG_OFF") {
-            flagLOG_OFF = true;
-            cout << instruction;
-            break;
-        }
-
-
-    }
-
-
-    //todo SOOSSSS!!!TO LOG_ON KAI OLA TA ALLA MESSAGES THA TA STELNW SE ALLA SOCKETS
-    //TODO SAYTA POU KATHE PROCESS KANIE LISTEN KAI DEXETAI CONNECTION
-    //TODO ARA PREPEI NA KANW ESTABLISH KAINOURGIO CONNECTION OPOU SERVER GINETAI CLIENT
-    //TODO KAI CLIENT-SERVER
-
-    /* if (flagLOG_ON) {
-         prot.recv_LOG_ON(newsock);
- //        prot.broadcast_USER_ON();
-
-     }
-
- */
-
-    return 0;
-
-}
 
 
 int main(int argc, char **argv) {
@@ -262,15 +140,16 @@ int main(int argc, char **argv) {
 
 
     fd_set active_fd_set, read_fd_set;
-    struct sockaddr_in clientname;
+    struct sockaddr_in other;
     socklen_t size;
 
     /* Initialize the set of active sockets. */
     FD_ZERO (&active_fd_set);
-    FD_SET (listenPort, &active_fd_set);
+    FD_SET (sock_to_listen, &active_fd_set);
 
     while (true)
     {
+        cout << "hi I am Client\n";
         /* Block until input arrives on one or more active sockets. */
         read_fd_set = active_fd_set;
         if (select (FD_SETSIZE, &read_fd_set, NULL, NULL, NULL) < 0)
@@ -287,17 +166,17 @@ int main(int argc, char **argv) {
                 {
                     /* Connection request on original socket. */
                     int newsock;
-                    size = sizeof (clientname);
-                    newsock = accept (sock_to_listen, (struct sockaddr *) &clientname, &size);
+                    size = sizeof (other);
+                    newsock = accept (sock_to_listen, (struct sockaddr *) &other, &size);
                     if (newsock < 0)
                     {
                         perror ("accept");
                         exit (EXIT_FAILURE);
                     }
                     fprintf (stderr,
-                             "Server: connect from host %s, port %hd.\n",
-                             inet_ntoa (clientname.sin_addr),
-                             ntohs (clientname.sin_port));
+                             "Other: connect from host %s, port %hd.\n",
+                             inet_ntoa (other.sin_addr),
+                             ntohs (other.sin_port));
                     FD_SET (newsock, &active_fd_set);
                 }
                 else

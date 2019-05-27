@@ -21,6 +21,7 @@
 //#include "tuples.h"
 
 
+
 class Protocol{
     ArgumentsKeeper args;
 
@@ -50,6 +51,9 @@ public:
 
 };
 
+
+int
+read_from_client (int filedes ,Protocol &prot );
 
 
 

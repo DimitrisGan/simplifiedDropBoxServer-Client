@@ -16,6 +16,8 @@
 
 
 
+
+
 int
 make_socket (uint16_t port)
 {
@@ -51,6 +53,8 @@ init_sockaddr (struct sockaddr_in *name,
                uint16_t port)
 {
     struct hostent *hostinfo;
+
+
 
     name->sin_family = AF_INET;
     name->sin_port = htons (port);

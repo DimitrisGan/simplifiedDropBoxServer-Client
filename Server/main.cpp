@@ -20,10 +20,7 @@ void child_server(int newsock,Protocol &prot);
 void sigchld_handler (int sig);
 
 
-int diavasa=0;
 
-int
-read_from_client (int filedes ,Protocol &prot );
 
 
 
@@ -33,101 +30,6 @@ read_from_client (int filedes ,Protocol &prot );
 //
 //int broadcast_to_clients{}
 
-
-int
-read_from_client (int filedes ,Protocol &prot )
-{
-//    char buffer[MAXMSG];
-//    int nbytes;
-//    nbytes = read (filedes, buffer, MAXMSG);
-//    if (nbytes < 0)
-//    {
-//        /* Read error. */
-//        perror ("read");
-//        exit (EXIT_FAILURE);
-//    }
-//    else if (nbytes == 0)
-//        /* End-of-file. */
-//        return -1;
-//    else
-//    {
-//        /* Data read. */
-//        fprintf (stderr, "Server: got message: `%s'\n", buffer);
-//        return 0;
-//    }
-
-
-    char buf[1];
-    myString whitespace(" ");
-    myString instruction("");
-
-    bool flagLOG_ON     = false;
-    bool flagGET_CLIENTS= false;
-    bool flagLOG_OFF    = false;
-
-    while(read(filedes, buf, 1) > 0) {  /* Receive 1 char */
-        printf("diavasa %d bytes\n", ++diavasa);
-
-        instruction += buf;
-
-        cout << "To instruction exei timh = " << instruction << endl;
-        if (instruction == "LOG_ON") {
-            flagLOG_ON = true;
-            cout << instruction;
-            break;
-        }
-
-        if (instruction == "GET_CLIENTS") {
-            flagGET_CLIENTS = true;
-            cout << instruction;
-            break;
-        }
-
-        if (instruction == "LOG_OFF") {
-            flagLOG_OFF = true;
-            cout << instruction;
-            break;
-        }
-
-
-    }
-
-    uint32_t  clientIp;
-    uint16_t  clientPort;
-    if (flagLOG_ON) {
-        prot.recv_LOG_ON(filedes /*, clientIp, clientPort*/);
-//        prot.broadcast_USER_ON();
-
-    }
-
-
-    //todo SOOSSSS!!!TO LOG_ON KAI OLA TA ALLA MESSAGES THA TA STELNW SE ALLA SOCKETS
-    //TODO SAYTA POU KATHE PROCESS KANIE LISTEN KAI DEXETAI CONNECTION
-    //TODO ARA PREPEI NA KANW ESTABLISH KAINOURGIO CONNECTION OPOU SERVER GINETAI CLIENT
-    //TODO KAI CLIENT-SERVER
-
-//    int sock2respondLOG_ON;
-//    struct sockaddr_in clientName;
-//
-//    /* Create socket */
-//    if ((sock2respondLOG_ON = socket(AF_INET, SOCK_STREAM, 0)) < 0)
-//        perror_exit("socket");
-//
-//    /* Connect to the server. */
-//    init_sockaddr(&clientName, clientIp, clientPort);
-//
-//
-//    if (0 > connect (sock2respondLOG_ON,(struct sockaddr *) &clientName,sizeof (clientName)))
-//    {
-//        perror ("connect (client)");
-//        exit (EXIT_FAILURE);
-//    }
-
-
-
-
-
-}
 
 
 int main(int argc, char **argv) {
@@ -177,6 +79,8 @@ int main(int argc, char **argv) {
 
     while (true)
     {
+        cout << "hi I am Server\n";
+
         /* Block until input arrives on one or more active sockets. */
         read_fd_set = active_fd_set;
         if (select (FD_SETSIZE, &read_fd_set, NULL, NULL, NULL) < 0)
@@ -253,6 +157,8 @@ int main(int argc, char **argv) {
 }
 
 void child_server(int newsock,Protocol &prot) {
+    int diavasa=0;
+
     char buf[1];
     myString whitespace(" ");
     myString instruction("");
