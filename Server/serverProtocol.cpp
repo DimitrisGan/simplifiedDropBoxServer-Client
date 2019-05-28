@@ -3,6 +3,7 @@
 //
 
 #include "serverProtocol.h"
+#include "socketManipulation.h"
 
 
 void start_session(myString buffer2send){
@@ -12,24 +13,7 @@ void start_session(myString buffer2send){
 }
 
 
-myString convertBinaryIpToString(uint32_t ipB){
-    myString ipStr;
 
-    uint32_t  afterCastIp = ntohl(ipB);
-
-//    struct sockaddr_in name;
-    struct sockaddr_in sa;
-
-    char str[INET_ADDRSTRLEN];
-
-    sa.sin_addr.s_addr = afterCastIp;
-
-    // now get it back and print it
-    inet_ntop(AF_INET, &(sa.sin_addr), str, INET_ADDRSTRLEN);
-    myString clientIp(str);
-
-    return ipStr;
-}
 
 //======================================================
 

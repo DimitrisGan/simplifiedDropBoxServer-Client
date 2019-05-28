@@ -53,12 +53,7 @@ struct clientsTuple{
 };
 
 
-int
-make_socket_and_bind(uint16_t port);
-void
-init_sockaddr (struct sockaddr_in *name,
-               const char *hostname,
-               uint16_t port);
+
 
 void print_ip(unsigned int ip);
 

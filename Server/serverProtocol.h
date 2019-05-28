@@ -56,6 +56,5 @@ public:
 
 
 
-myString convertBinaryIpToString(uint32_t ipB);
 
 #endif //SERVER_SERVERPROTOCOL_H

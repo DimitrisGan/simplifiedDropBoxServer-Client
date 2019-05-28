@@ -20,7 +20,7 @@ void sigchld_handler (int sig);
 
 
 int
-read_from_client_and_respond(int filedes, Protocol &prot);
+read_request_from_client_and_respond(int filedes, Protocol &prot);
 
 
 //int
@@ -90,7 +90,7 @@ int main(int argc, char **argv) {
                     FD_SET (newsock, &active_fd_set);
                 } else {
                     /* Data arriving on an already-connected socket. */
-                    if (read_from_client_and_respond(i, prot) < 0) {
+                    if (read_request_from_client_and_respond(i, prot) < 0) {
                         close(i);
                         FD_CLR (i, &active_fd_set);
                     }
@@ -105,7 +105,7 @@ int main(int argc, char **argv) {
 
 
 int
-read_from_client_and_respond(int filedes, Protocol &prot)
+read_request_from_client_and_respond(int filedes, Protocol &prot)
 {
     int diavasa=0;
 
