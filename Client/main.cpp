@@ -21,8 +21,12 @@
 #include "clientProtocol.h"
 
 
+int
+read_from_others_requests_and_respond(int filedes, Protocol &prot);
+
+
 int main(int argc, char **argv) {
-    std::cout << "Hello, World!" << std::endl;
+
 
     ArgumentsKeeper argmKeeper;
     argmParser(argc, argv , argmKeeper);
@@ -41,43 +45,20 @@ int main(int argc, char **argv) {
 
 
 
-    int     sock_writes_to_server, i;
+    int     i;
 
     uint16_t serverPort,listenPort;
     serverPort = static_cast<uint16_t>(argmKeeper.serverPort.to_int());
     listenPort = static_cast<uint16_t>(argmKeeper.portNum.to_int());
 
-    struct sockaddr_in server;
-    struct sockaddr_in servername;
 
-
-
-    /* Create socket */
-    if ((sock_writes_to_server = socket(AF_INET, SOCK_STREAM, 0)) < 0)
-        perror_exit("socket");
-
-    /* Connect to the server. */
-    init_sockaddr(&servername, argmKeeper.serverIp.getMyStr(), serverPort);
-
-    if (0 > connect (sock_writes_to_server,(struct sockaddr *) &servername,sizeof (servername)))
-    {
-        perror ("connect (client)");
-        exit (EXIT_FAILURE);
-    }
-
-
-
-
-    //todo send_GET_CLIENTS_to_server()
+    int sock_writes_to_server = create_socket_and_connect(argmKeeper.serverIp,serverPort);
 
     prot.send_LOG_ON(sock_writes_to_server);
 
-    /////////////////////////////////////////////////////////////////
-    /*FROM HERE MAKE THE SOCKET TO LISTEN*/
+    /*FROM HERE MAKE A NEW SOCKET FOR LISTENING */
 
-    int sock_to_listen;
-    sock_to_listen = make_socket_and_bind(listenPort);
-
+    int sock_to_listen = make_socket_and_bind(listenPort);
 
 
     /* Listen for connections */
@@ -96,15 +77,10 @@ int main(int argc, char **argv) {
 
     while (true)
     {
-        cout << "hi I am Client\n";
         /* Block until input arrives on one or more active sockets. */
         read_fd_set = active_fd_set;
         if (select (FD_SETSIZE, &read_fd_set, NULL, NULL, NULL) < 0)
-        {
-            perror ("select");
-            exit (EXIT_FAILURE);
-        }
-
+            perror_exit("select");
         /* Service all the sockets with input pending. */
         for (i = 0; i < FD_SETSIZE; ++i)
             if (FD_ISSET (i, &read_fd_set))
@@ -116,10 +92,8 @@ int main(int argc, char **argv) {
                     size = sizeof (other);
                     newsock = accept (sock_to_listen, (struct sockaddr *) &other, &size);
                     if (newsock < 0)
-                    {
-                        perror ("accept");
-                        exit (EXIT_FAILURE);
-                    }
+                       perror_exit("accept");
+
                     fprintf (stderr,
                              "Other: connect from host %s, port %hd.\n",
                              inet_ntoa (other.sin_addr),
@@ -129,7 +103,7 @@ int main(int argc, char **argv) {
                 else
                 {
                     /* Data arriving on an already-connected socket. */
-                    if (read_from_others (i,prot) < 0)
+                    if (read_from_others_requests_and_respond(i, prot) < 0)
                     {
                         close (i);
                         FD_CLR (i, &active_fd_set);
@@ -151,3 +125,85 @@ int main(int argc, char **argv) {
 //    server . sin_port = htons (port) ;
 //    return bind ( sock , ( struct sockaddr *) & server ,sizeof ( server ) );
 //}
+
+
+
+int
+read_from_others_requests_and_respond(int filedes, Protocol &prot)
+{
+    int diavasa=0;
+
+//    char buffer[MAXMSG];
+//    int nbytes;
+//    nbytes = read (filedes, buffer, MAXMSG);
+//    if (nbytes < 0)
+//    {
+//        /* Read error. */
+//        perror ("read");
+//        exit (EXIT_FAILURE);
+//    }
+//    else if (nbytes == 0)
+//        /* End-of-file. */
+//        return -1;
+//    else
+//    {
+//        /* Data read. */
+//        fprintf (stderr, "Server: got message: `%s'\n", buffer);
+//        return 0;
+//    }
+
+    cout << "EKANA CONNECT APO SERVER!\n";
+
+    char buf[1];
+    myString whitespace(" ");
+    myString instruction("");
+
+    bool flagLOG_ON     = false;
+    bool flagGET_CLIENTS= false;
+    bool flagLOG_OFF    = false;
+
+    while(read(filedes, buf, 1) > 0) {  /* Receive 1 char */
+        printf("diavasa %d bytes\n", ++diavasa);
+
+        instruction += buf;
+
+        cout << "To instruction exei timh = " << instruction << endl;
+
+        if (instruction == "LOG_ON") {
+            flagLOG_ON = true;
+            cout << instruction;
+            break;
+        }
+
+        if (instruction == "GET_CLIENTS") {
+            flagGET_CLIENTS = true;
+            cout << instruction;
+            break;
+        }
+
+        if (instruction == "LOG_OFF") {
+            flagLOG_OFF = true;
+            cout << instruction;
+            break;
+        }
+
+
+    }
+
+
+    //todo SOOSSSS!!!TO LOG_ON KAI OLA TA ALLA MESSAGES THA TA STELNW SE ALLA SOCKETS
+    //TODO SAYTA POU KATHE PROCESS KANIE LISTEN KAI DEXETAI CONNECTION
+    //TODO ARA PREPEI NA KANW ESTABLISH KAINOURGIO CONNECTION OPOU SERVER GINETAI CLIENT
+    //TODO KAI CLIENT-SERVER
+
+    /* if (flagLOG_ON) {
+         prot.recv_LOG_ON(newsock);
+ //        prot.broadcast_USER_ON();
+
+     }
+
+ */
+
+    return -1;
+
+}

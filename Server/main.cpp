@@ -32,7 +32,7 @@ read_request_from_client_and_respond(int filedes, Protocol &prot);
 
 
 int main(int argc, char **argv) {
-    std::cout << "Hello, World!" << std::endl;
+
 
     ArgumentsKeeper argmKeeper;
     argmParser(argc, argv , argmKeeper);
@@ -62,15 +62,11 @@ int main(int argc, char **argv) {
 
     while (true)
     {
-        cout << "hi I am Server\n";
 
         /* Block until input arrives on one or more active sockets. */
         read_fd_set = active_fd_set;
         if (select (FD_SETSIZE, &read_fd_set, NULL, NULL, NULL) < 0)
-        {
-            perror ("select");
-            exit (EXIT_FAILURE);
-        }
+            perror_exit("select");
 
         /* Service all the sockets with input pending. */
         for (i = 0; i < FD_SETSIZE; ++i) {
@@ -80,10 +76,9 @@ int main(int argc, char **argv) {
                     int newsock;
                     size = sizeof(clientname);
                     newsock = accept(sock, (struct sockaddr *) &clientname, &size);
-                    if (newsock < 0) {
-                        perror("accept");
-                        exit(EXIT_FAILURE);
-                    }
+                    if (newsock < 0)
+                       perror_exit("accept");
+
                     fprintf(stderr,
                             "Server: connect from host %s, port %hd.\n",
                             inet_ntoa(clientname.sin_addr),

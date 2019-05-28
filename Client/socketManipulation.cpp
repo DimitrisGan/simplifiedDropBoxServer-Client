@@ -55,6 +55,31 @@ make_socket_and_bind(uint16_t port)
 }
 
 
+
+int create_socket_and_connect(myString ip,uint16_t port){
+
+    int     sock;
+
+    struct sockaddr_in client;
+
+/* Create socket */
+    if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0)
+        perror_exit("socket");
+
+/* Connect to the client. */
+    init_sockaddr(&client, ip.getMyStr() , port);
+
+
+    if (0 > connect (sock, (struct sockaddr *) &client, sizeof (client)))
+    {
+        perror ("connect (client)");
+        exit (EXIT_FAILURE);
+    }
+
+    return sock;
+}
+
+
 void
 init_sockaddr (struct sockaddr_in *name,
                const char *hostname,

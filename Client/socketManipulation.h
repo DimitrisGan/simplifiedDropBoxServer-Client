@@ -18,6 +18,7 @@
 #include <signal.h>          /* signal */
 #include <arpa/inet.h>
 #include "myString.h"
+#include "assistantFunctions.h"
 
 
 myString
@@ -26,6 +27,10 @@ convertBinaryIpToString(uint32_t ipB);
 
 int
 make_socket_and_bind(uint16_t port);
+
+int
+create_socket_and_connect(myString ip,uint16_t port);
+
 
 void
 init_sockaddr (struct sockaddr_in *name,

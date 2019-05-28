@@ -47,7 +47,6 @@ int Protocol::send_LOG_ON(int sock) {
         printf ( " %s resolved to %s \n " , mymachine -> h_name , symbolicip ) ;
     }
 
-    cout << " edw koita megale :"<<( struct in_addr **) mymachine -> h_addr_list[0]<<endl;
 
 
     myString logOn("LOG_ON");
@@ -78,6 +77,10 @@ int Protocol::send_LOG_ON(int sock) {
     close(sock);  /* Close socket and exit */
     return 0;
 }
+
+
+
+
 
 
 int Protocol::send_GET_CLIENTS(int sock) {
@@ -113,84 +116,3 @@ int Protocol::recv_CLIENTS_LIST() {
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 
-
-
-int
-read_from_others (int filedes ,Protocol &prot )
-{
-    int diavasa=0;
-
-//    char buffer[MAXMSG];
-//    int nbytes;
-//    nbytes = read (filedes, buffer, MAXMSG);
-//    if (nbytes < 0)
-//    {
-//        /* Read error. */
-//        perror ("read");
-//        exit (EXIT_FAILURE);
-//    }
-//    else if (nbytes == 0)
-//        /* End-of-file. */
-//        return -1;
-//    else
-//    {
-//        /* Data read. */
-//        fprintf (stderr, "Server: got message: `%s'\n", buffer);
-//        return 0;
-//    }
-
-    cout << "EKANA CONNECT APO SERVER!\n";
-
-    char buf[1];
-    myString whitespace(" ");
-    myString instruction("");
-
-    bool flagLOG_ON     = false;
-    bool flagGET_CLIENTS= false;
-    bool flagLOG_OFF    = false;
-
-    while(read(filedes, buf, 1) > 0) {  /* Receive 1 char */
-        printf("diavasa %d bytes\n", ++diavasa);
-
-        instruction += buf;
-
-        cout << "To instruction exei timh = " << instruction << endl;
-
-        if (instruction == "LOG_ON") {
-            flagLOG_ON = true;
-            cout << instruction;
-            break;
-        }
-
-        if (instruction == "GET_CLIENTS") {
-            flagGET_CLIENTS = true;
-            cout << instruction;
-            break;
-        }
-
-        if (instruction == "LOG_OFF") {
-            flagLOG_OFF = true;
-            cout << instruction;
-            break;
-        }
-
-
-    }
-
-
-    //todo SOOSSSS!!!TO LOG_ON KAI OLA TA ALLA MESSAGES THA TA STELNW SE ALLA SOCKETS
-    //TODO SAYTA POU KATHE PROCESS KANIE LISTEN KAI DEXETAI CONNECTION
-    //TODO ARA PREPEI NA KANW ESTABLISH KAINOURGIO CONNECTION OPOU SERVER GINETAI CLIENT
-    //TODO KAI CLIENT-SERVER
-
-    /* if (flagLOG_ON) {
-         prot.recv_LOG_ON(newsock);
- //        prot.broadcast_USER_ON();
-
-     }
-
- */
-
-    return -1;
-
-}
