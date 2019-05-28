@@ -42,8 +42,11 @@ int Protocol::recv_LOG_ON(int filedes, clientsTuple &tupl) {
     tupl.port   = retPort;
 
 
-    cout << "afterCastClientsIp = "<<retIp<<endl;
-    cout << "afterCastClientsPort = "<<retPort<<endl;
+    cout << "...ip = "<<tupl.ip<< " and port = "<<tupl.port<<endl;
+//    cout << "...port = "<< ntohs(tupl.port)<<endl;
+//    cout << "...port = "<< htons(tupl.port)<<endl;
+//    cout << "...port = "<< htons(tupl.port)<<endl;
+
 
 
 
@@ -128,32 +131,35 @@ int Protocol::add_newClient_tupl(const clientsTuple & tupl) {
 
 
 
-int Protocol::broadcast_USER_ON(const clientsTuple &tupl) {
+int Protocol::broadcast_USER_ON(const clientsTuple &newClientToAnnounce) {
 
+    cout<< "INFO::Broadcast USER_ON\n";
     myString userOn("USER_ON");
 
     myString ipStr;
 
-    for (auto &item : this->connectedClients_list) {
+    for (auto &clientExist : this->connectedClients_list) {
 
-        if (item == tupl)
-            continue;
+//        if (clientExist == newClientToAnnounce)
+//            continue;
 
-        ipStr = convertBinaryIpToString(item.ip);
+        ipStr = convertBinaryIpToString(clientExist.ip);
+        printf(" and port:: %d \n",clientExist.ip);
 
-        printf("MAN MOU TO IP SE STRING TOU FILOU CLIENT MAS EINIA: %s ",ipStr.getMyStr());
-        printf(" KAI TO PORT : %d \n",item.port);
 
-        int newsock = create_socket_and_connect(ipStr,item.port);
+        printf("message will be sent to client with ip:: %s \n",ipStr.getMyStr());
+        printf(" and port:: %d \n",clientExist.port);
+
+        int newsock = create_socket_and_connect(ipStr,clientExist.port);
 
         if (write(newsock , userOn.getMyStr() , userOn.size()) < 0)
             perror_exit("write USER_ON");
 
-        uint32_t ipToSend = htonl(item.ip);
+        uint32_t ipToSend = htonl(newClientToAnnounce.ip);
         if (write(newsock, &ipToSend , sizeof(uint32_t)) < 0)
             perror_exit("write  IP");
 
-        uint16_t portToSend = htons(item.port);
+        uint16_t portToSend = htons(newClientToAnnounce.port);
         if (write(newsock, &portToSend , sizeof(uint16_t)) < 0)
             perror_exit("write  PORT");
 

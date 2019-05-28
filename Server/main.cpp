@@ -118,27 +118,25 @@ read_request_from_client_and_respond(int filedes, Protocol &prot)
 
         instruction += buf;
 
-        cout << "To instruction exei timh = " << instruction << endl;
         if (instruction == "LOG_ON") {
             flagLOG_ON = true;
-            cout << instruction;
             break;
         }
 
         if (instruction == "GET_CLIENTS") {
             flagGET_CLIENTS = true;
-            cout << instruction;
             break;
         }
 
         if (instruction == "LOG_OFF") {
             flagLOG_OFF = true;
-            cout << instruction;
             break;
         }
 
 
     }
+    cout << "INFO::Instruction read = " << instruction << endl;
+
 
     clientsTuple tupl;
     if (flagLOG_ON) {

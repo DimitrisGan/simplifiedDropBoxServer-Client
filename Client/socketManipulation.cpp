@@ -8,21 +8,30 @@
 myString convertBinaryIpToString(uint32_t ipB){
     myString ipStr;
 
-    uint32_t  afterCastIp = ntohl(ipB);
+//    uint32_t  afterCastIp = ntohl(ipB);
 
 //    struct sockaddr_in name;
     struct sockaddr_in sa;
 
     char str[INET_ADDRSTRLEN];
 
-    sa.sin_addr.s_addr = afterCastIp;
+    sa.sin_addr.s_addr = ipB;
 
     // now get it back and print it
     inet_ntop(AF_INET, &(sa.sin_addr), str, INET_ADDRSTRLEN);
-    myString clientIp(str);
 
+    ipStr = str;
     return ipStr;
 }
+
+
+uint32_t convertStringIpToBinary(myString ipStr) {
+
+
+
+    return 0;
+}
+
 
 
 
@@ -99,6 +108,7 @@ init_sockaddr (struct sockaddr_in *name,
     }
     name->sin_addr = *(struct in_addr *) hostinfo->h_addr;
 }
+
 
 
 

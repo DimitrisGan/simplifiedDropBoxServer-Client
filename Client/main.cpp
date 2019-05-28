@@ -158,9 +158,9 @@ read_from_others_requests_and_respond(int filedes, Protocol &prot)
     myString whitespace(" ");
     myString instruction("");
 
-    bool flagLOG_ON     = false;
-    bool flagGET_CLIENTS= false;
-    bool flagLOG_OFF    = false;
+    bool flagUSER_ON     = false;
+//    bool flagGET_CLIENTS= false;
+//    bool flagLOG_OFF    = false;
 
     while(read(filedes, buf, 1) > 0) {  /* Receive 1 char */
         printf("diavasa %d bytes\n", ++diavasa);
@@ -169,26 +169,28 @@ read_from_others_requests_and_respond(int filedes, Protocol &prot)
 
         cout << "To instruction exei timh = " << instruction << endl;
 
-        if (instruction == "LOG_ON") {
-            flagLOG_ON = true;
-            cout << instruction;
+        if (instruction == "USER_ON") {
+            flagUSER_ON = true;
             break;
         }
 
-        if (instruction == "GET_CLIENTS") {
-            flagGET_CLIENTS = true;
-            cout << instruction;
-            break;
-        }
-
-        if (instruction == "LOG_OFF") {
-            flagLOG_OFF = true;
-            cout << instruction;
-            break;
-        }
+//        if (instruction == "GET_CLIENTS") {
+//            flagGET_CLIENTS = true;
+//            cout << instruction;
+//            break;
+//        }
+//
+//        if (instruction == "LOG_OFF") {
+//            flagLOG_OFF = true;
+//            cout << instruction;
+//            break;
+//        }
 
 
     }
+
+    cout << "INFO::Instruction read = " << instruction << endl;
+
 
 
     //todo SOOSSSS!!!TO LOG_ON KAI OLA TA ALLA MESSAGES THA TA STELNW SE ALLA SOCKETS

@@ -8,6 +8,8 @@ Protocol::Protocol(ArgumentsKeeper args) : args(args) {}
 
 
 int Protocol::send_LOG_ON(int sock) {
+    cout<< "INFO::Send LOG_ON to server\n";
+
     char hostbuffer[256];
     char *IPbuffer;
     struct hostent  *mymachine;
@@ -39,9 +41,11 @@ int Protocol::send_LOG_ON(int sock) {
     struct in_addr **addr_list = nullptr;
 
 
-    printf ( " Name To Be Resolved : %s \n " , mymachine -> h_name ) ;
-    printf ( " Name Length in Bytes : % d \n " , mymachine -> h_length ) ;
+    printf ( "Name To Be Resolved : %s \n" , mymachine -> h_name ) ;
+    printf ( "Name Length in Bytes : % d \n" , mymachine -> h_length ) ;
+
     addr_list = ( struct in_addr **) mymachine -> h_addr_list ;
+
     for ( int i = 0; addr_list [ i ] != NULL ; i ++) {
         strcpy ( symbolicip , inet_ntoa (* addr_list [ i ]) ) ;
         printf ( " %s resolved to %s \n " , mymachine -> h_name , symbolicip ) ;
@@ -60,9 +64,7 @@ int Protocol::send_LOG_ON(int sock) {
 
     uint32_t ipInbinary = htonl(addr_list[0]->s_addr);
 
-    cout << " EDWWWW :"<<ipInbinary<<endl;
-
-    print_ip(addr_list[0]->s_addr);
+//    print_ip(addr_list[0]->s_addr);
 
     if (write(sock, &ipInbinary , sizeof(uint32_t)) < 0)
         perror_exit("write IP");

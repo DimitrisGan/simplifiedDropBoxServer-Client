@@ -46,7 +46,7 @@ public:
 
     int add_newClient_tupl(const clientsTuple & tupl);
 
-    int broadcast_USER_ON(const clientsTuple &tupl);
+    int broadcast_USER_ON(const clientsTuple &newClientToAnnounce);
 
     int send_CLIENTS_LIST();
 
