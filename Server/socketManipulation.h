@@ -1,0 +1,8 @@
+//
+// Created by dimitrisgan on 28/5/2019.
+//
+
+#ifndef SERVER_SOCKETMANIPULATION_H
+#define SERVER_SOCKETMANIPULATION_H
+
+#endif //SERVER_SOCKETMANIPULATION_H

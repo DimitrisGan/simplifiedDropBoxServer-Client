@@ -44,6 +44,8 @@ struct clientsTuple{
 
     clientsTuple(uint32_t ip, uint16_t port);
 
+    clientsTuple();
+
     bool operator==(const clientsTuple &rhs) const;
 
     bool operator!=(const clientsTuple &rhs) const;
@@ -52,7 +54,7 @@ struct clientsTuple{
 
 
 int
-make_socket (uint16_t port);
+make_socket_and_bind(uint16_t port);
 void
 init_sockaddr (struct sockaddr_in *name,
                const char *hostname,

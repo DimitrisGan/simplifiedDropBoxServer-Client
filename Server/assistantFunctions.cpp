@@ -19,7 +19,7 @@
 
 
 int
-make_socket (uint16_t port)
+make_socket_and_bind(uint16_t port)
 {
     int sock;
     struct sockaddr_in name;
@@ -612,4 +612,9 @@ bool clientsTuple::operator==(const clientsTuple &rhs) const {
 
 bool clientsTuple::operator!=(const clientsTuple &rhs) const {
     return !(rhs == *this);
+}
+
+clientsTuple::clientsTuple() {
+    ip = 0;
+    port=0;
 }

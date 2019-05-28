@@ -15,14 +15,12 @@
 #include <arpa/inet.h>
 
 
-void child_server(int newsock,Protocol &prot);
 
 void sigchld_handler (int sig);
 
 
-
-
-
+int
+read_from_client_and_respond(int filedes, Protocol &prot);
 
 
 //int
@@ -46,7 +44,7 @@ int main(int argc, char **argv) {
 
     port = argmKeeper.portNumber.to_int();
 
-    sock = make_socket(static_cast<uint16_t>(port));
+    sock = make_socket_and_bind(static_cast<uint16_t>(port));
 
     /* Listen for connections */
     if (listen(sock, 5) < 0) perror_exit("listen");
@@ -92,7 +90,7 @@ int main(int argc, char **argv) {
                     FD_SET (newsock, &active_fd_set);
                 } else {
                     /* Data arriving on an already-connected socket. */
-                    if (read_from_client(i, prot) < 0) {
+                    if (read_from_client_and_respond(i, prot) < 0) {
                         close(i);
                         FD_CLR (i, &active_fd_set);
                     }
@@ -106,7 +104,9 @@ int main(int argc, char **argv) {
 
 
 
-void child_server(int newsock,Protocol &prot) {
+int
+read_from_client_and_respond(int filedes, Protocol &prot)
+{
     int diavasa=0;
 
     char buf[1];
@@ -117,7 +117,7 @@ void child_server(int newsock,Protocol &prot) {
     bool flagGET_CLIENTS= false;
     bool flagLOG_OFF    = false;
 
-    while(read(newsock, buf, 1) > 0) {  /* Receive 1 char */
+    while(read(filedes, buf, 1) > 0) {  /* Receive 1 char */
         printf("diavasa %d bytes\n", ++diavasa);
 
         instruction += buf;
@@ -144,15 +144,52 @@ void child_server(int newsock,Protocol &prot) {
 
     }
 
-
+    clientsTuple tupl;
     if (flagLOG_ON) {
-        prot.recv_LOG_ON(newsock /*, 0, 0*/);
-//        prot.broadcast_USER_ON();
+        prot.recv_LOG_ON(filedes , tupl);
+        prot.add_newClient_tupl(tupl);
+        prot.broadcast_USER_ON(tupl);
 
+    }
+    if (flagGET_CLIENTS) {
+//        prot.recv_LOG_ON(filedes /*, clientIp, clientPort*/);
+//        prot.broadcast_USER_ON();
+    }
+    if (flagLOG_OFF) {
+//        prot.recv_LOG_ON(filedes /*, clientIp, clientPort*/);
+//        prot.broadcast_USER_ON();
     }
 
 
+    //todo SOOSSSS!!!TO LOG_ON KAI OLA TA ALLA MESSAGES THA TA STELNW SE ALLA SOCKETS
+    //TODO SAYTA POU KATHE PROCESS KANIE LISTEN KAI DEXETAI CONNECTION
+    //TODO ARA PREPEI NA KANW ESTABLISH KAINOURGIO CONNECTION OPOU SERVER GINETAI CLIENT
+    //TODO KAI CLIENT-SERVER
+
+//    int sock2respondLOG_ON;
+//    struct sockaddr_in clientName;
+//
+//    /* Create socket */
+//    if ((sock2respondLOG_ON = socket(AF_INET, SOCK_STREAM, 0)) < 0)
+//        perror_exit("socket");
+//
+//    /* Connect to the server. */
+//    init_sockaddr(&clientName, clientIp, clientPort);
+//
+//
+//    if (0 > connect (sock2respondLOG_ON,(struct sockaddr *) &clientName,sizeof (clientName)))
+//    {
+//        perror ("connect (client)");
+//        exit (EXIT_FAILURE);
+//    }
+
+
+
+    return -1;
+
 }
+
+
 
 
 

@@ -32,19 +32,21 @@ class Protocol{
 //    linkedList<myTuple> tupl_list;
 
 
-    int broadcast_USER_ON(int newsock,clientsTuple tupl);
 
     int broadcast_USER_OFF(int newsock,clientsTuple tupl);
 
 public:
     explicit Protocol( ArgumentsKeeper args);
 
-    int recv_LOG_ON(int newsock /*, uint32_t &retClientsIp, uint32_t &retClientsPort*/);
+    int recv_LOG_ON(int filedes, clientsTuple & tupl);
 
     int recv_GET_CLIENTS();
 
-    int recv_LOG_OFF(int newsock);
+    int recv_LOG_OFF(int filedes);
 
+    int add_newClient_tupl(const clientsTuple & tupl);
+
+    int broadcast_USER_ON(const clientsTuple &tupl);
 
     int send_CLIENTS_LIST();
 
@@ -52,9 +54,8 @@ public:
 };
 
 
-int
-read_from_client (int filedes ,Protocol &prot );
 
 
+myString convertBinaryIpToString(uint32_t ipB);
 
 #endif //SERVER_SERVERPROTOCOL_H
