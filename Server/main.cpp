@@ -40,33 +40,17 @@ int main(int argc, char **argv) {
 
     cout<<argmKeeper.portNumber<<endl;
 
-
     Protocol prot(argmKeeper);
 
-
-
-
-    int port, sock, newsock;
-//    struct sockaddr_in server, client;
-//    socklen_t clientlen;
-//
-//    struct sockaddr *serverptr=(struct sockaddr *)&server;
-//    struct sockaddr *clientptr=(struct sockaddr *)&client;
-//    struct hostent *rem;
-
-//    if (argc != 2) {
-//        printf("Please give port number\n");exit(1);}
-//    port = atoi(argv[1]);
+    int port, sock;
 
     port = argmKeeper.portNumber.to_int();
 
-    sock = make_socket(port);
+    sock = make_socket(static_cast<uint16_t>(port));
 
     /* Listen for connections */
     if (listen(sock, 5) < 0) perror_exit("listen");
     printf("Listening for connections to port %d\n", port);
-
-
 
     fd_set active_fd_set, read_fd_set;
     int i;
@@ -90,71 +74,37 @@ int main(int argc, char **argv) {
         }
 
         /* Service all the sockets with input pending. */
-        for (i = 0; i < FD_SETSIZE; ++i)
-            if (FD_ISSET (i, &read_fd_set))
-            {
-                if (i == sock)
-                {
+        for (i = 0; i < FD_SETSIZE; ++i) {
+            if (FD_ISSET (i, &read_fd_set)) {
+                if (i == sock) {
                     /* Connection request on original socket. */
                     int newsock;
-                    size = sizeof (clientname);
-                    newsock = accept ( sock, (struct sockaddr *) &clientname, &size);
-                    if (newsock < 0)
-                    {
-                        perror ("accept");
-                        exit (EXIT_FAILURE);
+                    size = sizeof(clientname);
+                    newsock = accept(sock, (struct sockaddr *) &clientname, &size);
+                    if (newsock < 0) {
+                        perror("accept");
+                        exit(EXIT_FAILURE);
                     }
-                    fprintf (stderr,
-                             "Server: connect from host %s, port %hd.\n",
-                             inet_ntoa (clientname.sin_addr),
-                             ntohs (clientname.sin_port));
+                    fprintf(stderr,
+                            "Server: connect from host %s, port %hd.\n",
+                            inet_ntoa(clientname.sin_addr),
+                            ntohs(clientname.sin_port));
                     FD_SET (newsock, &active_fd_set);
-                }
-                else
-                {
+                } else {
                     /* Data arriving on an already-connected socket. */
-                    if (read_from_client (i,prot) < 0)
-                    {
-                        close (i);
+                    if (read_from_client(i, prot) < 0) {
+                        close(i);
                         FD_CLR (i, &active_fd_set);
                     }
                 }
             }
+        }
     }
-
-
-
-
-
-/*
-    while (true) {
-        *//* accept connection *//*
-        if ((newsock = accept(sock, clientptr, &clientlen)) < 0)
-            perror_exit("accept");
-        printf("Accepted connection\n");
-        
-
-
-        *//*switch (fork()) {    *//**//* Create child for serving client *//**//*
-            case -1:     *//**//* Error *//**//*
-                perror("fork"); break;
-            case 0:	     *//**//* Child process *//**//*
-                close(sock); child_server(newsock,prot);
-                exit(0);
-        }*//*
-        child_server(newsock,prot);
-        close(newsock); *//* parent closes socket to client            *//*
-        *//* must be closed before it gets re-assigned *//*
-
-
-//                 child_server(newsock);close(sock);
-        *//* must be closed before it gets re-assigned *//*
-
-//        prot.checkList();
-
-    }*/
-
 }
+
+
+
+
 
 void child_server(int newsock,Protocol &prot) {
     int diavasa=0;
@@ -203,6 +153,8 @@ void child_server(int newsock,Protocol &prot) {
 
 
 }
+
+
 
 
 

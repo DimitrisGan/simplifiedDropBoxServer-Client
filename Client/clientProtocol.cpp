@@ -75,7 +75,7 @@ int Protocol::send_LOG_ON(int sock) {
         perror_exit("write PORT");
 
 
-//    close(sock); //todo mporei na fugei apo dw
+    close(sock);  /* Close socket and exit */
     return 0;
 }
 

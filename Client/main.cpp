@@ -53,12 +53,7 @@ int main(int argc, char **argv) {
     serverPort = static_cast<uint16_t>(argmKeeper.serverPort.to_int());
     listenPort = static_cast<uint16_t>(argmKeeper.portNum.to_int());
 
-    char            buf[256];
-
     struct sockaddr_in server;
-    struct sockaddr *serverptr = (struct sockaddr*)&server;
-    struct hostent *rem;
-
     struct sockaddr_in servername;
 
 
@@ -70,7 +65,6 @@ int main(int argc, char **argv) {
     /* Connect to the server. */
     init_sockaddr(&servername, argmKeeper.serverIp.getMyStr(), serverPort);
 
-
     if (0 > connect (sock_writes_to_server,(struct sockaddr *) &servername,sizeof (servername)))
     {
         perror ("connect (client)");
@@ -79,51 +73,10 @@ int main(int argc, char **argv) {
 
 
 
-//    /* Find server address */
-///*
-//    if ((rem = gethostbyname(argv[1])) == NULL) {
-//*/
-//    if ((rem = gethostbyname(argmKeeper.serverIp.getMyStr())) == NULL) {
-//
-//        herror("gethostbyname"); exit(1);
-//    }
-//
-//    port = argmKeeper.serverPort.to_int();
-//    server.sin_family = AF_INET;       /* Internet domain */
-//    memcpy(&server.sin_addr, rem->h_addr, rem->h_length);
-//    server.sin_port = htons(port);         /* Server port */
 
     //todo send_GET_CLIENTS_to_server()
 
     prot.send_LOG_ON(sock_writes_to_server);
-
-
-    /* Initiate connection */
-//    if (connect(sock_ToWriteToServer, serverptr, sizeof(server)) < 0)
-//        perror_exit("connect");
-//        printf("Connecting to %s port %d\n",argmKeeper.serverIp.getMyStr() , port);
-//
-
-
-
-
-
-//    do {
-//        printf("Give input string: ");
-//        fgets(buf, sizeof(buf), stdin);	/* Read from stdin*/
-//        for(i=0; buf[i] != '\0'; i++) { /* For every char */
-//            /* Send i-th character */
-//            if (write(sock_ToWriteToServer, buf + i, 1) < 0)
-//                perror_exit("write");
-//            /* receive i-th character transformed */
-//            if (read(sock_ToWriteToServer, buf + i, 1) < 0)
-//                perror_exit("read");
-//        }
-//        printf("Received string: %s", buf);
-//    } while (strcmp(buf, "END\n") != 0); /* Finish on "end" */
-
-    close(sock_writes_to_server);                 /* Close socket and exit */
-
 
     /////////////////////////////////////////////////////////////////
     /*FROM HERE MAKE THE SOCKET TO LISTEN*/

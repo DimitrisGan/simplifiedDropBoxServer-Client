@@ -27,20 +27,7 @@ int Protocol::recv_LOG_ON(int newsock /*, uint32_t &retClientsIp, uint32_t &retC
 
     uint16_t  afterCastnewClientsPort = ntohs(newClientsPort);
 
-
-    cout << "newClientsPort = "<<newClientsPort<<endl;
     cout << "afterCastnewClientsPort = "<<afterCastnewClientsPort<<endl;
-
-
-//    	putchar(buf[0]);           /* Print received char */
-//    	/* Capitalize character */
-//    	buf[0] = toupper(buf[0]);
-//    	/* Reply */
-//    	if (write(newsock, buf, 1) < 0)
-//    	    perror_exit("write");
-
-//    printf("Closing connection.\n");
-//    close(newsock);	  /* Close socket */
 
 
     print_ip(afterCastIp);
@@ -93,8 +80,6 @@ int Protocol::recv_LOG_ON(int newsock /*, uint32_t &retClientsIp, uint32_t &retC
 //        exit (EXIT_FAILURE);
 //    }
 
-
-//sleep(1);
     cout << " GRAFW MHNUMA STON CLIENT !\n";
 
     int     sock2write2client;
@@ -104,7 +89,6 @@ int Protocol::recv_LOG_ON(int newsock /*, uint32_t &retClientsIp, uint32_t &retC
 
     /* Connect to the server. */
     init_sockaddr(&name, clientIp.getMyStr() , afterCastnewClientsPort);
-
 
 
     if (0 > connect (sock2write2client, (struct sockaddr *) &name, sizeof (name)))
@@ -131,6 +115,15 @@ int Protocol::recv_LOG_ON(int newsock /*, uint32_t &retClientsIp, uint32_t &retC
 //    this->broadcast_USER_ON(newsock,tupl);
     return 0;
 }
+
+
+
+
+
+
+
+
+
 
 int Protocol::broadcast_USER_ON(int newsock,clientsTuple tupl) {
 
@@ -188,26 +181,6 @@ read_from_client (int filedes ,Protocol &prot )
 {
     int diavasa=0;
 
-//    char buffer[MAXMSG];
-//    int nbytes;
-//    nbytes = read (filedes, buffer, MAXMSG);
-//    if (nbytes < 0)
-//    {
-//        /* Read error. */
-//        perror ("read");
-//        exit (EXIT_FAILURE);
-//    }
-//    else if (nbytes == 0)
-//        /* End-of-file. */
-//        return -1;
-//    else
-//    {
-//        /* Data read. */
-//        fprintf (stderr, "Server: got message: `%s'\n", buffer);
-//        return 0;
-//    }
-
-
     char buf[1];
     myString whitespace(" ");
     myString instruction("");
@@ -248,7 +221,14 @@ read_from_client (int filedes ,Protocol &prot )
     if (flagLOG_ON) {
         prot.recv_LOG_ON(filedes /*, clientIp, clientPort*/);
 //        prot.broadcast_USER_ON();
-
+    }
+    if (flagGET_CLIENTS) {
+//        prot.recv_LOG_ON(filedes /*, clientIp, clientPort*/);
+//        prot.broadcast_USER_ON();
+    }
+    if (flagLOG_OFF) {
+//        prot.recv_LOG_ON(filedes /*, clientIp, clientPort*/);
+//        prot.broadcast_USER_ON();
     }
 
 
