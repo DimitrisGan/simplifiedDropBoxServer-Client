@@ -1,7 +1,4 @@
 #include <iostream>
-#include "assistantFunctions.h"
-#include "clientProtocol.h"
-
 
 //#include <sys/socket.h>             /* sockets */
 //#include <sys/types.h>              /* sockets */
@@ -19,12 +16,9 @@
 #include <string.h>	         /* strlen */
 
 
-
-void perror_exit(char *message);
-
-
-
-
+#include "assistantFunctions.h"
+#include "socketManipulation.h"
+#include "clientProtocol.h"
 
 
 int main(int argc, char **argv) {
@@ -82,7 +76,7 @@ int main(int argc, char **argv) {
     /*FROM HERE MAKE THE SOCKET TO LISTEN*/
 
     int sock_to_listen;
-    sock_to_listen = make_socket(listenPort);
+    sock_to_listen = make_socket_and_bind(listenPort);
 
 
 

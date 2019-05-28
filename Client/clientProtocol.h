@@ -7,8 +7,9 @@
 
 
 #include "myString.h"
+#include "mylinkedList.h"
+
 #include "assistantFunctions.h"
-#include "tuples.h"
 
 #include <stdio.h>
 #include <sys/types.h>	     /* sockets */
@@ -22,13 +23,13 @@
 #include <bitset>
 #include <stdint.h>
 
-
+#include "clientTuple.h"
 
 class Protocol{
     ArgumentsKeeper args;
 //    int sock;
 
-    linkedList<myTuple> tupl_list;
+    linkedList<clientsTuple> tupl_list;
 
     myString end;
 

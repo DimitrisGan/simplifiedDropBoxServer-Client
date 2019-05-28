@@ -3,4 +3,4 @@ project(Client)
 
 set(CMAKE_CXX_STANDARD 11)
 
-add_executable(Client main.cpp assistantFunctions.cpp ErrorsCodes.h hashFunction.cpp myString.cpp mylinkedList.h circularBuffer.h clientProtocol.h tuples.h clientProtocol.cpp)
+add_executable(Client main.cpp assistantFunctions.cpp ErrorsCodes.h hashFunction.cpp myString.cpp mylinkedList.h circularBuffer.h clientProtocol.h tuples.h clientProtocol.cpp socketManipulation.cpp socketManipulation.h)

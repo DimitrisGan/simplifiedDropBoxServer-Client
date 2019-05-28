@@ -1,6 +1,7 @@
 #include <iostream>
 #include "assistantFunctions.h"
 #include "serverProtocol.h"
+#include "socketManipulation.h"
 
 #include <stdio.h>
 #include <sys/wait.h>	     /* sockets */

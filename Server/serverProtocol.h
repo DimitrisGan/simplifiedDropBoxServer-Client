@@ -15,11 +15,11 @@
 #include <stdlib.h>	         /* exit */
 #include <string.h>	         /* strlen */
 
-
+#include "mylinkedList.h"
 #include "myString.h"
 #include "assistantFunctions.h"
-//#include "tuples.h"
-
+#include "socketManipulation.h"
+#include "clientTuple.h"
 
 
 class Protocol{

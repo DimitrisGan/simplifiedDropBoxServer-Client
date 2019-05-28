@@ -45,25 +45,17 @@ struct ArgumentsKeeper{
 
 
 
-int
-make_socket (uint16_t port);
-void
-init_sockaddr (struct sockaddr_in *name,
-               const char *hostname,
-               uint16_t port);
-
-
-
 void print_ip(unsigned int ip);
 
 void checkHostName(int hostname);
 void checkHostEntry(struct hostent * hostentry);
 void checkIPbuffer(char *IPbuffer);
 
-
 myString zip_it(myString IP , myString port);
 
 void perror_exit(char *message);
+
+
 int remove_directory(const char *path);
 
 void getNewlyAddedIdsList(linkedList<myString> newIdsFilesList ,linkedList<myString>& newIdsList);

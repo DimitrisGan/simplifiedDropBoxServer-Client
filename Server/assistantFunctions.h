@@ -22,6 +22,11 @@
 #include <arpa/inet.h>
 
 
+#include <cstring>
+#include <fstream>
+#include <dirent.h>
+#include <sys/stat.h>
+#include<fcntl.h>
 
 
 struct ArgumentsKeeper{
@@ -38,19 +43,7 @@ struct ArgumentsKeeper{
 };
 
 
-struct clientsTuple{
-    uint32_t ip;
-    uint16_t port;
 
-    clientsTuple(uint32_t ip, uint16_t port);
-
-    clientsTuple();
-
-    bool operator==(const clientsTuple &rhs) const;
-
-    bool operator!=(const clientsTuple &rhs) const;
-
-};
 
 
 

@@ -2,15 +2,7 @@
 // Created by dimitrisgan on 26/2/2019.
 //
 
-#include <cstring>
-#include <fstream>
 #include "assistantFunctions.h"
-#include <stdlib.h>
-#include <dirent.h>
-#include <sys/stat.h>
-#include<fcntl.h>
-# include <unistd.h>
-#include <sys/types.h>
 
 # define PERMS 0644 //set access p e r m i s s i o n s
 
@@ -550,20 +542,5 @@ ArgumentsKeeper::ArgumentsKeeper(const ArgumentsKeeper &right) {
 
 }
 
-ArgumentsKeeper::ArgumentsKeeper() {}
+ArgumentsKeeper::ArgumentsKeeper() = default;
 
-clientsTuple::clientsTuple(uint32_t ip, uint16_t port) : ip(ip), port(port) {}
-
-bool clientsTuple::operator==(const clientsTuple &rhs) const {
-    return ip == rhs.ip &&
-           port == rhs.port;
-}
-
-bool clientsTuple::operator!=(const clientsTuple &rhs) const {
-    return !(rhs == *this);
-}
-
-clientsTuple::clientsTuple() {
-    ip = 0;
-    port=0;
-}
