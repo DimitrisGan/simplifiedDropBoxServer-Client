@@ -42,7 +42,7 @@ public:
 
     int recv_LOG_ON(int filedes, clientsTuple & tupl);
 
-    int recv_GET_CLIENTS(const clientsTuple & tupl);
+    int recv_GET_CLIENTS(int filedes, clientsTuple &tupl);
     int send_CLIENTS_LIST(const clientsTuple & tupl);
 
 

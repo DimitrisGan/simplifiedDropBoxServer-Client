@@ -52,11 +52,14 @@ int main(int argc, char **argv) {
     listenPort = static_cast<uint16_t>(argmKeeper.portNum.to_int());
 
 
-    int sock_writes_to_server = create_socket_and_connect(argmKeeper.serverIp,serverPort);
+    int sock_writes_to_server_LOG_ON = create_socket_and_connect(argmKeeper.serverIp,serverPort);
 
-    prot.send_LOG_ON(sock_writes_to_server);
+    prot.send_LOG_ON(sock_writes_to_server_LOG_ON);
 
-    prot.send_GET_CLIENTS(sock_writes_to_server);
+    int sock_writes_to_server_GET_CLIENTS = create_socket_and_connect(argmKeeper.serverIp,serverPort);
+
+    prot.send_GET_CLIENTS(sock_writes_to_server_GET_CLIENTS);
+
 
 
 
@@ -100,7 +103,7 @@ int main(int argc, char **argv) {
                        perror_exit("accept");
 
                     fprintf (stderr,
-                             "Other: connect from host %s, port %hd.\n",
+                             "Other: connect from host %s, port %d.\n",
                              inet_ntoa (other.sin_addr),
                              ntohs (other.sin_port));
                     FD_SET (newsock, &active_fd_set);
@@ -138,24 +141,7 @@ read_from_others_requests_and_respond(int filedes, Protocol &prot)
 {
     int diavasa=0;
 
-//    char buffer[MAXMSG];
-//    int nbytes;
-//    nbytes = read (filedes, buffer, MAXMSG);
-//    if (nbytes < 0)
-//    {
-//        /* Read error. */
-//        perror ("read");
-//        exit (EXIT_FAILURE);
-//    }
-//    else if (nbytes == 0)
-//        /* End-of-file. */
-//        return -1;
-//    else
-//    {
-//        /* Data read. */
-//        fprintf (stderr, "Server: got message: `%s'\n", buffer);
-//        return 0;
-//    }
+
 
     cout << "EKANA CONNECT APO SERVER!\n";
 
@@ -168,11 +154,11 @@ read_from_others_requests_and_respond(int filedes, Protocol &prot)
 //    bool flagLOG_OFF    = false;
 
     while(read(filedes, buf, 1) > 0) {  /* Receive 1 char */
-        printf("diavasa %d bytes\n", ++diavasa);
+//        printf("diavasa %d bytes\n", ++diavasa);
 
         instruction += buf;
 
-        cout << "To instruction exei timh = " << instruction << endl;
+//        cout << "To instruction exei timh = " << instruction << endl;
 
         if (instruction == "USER_ON") {
             flagUSER_ON = true;
@@ -181,7 +167,6 @@ read_from_others_requests_and_respond(int filedes, Protocol &prot)
 
         if (instruction == "CLIENT_LIST") {
             flagCLIENT_LIST = true;
-            cout << instruction;
             break;
         }
 //
@@ -210,7 +195,7 @@ read_from_others_requests_and_respond(int filedes, Protocol &prot)
 
          cout <<"Printing the list after USER_ON: \t";
          cout << prot.client_list<<endl;
- //        prot.broadcast_USER_ON();
+
 
      }
      if (flagCLIENT_LIST){

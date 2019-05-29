@@ -9,6 +9,7 @@ Protocol::Protocol(ArgumentsKeeper args) : args(args) {}
 
 
 int Protocol::recv_USER_ON(int sock , clientsTuple &newClient){
+    cout<< "INFO_CLIENT::Receive USER_ON from server\n";
 
 
     uint32_t ipAddr;
@@ -38,7 +39,7 @@ int Protocol::recv_USER_ON(int sock , clientsTuple &newClient){
 
 
 int Protocol::send_LOG_ON(int sock) {
-    cout<< "INFO::Send LOG_ON to server\n";
+    cout<< "INFO_CLIENT::Send LOG_ON to server\n";
 
 
     myString logOn("LOG_ON");
@@ -82,6 +83,9 @@ int Protocol::send_header(int sock) {
 
 
 int Protocol::send_GET_CLIENTS(int sock) {
+    cout<< "INFO_CLIENT::Send GET_CLIENTS to server\n";
+
+
     myString getClients("GET_CLIENTS");
 
 
@@ -91,6 +95,7 @@ int Protocol::send_GET_CLIENTS(int sock) {
 
     this->send_header(sock);
 
+    close(sock);  /* Close socket and exit */
 
     return 0;
 }
@@ -123,7 +128,7 @@ int Protocol::send_LOG_OFF(int sock) {
 
 int Protocol::recv_CLIENTS_LIST(int sock, linkedList<clientsTuple> &existingClients_list) {
 
-
+    cout<< "INFO_CLIENT::Receive CLIENTS_LIST from server\n";
 
 
     int N;
@@ -149,6 +154,7 @@ int Protocol::recv_CLIENTS_LIST(int sock, linkedList<clientsTuple> &existingClie
         retPort = ntohs(portRead);
 
         clientsTuple client(retIp,retPort);
+
 
         existingClients_list.insert_last(client);
 

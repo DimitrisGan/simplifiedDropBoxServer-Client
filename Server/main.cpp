@@ -81,7 +81,7 @@ int main(int argc, char **argv) {
 
 
                     fprintf(stderr,
-                            "Server: connect from host %s, port %hd.\n",
+                            "Server: connect from host %s, port %d.\n",
                             inet_ntoa(clientname.sin_addr),
                             ntohs(clientname.sin_port));
                     FD_SET (newsock, &active_fd_set);
@@ -115,9 +115,10 @@ read_request_from_client_and_respond(int filedes, Protocol &prot)
     bool flagLOG_OFF    = false;
 
     while(read(filedes, buf, 1) > 0) {  /* Receive 1 char */
-        printf("diavasa %d bytes\n", ++diavasa);
+//        printf("diavasa %d bytes\n", ++diavasa);
 
         instruction += buf;
+//        cout << instruction<<endl;
 
         if (instruction == "LOG_ON") {
             flagLOG_ON = true;
@@ -136,25 +137,24 @@ read_request_from_client_and_respond(int filedes, Protocol &prot)
 
 
     }
-    cout << "INFO::Instruction read = " << instruction << endl;
 
 
     clientsTuple tupl;
+
     if (flagLOG_ON) {
         prot.recv_LOG_ON(filedes , tupl);
         prot.broadcast_USER_ON(tupl);
-        prot.add_newClient(tupl); //todo phgaine to apo katw!!!
 
     }
     if (flagGET_CLIENTS) {
         //todo aurio!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         //https://piazza.com/class/js1lfr8hs4jj7?cid=273
 
-//        prot.recv_GET_CLIENTS()
+        prot.recv_GET_CLIENTS(filedes, tupl);
+        prot.send_CLIENTS_LIST(tupl);
+        prot.add_newClient(tupl); //now add the new client to the list
 
 
-//        prot.recv_LOG_ON(filedes /*, clientIp, clientPort*/);
-//        prot.broadcast_USER_ON();
 
     }
     if (flagLOG_OFF) {

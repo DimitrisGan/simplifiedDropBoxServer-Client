@@ -37,7 +37,7 @@ void print_ip(unsigned int ip)
 
 
 
-void perror_exit(char *message) {
+void perror_exit(const char *message) {
     perror(message);
     exit(EXIT_FAILURE);
 }

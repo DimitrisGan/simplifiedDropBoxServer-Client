@@ -50,7 +50,7 @@ struct ArgumentsKeeper{
 
 void print_ip(unsigned int ip);
 
-void perror_exit(char *message);
+void perror_exit(const char *message);
 
 int remove_directory(const char *path);
 
