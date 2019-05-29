@@ -3,54 +3,42 @@
 //
 
 #include "clientProtocol.h"
+#include "socketManipulation.h"
 
 Protocol::Protocol(ArgumentsKeeper args) : args(args) {}
 
 
+int Protocol::recv_USER_ON(int sock , clientsTuple &newClient){
+
+
+    uint32_t ipAddr;
+    if (read(sock, &ipAddr, sizeof(uint32_t)) < 0) //todo needs while () defensive programming
+        perror_exit("read Ip in USER_ON");
+
+    uint16_t  readClientsPort;
+    if (read(sock, &readClientsPort, sizeof(uint16_t)) < 0) //todo needs while () defensive programming
+        perror_exit("read port in LOG ON");
+
+
+    uint32_t retIp;
+    uint16_t retPort;
+    retIp = ntohl(ipAddr);
+    retPort = ntohs(readClientsPort);
+
+    newClient.ip     = retIp;
+    newClient.port   = retPort;
+
+    cout << "NEW CLIENT :: ...ip = "<<newClient.ip<< " and port = "<<newClient.port<<endl;
+
+
+    return 0;
+}
+
+
+
+
 int Protocol::send_LOG_ON(int sock) {
     cout<< "INFO::Send LOG_ON to server\n";
-
-    char hostbuffer[256];
-    char *IPbuffer;
-    struct hostent  *mymachine;
-    int hostname;
-
-    // To retrieve hostname
-    hostname = gethostname(hostbuffer, sizeof(hostbuffer));
-    cout << "hostname = "<< hostbuffer<<endl;
-    checkHostName(hostname);
-
-    // To retrieve host information
-    mymachine = gethostbyname(hostbuffer);
-    checkHostEntry(mymachine);
-
-
-    // To convert an Internet network
-    // address into ASCII string
-    /*
-     * IPbuffer = inet_ntoa(*((struct in_addr*)
-            mymachine->h_addr_list[0]));
-
-
-    printf("Hostname: %s\n", hostbuffer);
-    printf("Host IP: %s\n", IPbuffer);
-
-     */
-
-    /*char hostname [50]*/ char symbolicip [50];
-    struct in_addr **addr_list = nullptr;
-
-
-    printf ( "Name To Be Resolved : %s \n" , mymachine -> h_name ) ;
-    printf ( "Name Length in Bytes : % d \n" , mymachine -> h_length ) ;
-
-    addr_list = ( struct in_addr **) mymachine -> h_addr_list ;
-
-    for ( int i = 0; addr_list [ i ] != NULL ; i ++) {
-        strcpy ( symbolicip , inet_ntoa (* addr_list [ i ]) ) ;
-        printf ( " %s resolved to %s \n " , mymachine -> h_name , symbolicip ) ;
-    }
-
 
 
     myString logOn("LOG_ON");
@@ -58,31 +46,39 @@ int Protocol::send_LOG_ON(int sock) {
 //    instruction2send+= zip_it(this->args.)
 
 
-
     if (write(sock,logOn.getMyStr(), logOn.size()) < 0)
         perror_exit("write LOG ON");
 
-    uint32_t ipInbinary = htonl(addr_list[0]->s_addr);
-
-//    print_ip(addr_list[0]->s_addr);
-
-    if (write(sock, &ipInbinary , sizeof(uint32_t)) < 0)
-        perror_exit("write IP");
-
-
-    uint16_t portBinary = htons(static_cast<uint16_t>(this->args.portNum.to_int()));
-
-    if (write(sock, &portBinary , sizeof(uint16_t)) < 0)
-        perror_exit("write PORT");
-
+    send_header(sock);
 
     close(sock);  /* Close socket and exit */
     return 0;
 }
 
 
+int Protocol::send_header(int sock) {
+
+    struct sockaddr_in sa;
+
+    myString myIp;myIp = getMyIpInStr();
+
+    cout << "H IP MOU FILARAKI EINAI H : "<<myIp<<endl;
+
+    uint32_t ipInbinary = convertStringIpToBinary(myIp);
 
 
+    if (write(sock, &ipInbinary , sizeof(uint32_t)) < 0)
+        perror_exit("write IP in LOG_ON");
+
+
+    uint16_t portBinary = htons(static_cast<uint16_t>(this->args.portNum.to_int()));
+
+    if (write(sock, &portBinary , sizeof(uint16_t)) < 0)
+        perror_exit("write PORT in LOG_ON");
+
+
+    return 0;
+}
 
 
 int Protocol::send_GET_CLIENTS(int sock) {
@@ -93,8 +89,15 @@ int Protocol::send_GET_CLIENTS(int sock) {
         perror_exit("write GET_CLIENTS");
 
 
+    this->send_header(sock);
+
+
     return 0;
 }
+
+
+
+
 
 int Protocol::send_LOG_OFF(int sock) {
 
@@ -108,11 +111,77 @@ int Protocol::send_LOG_OFF(int sock) {
     return 0;
 }
 
-int Protocol::recv_CLIENTS_LIST() {
+//int Protocol::recv_CLIENTS_LIST() {
+//
+//    //todo prosoxh! na kanw ntoh() otan lavw ip kai port
+//    return 0;
+//}
 
-    //todo prosoxh! na kanw ntoh() otan lavw ip kai port
+
+
+
+
+int Protocol::recv_CLIENTS_LIST(int sock, linkedList<clientsTuple> &existingClients_list) {
+
+
+
+
+    int N;
+    if (read(sock, &N, sizeof(int)) < 0) //todo needs while () defensive programming
+        perror_exit("read Ν in CLIENTS_LIST");
+
+
+    for (int i = 0; i < N ; ++i) {
+
+        uint32_t  ipRead;
+        uint16_t  portRead;
+
+
+        if (read(sock, &ipRead, sizeof(uint32_t)) < 0) //todo needs while () defensive programming
+            perror_exit("read i-th ip in CLIENTS_LIST");
+
+        if (read(sock, &portRead, sizeof(uint16_t)) < 0) //todo needs while () defensive programming
+            perror_exit("read i-th port in CLIENTS_LIST");
+
+        uint32_t retIp;
+        uint16_t retPort;
+        retIp = ntohl(ipRead);
+        retPort = ntohs(portRead);
+
+        clientsTuple client(retIp,retPort);
+
+        existingClients_list.insert_last(client);
+
+    }
+
+
     return 0;
 }
+
+
+
+
+int Protocol::add_newClient(const clientsTuple &tupl) {
+    /*save them to the list of tuples if they dont already exist*/
+
+    if (! this->client_list.exists(tupl))
+        this->client_list.insert_last(tupl);
+
+
+    return 0;
+}
+
+int Protocol::add_list_of_existing_clients(linkedList<clientsTuple> &existingClients_list) {
+
+    for (auto &tupl : existingClients_list) {
+        this->add_newClient(tupl);
+    }
+    return 0;
+}
+
+
+
+
 
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////

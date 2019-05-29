@@ -79,6 +79,7 @@ int main(int argc, char **argv) {
                     if (newsock < 0)
                        perror_exit("accept");
 
+
                     fprintf(stderr,
                             "Server: connect from host %s, port %hd.\n",
                             inet_ntoa(clientname.sin_addr),
@@ -141,13 +142,20 @@ read_request_from_client_and_respond(int filedes, Protocol &prot)
     clientsTuple tupl;
     if (flagLOG_ON) {
         prot.recv_LOG_ON(filedes , tupl);
-        prot.add_newClient_tupl(tupl);
         prot.broadcast_USER_ON(tupl);
+        prot.add_newClient(tupl); //todo phgaine to apo katw!!!
 
     }
     if (flagGET_CLIENTS) {
+        //todo aurio!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        //https://piazza.com/class/js1lfr8hs4jj7?cid=273
+
+//        prot.recv_GET_CLIENTS()
+
+
 //        prot.recv_LOG_ON(filedes /*, clientIp, clientPort*/);
 //        prot.broadcast_USER_ON();
+
     }
     if (flagLOG_OFF) {
 //        prot.recv_LOG_ON(filedes /*, clientIp, clientPort*/);

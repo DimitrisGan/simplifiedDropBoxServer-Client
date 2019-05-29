@@ -29,21 +29,28 @@ class Protocol{
     ArgumentsKeeper args;
 //    int sock;
 
-    linkedList<clientsTuple> tupl_list;
 
-    myString end;
+    int send_header(int sock); //header = ip,port
 
 public:
+
+    linkedList<clientsTuple> client_list; //todo tha ginei global gia na einai shared gia ola ta threads!!!
+
+
     explicit Protocol(ArgumentsKeeper args);
 
     int send_LOG_ON(int sock);
+    int recv_USER_ON(int sock , clientsTuple &newClient);
+    int add_newClient(const clientsTuple & tupl);
+
 
     int send_GET_CLIENTS(int sock);
 
     int send_LOG_OFF(int sock);
 
 
-    int recv_CLIENTS_LIST();
+    int recv_CLIENTS_LIST(int sock , linkedList <clientsTuple> &existingClients_list);
+    int add_list_of_existing_clients(linkedList <clientsTuple> &existingClients_list);
 
 
 };

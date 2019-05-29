@@ -35,20 +35,23 @@ class Protocol{
 
     int broadcast_USER_OFF(int newsock,clientsTuple tupl);
 
+    int recv_header(int filedes,clientsTuple &tupl); //header = ip,port
+
 public:
     explicit Protocol( ArgumentsKeeper args);
 
     int recv_LOG_ON(int filedes, clientsTuple & tupl);
 
-    int recv_GET_CLIENTS();
+    int recv_GET_CLIENTS(const clientsTuple & tupl);
+    int send_CLIENTS_LIST(const clientsTuple & tupl);
+
 
     int recv_LOG_OFF(int filedes);
 
-    int add_newClient_tupl(const clientsTuple & tupl);
+    int add_newClient(const clientsTuple &tupl);
 
     int broadcast_USER_ON(const clientsTuple &newClientToAnnounce);
 
-    int send_CLIENTS_LIST();
 
 
 };

@@ -21,11 +21,14 @@
 #include "assistantFunctions.h"
 
 
+myString getMyIpInStr();
+
+uint32_t convertStringIpToBinary(myString ip);
+
+
 myString
 convertBinaryIpToString(uint32_t ipB);
 
-uint32_t
-convertStringIpToBinary(myString ipStr);
 
 int
 make_socket_and_bind(uint16_t port);

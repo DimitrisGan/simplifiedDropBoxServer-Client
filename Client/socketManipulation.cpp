@@ -5,6 +5,25 @@
 #include "socketManipulation.h"
 
 
+
+uint32_t convertStringIpToBinary(myString ip){
+
+    struct sockaddr_in sa;
+
+    int s = inet_pton(AF_INET,ip.getMyStr() ,& sa.sin_addr );
+    if (s <= 0) {
+        if (s == 0)
+            fprintf(stderr, "Not in presentation format");
+        else
+            perror_exit("inet_pton");
+    }
+
+
+    uint32_t ipInbinary = htonl(sa.sin_addr.s_addr );
+
+    return ipInbinary;
+}
+
 myString convertBinaryIpToString(uint32_t ipB){
     myString ipStr;
 
@@ -23,15 +42,6 @@ myString convertBinaryIpToString(uint32_t ipB){
     ipStr = str;
     return ipStr;
 }
-
-
-uint32_t convertStringIpToBinary(myString ipStr) {
-
-
-
-    return 0;
-}
-
 
 
 
@@ -107,6 +117,32 @@ init_sockaddr (struct sockaddr_in *name,
         exit (EXIT_FAILURE);
     }
     name->sin_addr = *(struct in_addr *) hostinfo->h_addr;
+}
+
+myString getMyIpInStr() {
+    myString ip;
+
+    char hostbuffer[256];
+    char *IPbuffer;
+    struct hostent  *mymachine;
+    int hostname;
+
+    // To retrieve hostname
+    hostname = gethostname(hostbuffer, sizeof(hostbuffer));
+    checkHostName(hostname);
+
+    // To retrieve host information
+    mymachine = gethostbyname(hostbuffer);
+    checkHostEntry(mymachine);
+
+    // To convert an Internet network
+    // address into ASCII string
+    IPbuffer = inet_ntoa(*((struct in_addr*)
+            mymachine->h_addr_list[0]));
+
+
+    ip = IPbuffer;
+    return ip;
 }
 
 

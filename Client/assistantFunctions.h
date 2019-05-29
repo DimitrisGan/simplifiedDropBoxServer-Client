@@ -53,7 +53,7 @@ void checkIPbuffer(char *IPbuffer);
 
 myString zip_it(myString IP , myString port);
 
-void perror_exit(char *message);
+void perror_exit(const char *message);
 
 
 int remove_directory(const char *path);

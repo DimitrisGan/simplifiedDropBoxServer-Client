@@ -56,7 +56,12 @@ int main(int argc, char **argv) {
 
     prot.send_LOG_ON(sock_writes_to_server);
 
-    /*FROM HERE MAKE A NEW SOCKET FOR LISTENING */
+    prot.send_GET_CLIENTS(sock_writes_to_server);
+
+
+
+
+    /*======    FROM HERE MAKE A NEW SOCKET FOR LISTENING   ======*/
 
     int sock_to_listen = make_socket_and_bind(listenPort);
 
@@ -159,7 +164,7 @@ read_from_others_requests_and_respond(int filedes, Protocol &prot)
     myString instruction("");
 
     bool flagUSER_ON     = false;
-//    bool flagGET_CLIENTS= false;
+    bool flagCLIENT_LIST= false;
 //    bool flagLOG_OFF    = false;
 
     while(read(filedes, buf, 1) > 0) {  /* Receive 1 char */
@@ -174,11 +179,11 @@ read_from_others_requests_and_respond(int filedes, Protocol &prot)
             break;
         }
 
-//        if (instruction == "GET_CLIENTS") {
-//            flagGET_CLIENTS = true;
-//            cout << instruction;
-//            break;
-//        }
+        if (instruction == "CLIENT_LIST") {
+            flagCLIENT_LIST = true;
+            cout << instruction;
+            break;
+        }
 //
 //        if (instruction == "LOG_OFF") {
 //            flagLOG_OFF = true;
@@ -198,13 +203,27 @@ read_from_others_requests_and_respond(int filedes, Protocol &prot)
     //TODO ARA PREPEI NA KANW ESTABLISH KAINOURGIO CONNECTION OPOU SERVER GINETAI CLIENT
     //TODO KAI CLIENT-SERVER
 
-    /* if (flagLOG_ON) {
-         prot.recv_LOG_ON(newsock);
+     if (flagUSER_ON) {
+         clientsTuple newClient;
+         prot.recv_USER_ON(filedes,newClient);
+         prot.add_newClient(newClient);
+
+         cout <<"Printing the list after USER_ON: \t";
+         cout << prot.client_list<<endl;
  //        prot.broadcast_USER_ON();
 
      }
+     if (flagCLIENT_LIST){
+         linkedList <clientsTuple> existingClients_list;
+         prot.recv_CLIENTS_LIST(filedes ,existingClients_list );
+         prot.add_list_of_existing_clients(existingClients_list);
 
- */
+         cout <<"Printing the list after CLIENT_LIST: \t";
+         cout << prot.client_list<<endl;
+
+
+     }
+
 
     return -1;
 
