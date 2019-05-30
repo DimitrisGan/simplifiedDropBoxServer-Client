@@ -147,43 +147,30 @@ read_request_from_client_and_respond(int filedes, Protocol &prot)
 
     }
     if (flagGET_CLIENTS) {
-        //todo aurio!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         //https://piazza.com/class/js1lfr8hs4jj7?cid=273
 
         prot.recv_GET_CLIENTS(filedes, tupl);
         prot.send_CLIENTS_LIST(tupl);
-        prot.add_newClient(tupl); //now add the new client to the list
+        /*now add the new client to the list*/
+        prot.add_newClient(tupl);
 
+        cout <<"Printing the list after LOG_ON & GET_CLIENTS: \t";
+        cout << prot.clients_list<<endl;
 
 
     }
     if (flagLOG_OFF) {
-//        prot.recv_LOG_ON(filedes /*, clientIp, clientPort*/);
-//        prot.broadcast_USER_ON();
+        prot.recv_LOG_OFF(filedes, tupl);
+        /* first remove the client from list to not broadcast to it the USER_OFF */
+        if (! prot.remove_client(tupl) ) //client was deleted successfully from the lsit
+            prot.broadcast_USER_OFF(tupl); //todo CHANGE IT TO SEND ERROR_IP_PORT_NOT_FOUND_IN_LIST
+        else //client wasnt found in the list
+            cout << "ERROR_IP_PORT_NOT_FOUND_IN_LIST" <<endl;
+
+        cout <<"Printing the list after LOG_OFF: \t";
+        cout << prot.clients_list<<endl;
+
     }
-
-
-    //todo SOOSSSS!!!TO LOG_ON KAI OLA TA ALLA MESSAGES THA TA STELNW SE ALLA SOCKETS
-    //TODO SAYTA POU KATHE PROCESS KANIE LISTEN KAI DEXETAI CONNECTION
-    //TODO ARA PREPEI NA KANW ESTABLISH KAINOURGIO CONNECTION OPOU SERVER GINETAI CLIENT
-    //TODO KAI CLIENT-SERVER
-
-//    int sock2respondLOG_ON;
-//    struct sockaddr_in clientName;
-//
-//    /* Create socket */
-//    if ((sock2respondLOG_ON = socket(AF_INET, SOCK_STREAM, 0)) < 0)
-//        perror_exit("socket");
-//
-//    /* Connect to the server. */
-//    init_sockaddr(&clientName, clientIp, clientPort);
-//
-//
-//    if (0 > connect (sock2respondLOG_ON,(struct sockaddr *) &clientName,sizeof (clientName)))
-//    {
-//        perror ("connect (client)");
-//        exit (EXIT_FAILURE);
-//    }
 
 
 

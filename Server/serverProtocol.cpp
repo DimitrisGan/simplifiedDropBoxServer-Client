@@ -63,8 +63,8 @@ int Protocol::add_newClient(const clientsTuple & tupl) {
 
     /*save them to the list of tuples if they dont already exist*/
 
-    if (! this->connectedClients_list.exists(tupl))
-        this->connectedClients_list.insert_last(tupl);
+    if (! this->clients_list.exists(tupl))
+        this->clients_list.insert_last(tupl);
 
 
     return 0;
@@ -78,7 +78,7 @@ int Protocol::add_newClient(const clientsTuple & tupl) {
 
 
 
-int Protocol::broadcast_USER_ON(const clientsTuple &newClientToAnnounce) {
+int Protocol::broadcast_USER_ON(const clientsTuple &tupl) {
 
     cout<< "INFO_SERVER::Broadcast USER_ON\n";
 
@@ -86,7 +86,7 @@ int Protocol::broadcast_USER_ON(const clientsTuple &newClientToAnnounce) {
 
     myString ipStr;
 
-    for (auto &clientExist : this->connectedClients_list) {
+    for (auto &clientExist : this->clients_list) {
 
 //        TODO PUT OUT OF COMMENTS!!!
 //        if (clientExist == newClientToAnnounce)
@@ -104,13 +104,13 @@ int Protocol::broadcast_USER_ON(const clientsTuple &newClientToAnnounce) {
         if (write(newsock , userOn.getMyStr() , userOn.size()) < 0)
             perror_exit("write USER_ON");
 
-        uint32_t ipToSend = htonl(newClientToAnnounce.ip);
+        uint32_t ipToSend = htonl(tupl.ip);
         if (write(newsock, &ipToSend , sizeof(uint32_t)) < 0)
             perror_exit("write  IP");
 
-        cout <<"portToSend prin ---> "<< newClientToAnnounce.port <<endl;
+        cout <<"portToSend prin ---> "<< tupl.port <<endl;
 
-        uint16_t portToSend = htons(newClientToAnnounce.port);
+        uint16_t portToSend = htons(tupl.port);
         cout <<"portToSend meta ---> "<< portToSend <<endl;
 
         if (write(newsock, &portToSend , sizeof(uint16_t)) < 0)
@@ -153,14 +153,14 @@ int Protocol::send_CLIENTS_LIST(const clientsTuple & tupl) {
     if (write(newsock,clientList.getMyStr(), clientList.size()) < 0)
         perror_exit("write  CLIENT_LIST in CLIENT_LIST");
 
-    int N = connectedClients_list.getSize();
+    int N = clients_list.getSize();
 
     if (write(newsock,&N, sizeof(int)) < 0)
         perror_exit("write N in CLIENT_LIST");
 
 
 
-    for (auto &clientExist : this->connectedClients_list) {
+    for (auto &clientExist : this->clients_list) {
 
 
         ipStr = convertBinaryIpToString(clientExist.ip);
@@ -189,13 +189,15 @@ int Protocol::send_CLIENTS_LIST(const clientsTuple & tupl) {
 }
 
 
+int Protocol::recv_LOG_OFF(int filedes, clientsTuple &tupl) {
+
+    cout<< "INFO_SERVER::Receive LOG_OFF\n";
+//    cout<< "FROM CLIENT:: "<< tupl << "\n";
 
 
+    recv_header(filedes, tupl);
 
 
-int Protocol::broadcast_USER_OFF(int newsock, clientsTuple tupl) {
-    //TODO KANEI BROADCAST PANTOU KAI O CLIENT POU VLEPEI OTI AFORA TON IDIO APLA TO AGNOEI
-    //TODO OPOTE STELNW KAI TO <IP,PORT>
 
     return 0;
 }
@@ -203,9 +205,67 @@ int Protocol::broadcast_USER_OFF(int newsock, clientsTuple tupl) {
 
 
 
-//////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////
+
+
+
+
+
+int Protocol::broadcast_USER_OFF(clientsTuple &tupl) {
+    //TODO KANEI BROADCAST PANTOU KAI O CLIENT POU VLEPEI OTI AFORA TON IDIO APLA TO AGNOEI
+    //TODO OPOTE STELNW KAI TO <IP,PORT>
+
+    cout<< "INFO_SERVER::Broadcast USER_OFF\n";
+
+    myString userOff("USER_OFF");
+
+    myString ipStr;
+
+    for (auto &clientExist : this->clients_list) {
+
+//        if (clientExist == newClientToAnnounce)
+//            continue;
+
+        ipStr = convertBinaryIpToString(clientExist.ip);
+        printf(" and port:: %d \n",clientExist.ip);
+
+
+        printf("message will be sent to client with ip:: %s \n",ipStr.getMyStr());
+        printf(" and port:: %d \n",clientExist.port);
+
+        int newsock = create_socket_and_connect(ipStr,clientExist.port);
+
+        if (write(newsock , userOff.getMyStr() , userOff.size()) < 0)
+            perror_exit("write USER_OFF in USER_OFF ");
+
+        uint32_t ipToSend = htonl(tupl.ip);
+        if (write(newsock, &ipToSend , sizeof(uint32_t)) < 0)
+            perror_exit("write  IP in USER_OFF");
+
+        cout <<"portToSend prin ---> "<< tupl.port <<endl;
+
+        uint16_t portToSend = htons(tupl.port);
+        cout <<"portToSend meta ---> "<< portToSend <<endl;
+
+        if (write(newsock, &portToSend , sizeof(uint16_t)) < 0)
+            perror_exit("write  PORT in USER_OFF");
+
+        close(newsock);
+    }
+
+    return 0;
+}
+
+int Protocol::remove_client(clientsTuple &tupl) {
+
+    if (! this->clients_list.exists(tupl) ) //if Client to remove doesn't exist !
+        return 1;
+    /*Remove the client that sent LOG_OFF*/
+    this->clients_list.deleteNodeByItem(tupl);
+    return 0;
+}
+
+
+
 
 
 

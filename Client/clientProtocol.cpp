@@ -8,7 +8,7 @@
 Protocol::Protocol(ArgumentsKeeper args) : args(args) {}
 
 
-int Protocol::recv_USER_ON(int sock , clientsTuple &newClient){
+int Protocol::recv_USER_ON(int sock , clientsTuple &tupl){
     cout<< "INFO_CLIENT::Receive USER_ON from server\n";
 
 
@@ -26,10 +26,10 @@ int Protocol::recv_USER_ON(int sock , clientsTuple &newClient){
     retIp = ntohl(ipAddr);
     retPort = ntohs(readClientsPort);
 
-    newClient.ip     = retIp;
-    newClient.port   = retPort;
+    tupl.ip     = retIp;
+    tupl.port   = retPort;
 
-    cout << "NEW CLIENT :: ...ip = "<<newClient.ip<< " and port = "<<newClient.port<<endl;
+    cout << "NEW CLIENT :: ...ip = "<<tupl.ip<< " and port = "<<tupl.port<<endl;
 
 
     return 0;
@@ -81,6 +81,31 @@ int Protocol::send_header(int sock) {
     return 0;
 }
 
+int Protocol::recv_header(int filedes, clientsTuple &tupl) {
+
+
+    uint32_t ipAddr;
+    if (read(filedes, &ipAddr, sizeof(uint32_t)) < 0) //todo needs while () defensive programming
+        perror_exit("read Ip in LOG ON");
+
+    uint16_t  readClientsPort;
+    if (read(filedes, &readClientsPort, sizeof(uint16_t)) < 0) //todo needs while () defensive programming
+        perror_exit("read port in LOG ON");
+
+
+    uint32_t retIp;
+    uint16_t retPort;
+    retIp = ntohl(ipAddr);
+    retPort = ntohs(readClientsPort);
+
+    tupl.ip     = retIp;
+    tupl.port   = retPort;
+
+
+
+    return 0;
+}
+
 
 int Protocol::send_GET_CLIENTS(int sock) {
     cout<< "INFO_CLIENT::Send GET_CLIENTS to server\n";
@@ -112,15 +137,12 @@ int Protocol::send_LOG_OFF(int sock) {
         perror_exit("write LOG_OFF");
 
 
+    this->send_header(sock);
+
+    close(sock);  /* Close socket and exit */
 
     return 0;
 }
-
-//int Protocol::recv_CLIENTS_LIST() {
-//
-//    //todo prosoxh! na kanw ntoh() otan lavw ip kai port
-//    return 0;
-//}
 
 
 
@@ -167,11 +189,11 @@ int Protocol::recv_CLIENTS_LIST(int sock, linkedList<clientsTuple> &existingClie
 
 
 
-int Protocol::add_newClient(const clientsTuple &tupl) {
+int Protocol::add_client(const clientsTuple &tupl) {
     /*save them to the list of tuples if they dont already exist*/
 
-    if (! this->client_list.exists(tupl))
-        this->client_list.insert_last(tupl);
+    if (! this->clients_list.exists(tupl))
+        this->clients_list.insert_last(tupl);
 
 
     return 0;
@@ -180,16 +202,34 @@ int Protocol::add_newClient(const clientsTuple &tupl) {
 int Protocol::add_list_of_existing_clients(linkedList<clientsTuple> &existingClients_list) {
 
     for (auto &tupl : existingClients_list) {
-        this->add_newClient(tupl);
+        this->add_client(tupl);
     }
+    return 0;
+}
+
+int Protocol::recv_USER_OFF(int sock, clientsTuple &tupl) {
+
+
+    cout<< "INFO_CLIENT::Receive USER_OFF from server\n";
+
+
+    recv_header(sock, tupl);
+
+
+    return 0;
+}
+
+int Protocol::remove_client(const clientsTuple &tupl) {
+
+    if (! this->clients_list.exists(tupl) )
+        perror_exit("Client doesn't exist to remove!");
+
+    /*Remove the client that sent LOG_OFF*/
+    this->clients_list.deleteNodeByItem(tupl);
     return 0;
 }
 
 
 
 
-
-//////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////
 

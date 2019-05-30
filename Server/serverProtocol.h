@@ -25,7 +25,6 @@
 class Protocol{
     ArgumentsKeeper args;
 
-    linkedList <clientsTuple> connectedClients_list;
 
 //    int sock;
 
@@ -33,11 +32,14 @@ class Protocol{
 
 
 
-    int broadcast_USER_OFF(int newsock,clientsTuple tupl);
 
     int recv_header(int filedes,clientsTuple &tupl); //header = ip,port
 
 public:
+
+    linkedList <clientsTuple> clients_list;
+
+
     explicit Protocol( ArgumentsKeeper args);
 
     int recv_LOG_ON(int filedes, clientsTuple & tupl);
@@ -46,12 +48,15 @@ public:
     int send_CLIENTS_LIST(const clientsTuple & tupl);
 
 
-    int recv_LOG_OFF(int filedes);
+    int recv_LOG_OFF(int filedes, clientsTuple &tupl);
 
     int add_newClient(const clientsTuple &tupl);
 
-    int broadcast_USER_ON(const clientsTuple &newClientToAnnounce);
+    int broadcast_USER_ON(const clientsTuple &tupl); /*tupl = announce the new client*/
 
+    int broadcast_USER_OFF(clientsTuple &tupl); /*tupl = announce client that is gonna quit*/
+
+    int remove_client(clientsTuple &tupl);
 
 
 };
