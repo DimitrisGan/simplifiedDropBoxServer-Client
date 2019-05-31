@@ -3,8 +3,6 @@
 //
 
 #include "clientProtocol.h"
-#include "socketManipulation.h"
-#include "hashFunction.h"
 
 Protocol::Protocol(ArgumentsKeeper args) : args(args) {}
 
@@ -190,20 +188,20 @@ int Protocol::recv_CLIENTS_LIST(int sock, linkedList<clientsTuple> &existingClie
 
 
 
-int Protocol::add_client(const clientsTuple &tupl) {
+int Protocol::add_client(const clientsTuple &tupl , CS &shared ) {
     /*save them to the list of tuples if they dont already exist*/
 
-    if (! this->clients_list.exists(tupl))
-        this->clients_list.insert_last(tupl);
+    if (! shared.clients_list.exists(tupl))
+        shared.clients_list.insert_last(tupl);
 
 
     return 0;
 }
 
-int Protocol::add_list_of_existing_clients(linkedList<clientsTuple> &existingClients_list) {
+int Protocol::add_list_of_existing_clients(linkedList<clientsTuple> &existingClients_list , CS &shared) {
 
     for (auto &tupl : existingClients_list) {
-        this->add_client(tupl);
+        this->add_client(tupl,shared);
     }
     return 0;
 }
@@ -220,13 +218,13 @@ int Protocol::recv_USER_OFF(int sock, clientsTuple &tupl) {
     return 0;
 }
 
-int Protocol::remove_client(const clientsTuple &tupl) {
+int Protocol::remove_client(const clientsTuple &tupl , CS &shared) {
 
-    if (! this->clients_list.exists(tupl) )
+    if (! shared.clients_list.exists(tupl) )
         perror_exit("Client doesn't exist to remove!");
 
     /*Remove the client that sent LOG_OFF*/
-    this->clients_list.deleteNodeByItem(tupl);
+    shared.clients_list.deleteNodeByItem(tupl);
     return 0;
 }
 

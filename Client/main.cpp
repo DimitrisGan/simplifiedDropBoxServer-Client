@@ -21,8 +21,9 @@
 #include "clientProtocol.h"
 
 
-int
-read_from_others_requests_and_respond(int filedes, Protocol &prot);
+using namespace std;
+
+int read_from_others_requests_and_respond(int filedes, Protocol &prot ,CS &shared);
 
 static volatile sig_atomic_t quitFlag = 0;
 
@@ -60,6 +61,7 @@ int main(int argc, char **argv) {
 //            perror ( " Socket creation failed ! " ) ;
 
     Protocol prot(argmKeeper);
+    CS shared; //todo needs constructor
 
 
 
@@ -175,7 +177,7 @@ int main(int argc, char **argv) {
                     FD_SET (newsock, &active_fd_set);
                 } else {
                     /* Data arriving on an already-connected socket. */
-                    if (read_from_others_requests_and_respond(i, prot) < 0) {
+                    if (read_from_others_requests_and_respond(i, prot,shared) < 0) {
                         close(i);
                         FD_CLR (i, &active_fd_set);
                     }
@@ -199,8 +201,7 @@ int main(int argc, char **argv) {
 
 
 
-int
-read_from_others_requests_and_respond(int filedes, Protocol &prot)
+int read_from_others_requests_and_respond(int filedes, Protocol &prot , CS &shared)
 {
     int diavasa=0;
 
@@ -266,30 +267,30 @@ read_from_others_requests_and_respond(int filedes, Protocol &prot)
      if (flagUSER_ON) {
          clientsTuple newClient;
          prot.recv_USER_ON(filedes,newClient);
-         prot.add_client(newClient);
+         prot.add_client(newClient,shared);
 
          cout <<"Printing the list after USER_ON: \t";
-         cout << prot.clients_list<<endl;
+         cout << shared.clients_list<<endl;
 
      }
 
      if (flagCLIENT_LIST){
          linkedList <clientsTuple> existingClients_list;
          prot.recv_CLIENTS_LIST(filedes ,existingClients_list );
-         prot.add_list_of_existing_clients(existingClients_list);
+         prot.add_list_of_existing_clients(existingClients_list,shared);
 
          cout <<"Printing the list after CLIENT_LIST: \t";
-         cout << prot.clients_list<<endl;
+         cout << shared.clients_list<<endl;
 
      }
 
     if (flagUSER_OFF) {
         clientsTuple client2remove;
         prot.recv_USER_OFF(filedes,client2remove);
-        prot.remove_client(client2remove);
+        prot.remove_client(client2remove,shared);
 
         cout <<"Printing the list after USER_OFF: \t";
-        cout << prot.clients_list<<endl;
+        cout << shared.clients_list<<endl;
 
     }
 

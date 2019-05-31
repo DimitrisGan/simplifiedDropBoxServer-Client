@@ -19,20 +19,20 @@ typedef struct {
 } pool_t;
 
 
-pthread_mutex_t mtx;
-pthread_cond_t cond_nonempty;
-pthread_cond_t cond_nonfull;
-pool_t pool;
-
-void initialize(pool_t * pool);
-
-
-void * producer(void * ptr);
-void place(pool_t * pool, int data);
-
-
-void * consumer(void * ptr);
-int obtain(pool_t * pool);
+//pthread_mutex_t mtx;
+//pthread_cond_t cond_nonempty;
+//pthread_cond_t cond_nonfull;
+//pool_t pool;
+//
+//void initialize(pool_t * pool);
+//
+//
+//void * producer(void * ptr);
+//void place(pool_t * pool, int data);
+//
+//
+//void * consumer(void * ptr);
+//int obtain(pool_t * pool);
 
 
 #endif //CLIENT_THREADPOOL_H

@@ -25,6 +25,12 @@
 
 #include "clientTuple.h"
 
+#include "socketManipulation.h"
+#include "hashFunction.h"
+#include "criticalSection.h"
+
+
+
 class Protocol{
     ArgumentsKeeper args;
 //    int sock;
@@ -37,7 +43,7 @@ class Protocol{
 
 public:
 
-    linkedList<clientsTuple> clients_list; //todo tha ginei global gia na einai shared gia ola ta threads!!!
+//    linkedList<clientsTuple> clients_list; //todo tha ginei global gia na einai shared gia ola ta threads!!!
 
 
     explicit Protocol(ArgumentsKeeper args);
@@ -45,17 +51,17 @@ public:
     /*Request and responds from/to server */
     int send_LOG_ON(int sock);
     int recv_USER_ON(int sock , clientsTuple &tupl); /*tupl = newClient*/
-    int add_client(const clientsTuple &tupl);
+    int add_client(const clientsTuple &tupl , CS &shared );
 
 
     int send_GET_CLIENTS(int sock);
     int recv_CLIENTS_LIST(int sock , linkedList <clientsTuple> &existingClients_list);
-    int add_list_of_existing_clients(linkedList <clientsTuple> &existingClients_list);
+    int add_list_of_existing_clients(linkedList<clientsTuple> &existingClients_list , CS &shared);
 
 
     int send_LOG_OFF(int sock);
     int recv_USER_OFF(int sock , clientsTuple &tupl); /*clients that quits*/
-    int remove_client(const clientsTuple &tupl);
+    int remove_client(const clientsTuple &tupl , CS &shared);
 
 
     /*Request and responds from/to worker threads from others clients */
@@ -64,8 +70,10 @@ public:
 
 
 
-
 };
+
+
+void* workers_main_function();
 
 
 #endif //CLIENT_CLIENTPROTOCOL_H
