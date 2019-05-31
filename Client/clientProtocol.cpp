@@ -188,7 +188,7 @@ int Protocol::recv_CLIENTS_LIST(int sock, linkedList<clientsTuple> &existingClie
 
 
 
-int Protocol::add_client(const clientsTuple &tupl , CS &shared ) {
+int Protocol::add_client(const clientsTuple &tupl , CriticalSection &shared ) {
     /*save them to the list of tuples if they dont already exist*/
 
     if (! shared.clients_list.exists(tupl))
@@ -198,7 +198,7 @@ int Protocol::add_client(const clientsTuple &tupl , CS &shared ) {
     return 0;
 }
 
-int Protocol::add_list_of_existing_clients(linkedList<clientsTuple> &existingClients_list , CS &shared) {
+int Protocol::add_list_of_existing_clients(linkedList<clientsTuple> &existingClients_list , CriticalSection &shared) {
 
     for (auto &tupl : existingClients_list) {
         this->add_client(tupl,shared);
@@ -218,7 +218,7 @@ int Protocol::recv_USER_OFF(int sock, clientsTuple &tupl) {
     return 0;
 }
 
-int Protocol::remove_client(const clientsTuple &tupl , CS &shared) {
+int Protocol::remove_client(const clientsTuple &tupl , CriticalSection &shared) {
 
     if (! shared.clients_list.exists(tupl) )
         perror_exit("Client doesn't exist to remove!");
@@ -247,7 +247,7 @@ int Protocol::respond_with_FILE_LIST(int sock) {
     myString initPath = this->args.inDir;
 
     linkedList<myString> filesInDir_list;
-    list_dir(initPath.getMyStr() , filesInDir_list);
+    list_dir(initPath.getMyStr(), filesInDir_list);
 
 
     /*write FILE_LIST*/

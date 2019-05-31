@@ -10,9 +10,15 @@
 #include "clientTuple.h"
 #include "threadPool.h"
 
-struct CS {
+struct CriticalSection {
     linkedList<clientsTuple> clients_list; //todo tha ginei global gia na einai shared gia ola ta threads!!!
-    pool_t circularBuffer;
+    circularBuffer circBuffer;
+
+    explicit CriticalSection(const circularBuffer &circBuffer);
+
+    pthread_mutex_t mtx_for_circular_buf;
+    pthread_cond_t cond_nonempty;
+    pthread_cond_t cond_nonfull;
 };
 
 

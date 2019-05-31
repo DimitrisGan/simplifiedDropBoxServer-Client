@@ -3,3 +3,5 @@
 //
 
 #include "criticalSection.h"
+
+CriticalSection::CriticalSection(const circularBuffer &circBuffer) : circBuffer(circBuffer) {}

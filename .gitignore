@@ -34,3 +34,5 @@ Server/\.idea/
 Client/\.idea/
 
 Client/cmake-build-debug/
+
+p65-prod-cons\.c

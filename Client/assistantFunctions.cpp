@@ -215,6 +215,28 @@ int is_regular_file(const char *path)
 }
 
 
+bool is_dir(const char* path) {
+    struct stat buf;
+    stat(path, &buf);
+    return S_ISDIR(buf.st_mode);
+}
+
+void list_all_in_dir(myString path, linkedList<myString> &listDirList) {
+
+    list_dir(path.getMyStr(), listDirList);
+
+    myString prefixPath;prefixPath = path;prefixPath += "/";
+    for ( auto item : listDirList) {
+        myString newPath;newPath = prefixPath;newPath+=item;
+        bool isDir = is_dir(newPath.getMyStr());
+        if (isDir ) { //if its a directory
+            list_all_in_dir(newPath, listDirList);
+
+        }
+    }
+}
+
+
 void list_dir(const char *path, linkedList<myString> &listDirList) {
     struct dirent *entry;
     DIR *dir = opendir(path);
@@ -643,6 +665,7 @@ void trimNoise(char* str){ //noise considered '\n' ,whitespace and '\r'
     if (str[strlen(str) -1] == '\n')
         str[strlen(str)-1]= '\0';
 }
+
 
 
 

@@ -23,7 +23,7 @@
 
 using namespace std;
 
-int read_from_others_requests_and_respond(int filedes, Protocol &prot ,CS &shared);
+int read_from_others_requests_and_respond(int filedes, Protocol &prot ,CriticalSection &shared);
 
 static volatile sig_atomic_t quitFlag = 0;
 
@@ -54,16 +54,20 @@ int main(int argc, char **argv) {
 
     argmKeeper.printArgs();
 
-    //todo connectToDropBox_server() //[LOG ON]
+//    circularBuffer circBuf(argmKeeper.bufSize);
+//    CriticalSection CS(circBuf);
 
-//    int sock_ToWriteToServer;
-//    if(( sock_ToWriteToServer = socket ( AF_INET , SOCK_STREAM ,0) ) ==-1)
-//            perror ( " Socket creation failed ! " ) ;
+    linkedList<myString> allFilesInInDir_list;
+//    list_dir(argmKeeper.inDir.getMyStr(), allFilesInInDir_list);
 
+    list_all_in_dir(argmKeeper.inDir, allFilesInInDir_list);
+
+    cout << allFilesInInDir_list;
     Protocol prot(argmKeeper);
-    CS shared; //todo needs constructor
+//    CriticalSection shared; //todo needs constructor
 
 
+/*
 
 
 
@@ -86,12 +90,16 @@ int main(int argc, char **argv) {
 
 
 
-    /*======    FROM HERE MAKE A NEW SOCKET FOR LISTENING   ======*/
+    */
+/*======    FROM HERE MAKE A NEW SOCKET FOR LISTENING   ======*//*
+
 
     int sock_to_listen = make_socket_and_bind(listenPort);
 
 
-    /* Listen for connections */
+    */
+/* Listen for connections *//*
+
     if (listen(sock_to_listen, 5) < 0) perror_exit("listen");
     printf("Listening for connections to port %d\n", listenPort);
 
@@ -101,7 +109,9 @@ int main(int argc, char **argv) {
     struct sockaddr_in other;
     socklen_t size;
 
-    /* Initialize the set of active sockets. */
+    */
+/* Initialize the set of active sockets. *//*
+
     FD_ZERO (&active_fd_set);
     FD_SET (sock_to_listen, &active_fd_set);
 
@@ -121,7 +131,9 @@ int main(int argc, char **argv) {
 //            break;
 //        }
 
-        /* Block until input arrives on one or more active sockets. */
+        */
+/* Block until input arrives on one or more active sockets. *//*
+
 //        cout << "----------------> 1a \n";
 
         read_fd_set = active_fd_set;
@@ -150,7 +162,9 @@ int main(int argc, char **argv) {
         switch ( select_retval )
         {
             case EINTR:
-                /* clean up */
+                */
+/* clean up *//*
+
                 break;
             default:
                 break;
@@ -158,12 +172,16 @@ int main(int argc, char **argv) {
 
 
 
-        /* Service all the sockets with input pending. */
+        */
+/* Service all the sockets with input pending. *//*
+
         for (i = 0; i < FD_SETSIZE; ++i) {
 //            cout << "2 \n";
             if (FD_ISSET (i, &read_fd_set)) {
                 if (i == sock_to_listen) {
-                    /* Connection request on original socket. */
+                    */
+/* Connection request on original socket. *//*
+
                     int newsock;
                     size = sizeof(other);
                     newsock = accept(sock_to_listen, (struct sockaddr *) &other, &size);
@@ -176,7 +194,9 @@ int main(int argc, char **argv) {
                             ntohs(other.sin_port));
                     FD_SET (newsock, &active_fd_set);
                 } else {
-                    /* Data arriving on an already-connected socket. */
+                    */
+/* Data arriving on an already-connected socket. *//*
+
                     if (read_from_others_requests_and_respond(i, prot,shared) < 0) {
                         close(i);
                         FD_CLR (i, &active_fd_set);
@@ -189,9 +209,12 @@ int main(int argc, char **argv) {
     }
 
 
-    /*from here send LOG_OFF and terminate*/
+    */
+/*from here send LOG_OFF and terminate*//*
+
     int sock_writes_to_server_LOG_OFF = create_socket_and_connect(argmKeeper.serverIp,serverPort);
     prot.send_LOG_OFF(sock_writes_to_server_LOG_OFF);
+*/
 
     //todo kill all threads-children with wait()
 
@@ -201,7 +224,7 @@ int main(int argc, char **argv) {
 
 
 
-int read_from_others_requests_and_respond(int filedes, Protocol &prot , CS &shared)
+int read_from_others_requests_and_respond(int filedes, Protocol &prot , CriticalSection &shared)
 {
     int diavasa=0;
 

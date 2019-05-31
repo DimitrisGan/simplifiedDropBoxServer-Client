@@ -2,8 +2,8 @@
 // Created by dimitrisgan on 26/2/2019.
 //
 
-#ifndef SIMPLIFIEDDROPBOX_ASSISTANTFUNCTIONS_H
-#define SIMPLIFIEDDROPBOX_ASSISTANTFUNCTIONS_H
+#ifndef ASSISTANTFUNCTIONS_H
+#define ASSISTANTFUNCTIONS_H
 
 #include "ErrorsCodes.h"
 #include "mylinkedList.h"
@@ -43,6 +43,10 @@ struct ArgumentsKeeper{
 
 };
 
+bool is_dir(const char* path);
+void list_all_in_dir(myString path, linkedList<myString> &listDirList);
+void list_dir(const char *path, linkedList<myString> &listDirList);
+
 
 int loadContextOfFile(myString path ,myString &context); /*returns the file in bytes*/
 
@@ -68,7 +72,7 @@ myString getPath(const myString &dirName, const myString &file );
 
 void createDirectory(char* path );
 int is_regular_file(const char *path);
-void list_dir(const char *path, linkedList<myString> &listDirList);
+
 void listIdFiles(const char *path, linkedList<myString> &idFilesInDir);
 void addFileIdInCommon(const struct ArgumentsKeeper &argmKeeper); //1B
 
@@ -96,4 +100,4 @@ char * str_slice(char str[], int slice_from, int slice_to);
 void trimNoise(char* str); //noise considered '\n' ,whitespace and '\r'
 
 
-#endif //SIMPLIFIEDDROPBOX_ASSISTANTFUNCTIONS_H
+#endif //ASSISTANTFUNCTIONS_H

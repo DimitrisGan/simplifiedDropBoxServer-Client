@@ -6,6 +6,21 @@
 
 
 
+circularBuffer::circularBuffer(int bufferSize) {
+
+    this->buff = new info[bufferSize];
+    this->start = 0;
+    this->end = -1;
+    this->count = 0;
+}
+
+circularBuffer::~circularBuffer() {
+
+    delete [] this->buff;
+    this->buff = nullptr;
+}
+
+
 //
 //void initialize(pool_t * pool) {
 //    pool->start = 0;

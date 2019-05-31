@@ -8,22 +8,42 @@
 #include <stdio.h> 		// from www.mario-konrad.ch
 #include <pthread.h>
 #include <unistd.h>
+#include "myString.h"
 
 #define POOL_SIZE 6
 
-typedef struct {
-    int data[POOL_SIZE];
+
+struct info{
+    myString ip;
+    myString port;
+
+    myString pathName;
+    unsigned version {0};
+
+
+
+};
+
+struct circularBuffer{
+    info* buff;
     int start;
     int end;
     int count;
-} pool_t;
+
+    explicit circularBuffer(int bufferSize);
+    virtual ~circularBuffer();
 
 
-//pthread_mutex_t mtx;
-//pthread_cond_t cond_nonempty;
-//pthread_cond_t cond_nonfull;
-//pool_t pool;
-//
+    //todo needs mutexes,condition variables
+
+
+
+
+};
+
+
+
+
 //void initialize(pool_t * pool);
 //
 //
