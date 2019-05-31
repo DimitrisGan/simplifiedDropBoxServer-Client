@@ -19,6 +19,30 @@ void start_session(myString buffer2send){
 Protocol::Protocol(ArgumentsKeeper args) : args(args) {}
 
 
+int Protocol::send_header(int sock) {
+
+//    struct sockaddr_in sa;
+//
+//    myString myIp;myIp = getMyIpInStr();
+//
+//    cout << "H IP MOU FILARAKI EINAI H : "<<myIp<<endl;
+//
+//    uint32_t ipInbinary = convertStringIpToBinary(myIp);
+//
+//
+//    if (write(sock, &ipInbinary , sizeof(uint32_t)) < 0)
+//        perror_exit("write IP in LOG_ON");
+//
+//
+//    uint16_t portBinary = htons(static_cast<uint16_t>(this->args.portNum.to_int()));
+//
+//    if (write(sock, &portBinary , sizeof(uint16_t)) < 0)
+//        perror_exit("write PORT in LOG_ON");
+
+
+    return 0;
+}
+
 int Protocol::recv_header(int filedes, clientsTuple &tupl) {
 
 
@@ -51,8 +75,6 @@ int Protocol::recv_LOG_ON(int filedes, clientsTuple &tupl) {
     cout<< "INFO_SERVER::Receive LOG_ON\n";
 
     recv_header(filedes, tupl);
-
-    cout << "...ip = "<<tupl.ip<< " and port = "<<tupl.port<<endl;
 
     return 0;
 }
@@ -99,6 +121,8 @@ int Protocol::broadcast_USER_ON(const clientsTuple &tupl) {
         printf("message will be sent to client with ip:: %s \n",ipStr.getMyStr());
         printf(" and port:: %d \n",clientExist.port);
 
+        cout << "SEND USER_ON to client--> ip: " << ipStr << " port: " << clientExist.port<<endl;
+
         int newsock = create_socket_and_connect(ipStr,clientExist.port);
 
         if (write(newsock , userOn.getMyStr() , userOn.size()) < 0)
@@ -129,7 +153,7 @@ int Protocol::recv_GET_CLIENTS(int filedes, clientsTuple &tupl)
 
     this->recv_header(filedes,tupl);
 
-
+    close(filedes);
     return 0;
 }
 
@@ -147,7 +171,11 @@ int Protocol::send_CLIENTS_LIST(const clientsTuple & tupl) {
 
     myString ipStr;
     ipStr = convertBinaryIpToString(tupl.ip);
+
+
     int newsock = create_socket_and_connect(ipStr,tupl.port);
+
+    cout << "SEND CLIENT_LIST to client--> ip: " << ipStr << " port: " << tupl.port<<endl;
 
 
     if (write(newsock,clientList.getMyStr(), clientList.size()) < 0)
@@ -158,7 +186,10 @@ int Protocol::send_CLIENTS_LIST(const clientsTuple & tupl) {
     if (write(newsock,&N, sizeof(int)) < 0)
         perror_exit("write N in CLIENT_LIST");
 
-
+    if (N == 0){
+        close(newsock);
+        return 0;
+    }
 
     for (auto &clientExist : this->clients_list) {
 
@@ -236,6 +267,7 @@ int Protocol::broadcast_USER_OFF(clientsTuple &tupl) {
 
         if (write(newsock , userOff.getMyStr() , userOff.size()) < 0)
             perror_exit("write USER_OFF in USER_OFF ");
+
 
         uint32_t ipToSend = htonl(tupl.ip);
         if (write(newsock, &ipToSend , sizeof(uint32_t)) < 0)

@@ -4,4 +4,22 @@
 
 #include "criticalSection.h"
 
-CriticalSection::CriticalSection(const circularBuffer &circBuffer) : circBuffer(circBuffer) {}
+
+CS::CS(circularBuffer *circBuffer) : circBuffer(circBuffer) {}
+
+
+
+void* worker_function(void* args){
+
+
+
+
+
+
+
+
+
+
+
+
+}

@@ -28,7 +28,6 @@ int Protocol::recv_USER_ON(int sock , clientsTuple &tupl){
     tupl.ip     = retIp;
     tupl.port   = retPort;
 
-    cout << "NEW CLIENT :: ...ip = "<<tupl.ip<< " and port = "<<tupl.port<<endl;
 
 
     return 0;
@@ -61,8 +60,6 @@ int Protocol::send_header(int sock) {
     struct sockaddr_in sa;
 
     myString myIp;myIp = getMyIpInStr();
-
-    cout << "H IP MOU FILARAKI EINAI H : "<<myIp<<endl;
 
     uint32_t ipInbinary = convertStringIpToBinary(myIp);
 
@@ -188,7 +185,7 @@ int Protocol::recv_CLIENTS_LIST(int sock, linkedList<clientsTuple> &existingClie
 
 
 
-int Protocol::add_client(const clientsTuple &tupl , CriticalSection &shared ) {
+int Protocol::add_client(const clientsTuple &tupl , CS &shared ) {
     /*save them to the list of tuples if they dont already exist*/
 
     if (! shared.clients_list.exists(tupl))
@@ -198,7 +195,7 @@ int Protocol::add_client(const clientsTuple &tupl , CriticalSection &shared ) {
     return 0;
 }
 
-int Protocol::add_list_of_existing_clients(linkedList<clientsTuple> &existingClients_list , CriticalSection &shared) {
+int Protocol::add_list_of_existing_clients(linkedList<clientsTuple> &existingClients_list , CS &shared) {
 
     for (auto &tupl : existingClients_list) {
         this->add_client(tupl,shared);
@@ -218,7 +215,7 @@ int Protocol::recv_USER_OFF(int sock, clientsTuple &tupl) {
     return 0;
 }
 
-int Protocol::remove_client(const clientsTuple &tupl , CriticalSection &shared) {
+int Protocol::remove_client(const clientsTuple &tupl , CS &shared) {
 
     if (! shared.clients_list.exists(tupl) )
         perror_exit("Client doesn't exist to remove!");

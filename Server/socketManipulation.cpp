@@ -65,7 +65,7 @@ int create_socket_and_connect(myString ip,uint16_t port){
         perror_exit("socket");
 
 /* Connect to the client. */
-cout <<"port ==== "<<port<<endl;
+//cout <<"port ==== "<<port<<endl;
     init_sockaddr(&client, ip.getMyStr() , port);
 
 

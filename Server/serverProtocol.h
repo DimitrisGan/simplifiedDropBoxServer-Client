@@ -31,6 +31,7 @@ class Protocol{
 //    linkedList<myTuple> tupl_list;
 
 
+    int send_header(int sock); //header = ip,port
 
 
     int recv_header(int filedes,clientsTuple &tupl); //header = ip,port

@@ -23,7 +23,7 @@
 
 using namespace std;
 
-int read_from_others_requests_and_respond(int filedes, Protocol &prot ,CriticalSection &shared);
+int read_from_others_requests_and_respond(int filedes, Protocol &prot ,CS &shared);
 
 static volatile sig_atomic_t quitFlag = 0;
 
@@ -36,7 +36,6 @@ void catchinterrupt(int signo){
     }
 
 }
-
 
 
 
@@ -54,20 +53,20 @@ int main(int argc, char **argv) {
 
     argmKeeper.printArgs();
 
-//    circularBuffer circBuf(argmKeeper.bufSize);
-//    CriticalSection CS(circBuf);
+    circularBuffer *circBuf = new circularBuffer(argmKeeper.bufSize);
+    CS shared(circBuf);
 
     linkedList<myString> allFilesInInDir_list;
 //    list_dir(argmKeeper.inDir.getMyStr(), allFilesInInDir_list);
 
     list_all_in_dir(argmKeeper.inDir, allFilesInInDir_list);
 
-    cout << allFilesInInDir_list;
+//    cout << allFilesInInDir_list;
     Protocol prot(argmKeeper);
-//    CriticalSection shared; //todo needs constructor
+//    CS shared; //todo needs constructor
 
 
-/*
+
 
 
 
@@ -89,16 +88,13 @@ int main(int argc, char **argv) {
 
 
 
-
-    */
-/*======    FROM HERE MAKE A NEW SOCKET FOR LISTENING   ======*//*
+/*======    FROM HERE MAKE A NEW SOCKET FOR LISTENING   ======*/
 
 
     int sock_to_listen = make_socket_and_bind(listenPort);
 
 
-    */
-/* Listen for connections *//*
+/* Listen for connections */
 
     if (listen(sock_to_listen, 5) < 0) perror_exit("listen");
     printf("Listening for connections to port %d\n", listenPort);
@@ -109,13 +105,16 @@ int main(int argc, char **argv) {
     struct sockaddr_in other;
     socklen_t size;
 
-    */
-/* Initialize the set of active sockets. *//*
+
+/* Initialize the set of active sockets. */
 
     FD_ZERO (&active_fd_set);
     FD_SET (sock_to_listen, &active_fd_set);
 
-    while (true)
+
+
+
+    while (quitFlag == 0)
     {
 //        cout << "----------------> 1 \n";
 //        if ( quitFlag == 1){
@@ -131,71 +130,50 @@ int main(int argc, char **argv) {
 //            break;
 //        }
 
-        */
-/* Block until input arrives on one or more active sockets. *//*
+/* Block until input arrives on one or more active sockets. */
 
 //        cout << "----------------> 1a \n";
 
         read_fd_set = active_fd_set;
 //        cout << "----------------> 1b \n";
 
-        if ( quitFlag == 1){
 
-//            for (i = 0; i < FD_SETSIZE; ++i) {
-//                close(i);
-//                FD_CLR (i, &active_fd_set);
-//            }
-            FD_ZERO (&active_fd_set);
-
-
-            close(sock_to_listen);
-            break;
-        }
 
         int select_retval = select (FD_SETSIZE, &read_fd_set, NULL, NULL, NULL);
 //        if (select (FD_SETSIZE, &read_fd_set, NULL, NULL, NULL) < 0)
-        if (select_retval < 0)
-            perror_exit("select");
+//        if (select_retval < 0)
+//            perror_exit("select");
 
 //        cout << "----------------> 1c \n";
 
-        switch ( select_retval )
-        {
-            case EINTR:
-                */
-/* clean up *//*
-
-                break;
-            default:
-                break;
+        if (select_retval == EINTR){
+            break;
         }
 
 
 
-        */
-/* Service all the sockets with input pending. *//*
+/* Service all the sockets with input pending. */
 
         for (i = 0; i < FD_SETSIZE; ++i) {
 //            cout << "2 \n";
             if (FD_ISSET (i, &read_fd_set)) {
                 if (i == sock_to_listen) {
-                    */
-/* Connection request on original socket. *//*
+
+                    /* Connection request on original socket. */
 
                     int newsock;
                     size = sizeof(other);
                     newsock = accept(sock_to_listen, (struct sockaddr *) &other, &size);
-                    if (newsock < 0)
-                        perror_exit("accept");
 
-                    fprintf(stderr,
-                            "Other: connect from host %s, port %d.\n",
-                            inet_ntoa(other.sin_addr),
-                            ntohs(other.sin_port));
+
+//                    fprintf(stderr,
+//                            "Other: connect from host %s, port %d.\n",
+//                            inet_ntoa(other.sin_addr),
+//                            ntohs(other.sin_port));
                     FD_SET (newsock, &active_fd_set);
                 } else {
-                    */
-/* Data arriving on an already-connected socket. *//*
+
+                    /* Data arriving on an already-connected socket. */
 
                     if (read_from_others_requests_and_respond(i, prot,shared) < 0) {
                         close(i);
@@ -209,28 +187,30 @@ int main(int argc, char **argv) {
     }
 
 
-    */
-/*from here send LOG_OFF and terminate*//*
+    FD_ZERO (&active_fd_set);
+    close(sock_to_listen);
+
+/*from here send LOG_OFF and terminate*/
 
     int sock_writes_to_server_LOG_OFF = create_socket_and_connect(argmKeeper.serverIp,serverPort);
     prot.send_LOG_OFF(sock_writes_to_server_LOG_OFF);
-*/
+
 
     //todo kill all threads-children with wait()
 
+    delete circBuf;circBuf= nullptr;
     return 0;
 }
 
 
 
 
-int read_from_others_requests_and_respond(int filedes, Protocol &prot , CriticalSection &shared)
+int read_from_others_requests_and_respond(int filedes, Protocol &prot , CS &shared)
 {
     int diavasa=0;
 
 
 
-    cout << "EKANA CONNECT APO SERVER!\n";
 
     char buf[1];
     myString whitespace(" ");
@@ -260,24 +240,25 @@ int read_from_others_requests_and_respond(int filedes, Protocol &prot , Critical
 
         if (instruction == "CLIENT_LIST") {
             flagCLIENT_LIST = true;
+//            cout << instruction;
             break;
         }
 
         if (instruction == "USER_OFF") {
             flagUSER_OFF = true;
-            cout << instruction;
+//            cout << instruction;
             break;
         }
 
-        if (instruction == "GET_FILE_LIST") {
+        if (instruction == "GET_FILE_LIST") { //TODO CHANGE IT!!
             flagGET_FILE_LIST = true;
-            cout << instruction;
+//            cout << instruction;
             break;
         }
 
         if (instruction == "GET_FILE") {
             flagGET_FILE = true;
-            cout << instruction;
+//            cout << instruction;
             break;
         }
 

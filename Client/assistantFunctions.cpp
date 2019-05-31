@@ -51,7 +51,10 @@ void print_ip(unsigned int ip)
 
 
 void perror_exit(const char *message) {
-    perror(message);
+    myString head("ERROR::");
+    myString errorMessage;errorMessage=head+message;
+    errorMessage+="\n";
+    perror(errorMessage.getMyStr());
     exit(EXIT_FAILURE);
 }
 
@@ -216,9 +219,11 @@ int is_regular_file(const char *path)
 
 
 bool is_dir(const char* path) {
+    bool retVal ;
     struct stat buf;
     stat(path, &buf);
-    return S_ISDIR(buf.st_mode);
+    retVal = S_ISDIR(buf.st_mode);
+    return retVal;
 }
 
 void list_all_in_dir(myString path, linkedList<myString> &listDirList) {
@@ -226,9 +231,10 @@ void list_all_in_dir(myString path, linkedList<myString> &listDirList) {
     list_dir(path.getMyStr(), listDirList);
 
     myString prefixPath;prefixPath = path;prefixPath += "/";
-    for ( auto item : listDirList) {
+    for ( auto &item : listDirList) {
         myString newPath;newPath = prefixPath;newPath+=item;
         bool isDir = is_dir(newPath.getMyStr());
+
         if (isDir ) { //if its a directory
             list_all_in_dir(newPath, listDirList);
 

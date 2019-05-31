@@ -80,10 +80,10 @@ int main(int argc, char **argv) {
                        perror_exit("accept");
 
 
-                    fprintf(stderr,
-                            "Server: connect from host %s, port %d.\n",
-                            inet_ntoa(clientname.sin_addr),
-                            ntohs(clientname.sin_port));
+//                    fprintf(stderr,
+//                            "Server: connect from host %s, port %d.\n",
+//                            inet_ntoa(clientname.sin_addr),
+//                            ntohs(clientname.sin_port));
                     FD_SET (newsock, &active_fd_set);
                 } else {
                     /* Data arriving on an already-connected socket. */
@@ -150,9 +150,11 @@ read_request_from_client_and_respond(int filedes, Protocol &prot)
         //https://piazza.com/class/js1lfr8hs4jj7?cid=273
 
         prot.recv_GET_CLIENTS(filedes, tupl);
-        prot.send_CLIENTS_LIST(tupl);
         /*now add the new client to the list*/
+        usleep(1);
+        prot.send_CLIENTS_LIST(tupl);
         prot.add_newClient(tupl);
+
 
         cout <<"Printing the list after LOG_ON & GET_CLIENTS: \t";
         cout << prot.clients_list<<endl;

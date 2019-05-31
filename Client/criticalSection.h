@@ -10,11 +10,11 @@
 #include "clientTuple.h"
 #include "threadPool.h"
 
-struct CriticalSection {
+struct CS {
     linkedList<clientsTuple> clients_list; //todo tha ginei global gia na einai shared gia ola ta threads!!!
-    circularBuffer circBuffer;
+    circularBuffer *circBuffer;
 
-    explicit CriticalSection(const circularBuffer &circBuffer);
+    CS(circularBuffer *circBuffer);
 
     pthread_mutex_t mtx_for_circular_buf;
     pthread_cond_t cond_nonempty;
@@ -22,7 +22,7 @@ struct CriticalSection {
 };
 
 
-
+void* worker_function(void* args);
 
 
 
