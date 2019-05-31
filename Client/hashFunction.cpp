@@ -4,7 +4,7 @@
 
 #include "hashFunction.h"
 
-unsigned myHash(const myString &id, unsigned size_of_table) {
+unsigned myHash(const myString &id ) {
     unsigned hash = 5381 ;
     int c =0;
 
@@ -18,5 +18,5 @@ unsigned myHash(const myString &id, unsigned size_of_table) {
         hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
 
     delete [] toDelete;toDelete= nullptr;str = nullptr;
-    return (hash % size_of_table);
+    return hash ;
 }

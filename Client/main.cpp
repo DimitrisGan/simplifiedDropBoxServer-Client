@@ -105,23 +105,60 @@ int main(int argc, char **argv) {
 
     while (true)
     {
+//        cout << "----------------> 1 \n";
+//        if ( quitFlag == 1){
+//
+////            for (i = 0; i < FD_SETSIZE; ++i) {
+////                close(i);
+////                FD_CLR (i, &active_fd_set);
+////            }
+//            FD_ZERO (&active_fd_set);
+//
+//
+//            close(sock_to_listen);
+//            break;
+//        }
+
+        /* Block until input arrives on one or more active sockets. */
+//        cout << "----------------> 1a \n";
+
+        read_fd_set = active_fd_set;
+//        cout << "----------------> 1b \n";
+
         if ( quitFlag == 1){
 
-            for (i = 0; i < FD_SETSIZE; ++i) {
-                close(i);
-                FD_CLR (i, &active_fd_set);
-            }
+//            for (i = 0; i < FD_SETSIZE; ++i) {
+//                close(i);
+//                FD_CLR (i, &active_fd_set);
+//            }
+            FD_ZERO (&active_fd_set);
+
 
             close(sock_to_listen);
             break;
         }
 
-        /* Block until input arrives on one or more active sockets. */
-        read_fd_set = active_fd_set;
-        if (select (FD_SETSIZE, &read_fd_set, NULL, NULL, NULL) < 0)
+        int select_retval = select (FD_SETSIZE, &read_fd_set, NULL, NULL, NULL);
+//        if (select (FD_SETSIZE, &read_fd_set, NULL, NULL, NULL) < 0)
+        if (select_retval < 0)
             perror_exit("select");
+
+//        cout << "----------------> 1c \n";
+
+        switch ( select_retval )
+        {
+            case EINTR:
+                /* clean up */
+                break;
+            default:
+                break;
+        }
+
+
+
         /* Service all the sockets with input pending. */
         for (i = 0; i < FD_SETSIZE; ++i) {
+//            cout << "2 \n";
             if (FD_ISSET (i, &read_fd_set)) {
                 if (i == sock_to_listen) {
                     /* Connection request on original socket. */
@@ -175,9 +212,15 @@ read_from_others_requests_and_respond(int filedes, Protocol &prot)
     myString whitespace(" ");
     myString instruction("");
 
+    /*messages received from server*/
     bool flagUSER_ON     = false;
-    bool flagCLIENT_LIST= false;
+    bool flagCLIENT_LIST = false;
     bool flagUSER_OFF    = false;
+
+    /*messages received from other clients-workers*/
+    bool flagGET_FILE_LIST = false;
+    bool flagGET_FILE = false;
+
 
     while(read(filedes, buf, 1) > 0) {  /* Receive 1 char */
 //        printf("diavasa %d bytes\n", ++diavasa);
@@ -198,6 +241,18 @@ read_from_others_requests_and_respond(int filedes, Protocol &prot)
 
         if (instruction == "USER_OFF") {
             flagUSER_OFF = true;
+            cout << instruction;
+            break;
+        }
+
+        if (instruction == "GET_FILE_LIST") {
+            flagGET_FILE_LIST = true;
+            cout << instruction;
+            break;
+        }
+
+        if (instruction == "GET_FILE") {
+            flagGET_FILE = true;
             cout << instruction;
             break;
         }
@@ -235,6 +290,21 @@ read_from_others_requests_and_respond(int filedes, Protocol &prot)
 
         cout <<"Printing the list after USER_OFF: \t";
         cout << prot.clients_list<<endl;
+
+    }
+
+    if(flagGET_FILE_LIST){
+
+        prot.recv_GET_FILE_LIST(filedes); //we dont care which worker-client sent it
+        //I will send from the same socket the info
+        prot.respond_with_FILE_LIST(filedes);
+
+    }
+
+    if(flagGET_FILE){
+
+//        prot.recv_GET_FILE(filedes);
+//        prot.send_FILE(filedes);
 
     }
 

@@ -42,6 +42,7 @@ public:
 
     explicit Protocol(ArgumentsKeeper args);
 
+    /*Request and responds from/to server */
     int send_LOG_ON(int sock);
     int recv_USER_ON(int sock , clientsTuple &tupl); /*tupl = newClient*/
     int add_client(const clientsTuple &tupl);
@@ -55,6 +56,11 @@ public:
     int send_LOG_OFF(int sock);
     int recv_USER_OFF(int sock , clientsTuple &tupl); /*clients that quits*/
     int remove_client(const clientsTuple &tupl);
+
+
+    /*Request and responds from/to worker threads from others clients */
+    int recv_GET_FILE_LIST(int sock);
+    int respond_with_FILE_LIST(int sock);
 
 
 

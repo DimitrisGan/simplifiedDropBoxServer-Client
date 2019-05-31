@@ -44,6 +44,7 @@ struct ArgumentsKeeper{
 };
 
 
+int loadContextOfFile(myString path ,myString &context); /*returns the file in bytes*/
 
 void print_ip(unsigned int ip);
 
