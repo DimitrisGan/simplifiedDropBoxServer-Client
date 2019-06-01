@@ -20,7 +20,12 @@ struct info{
     myString pathName;
     unsigned version {0};
 
+    info( myString &ip,  myString &port,  myString &pathName, unsigned int version);
+    info();
 
+    bool operator==(const info &rhs) const;
+
+    bool operator!=(const info &rhs) const;
 
 };
 

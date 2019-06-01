@@ -293,6 +293,30 @@ int Protocol::respond_with_FILE_LIST(int sock) {
     return 0;
 }
 
+int Protocol::recv_GET_FILE(int sock) {
+    cout<< "INFO_CLIENT::Receive GET_FILE from another client - worker_thread\n";
+
+    return 0;
+}
+
+int Protocol::respond_to_GET_FILE(int sock) {
+
+    char buf[128];
+    if (read(sock, buf, 128) < 0) //todo needs while () defensive programming
+        perror_exit("read pathname in GET_FILE");
+
+    myString pathNameAsked(buf);
+    unsigned version;
+
+    if (read(sock, &version, sizeof(unsigned)) < 0) //todo needs while () defensive programming
+        perror_exit("read version in GET_FILE");
+
+    cout << "path asked to give:\t"<< pathNameAsked<<endl;
+    cout << "version ?:\t"<<version<<endl;
+
+    return 0;
+}
+
 
 
 //

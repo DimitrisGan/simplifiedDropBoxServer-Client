@@ -70,6 +70,8 @@ public:
     int recv_GET_FILE_LIST(int sock);
     int respond_with_FILE_LIST(int sock);
 
+    int recv_GET_FILE(int sock);
+    int respond_to_GET_FILE(int sock);
 
 
 };

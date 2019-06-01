@@ -20,6 +20,8 @@
 #include "socketManipulation.h"
 #include "clientProtocol.h"
 
+#include <pthread.h>   /* For threads  */
+
 
 using namespace std;
 
@@ -71,9 +73,6 @@ int main(int argc, char **argv) {
 
 
 
-
-
-
     int     i;
 
     uint16_t serverPort,listenPort;
@@ -90,7 +89,15 @@ int main(int argc, char **argv) {
     prot.send_GET_CLIENTS(sock_writes_to_server_GET_CLIENTS);
 
 
+    pthread_t thr;
+    int err, status;
 
+    if (err = pthread_create(&thr, NULL, &worker_function, NULL)) { /* New thread */
+        perror_exit("pthread_create");
+        exit(1);
+    }
+    printf("I am original thread %ld and I created thread %ld\n",
+           pthread_self(), thr);
 
 /*======    FROM HERE MAKE A NEW SOCKET FOR LISTENING   ======*/
 
@@ -202,9 +209,20 @@ int main(int argc, char **argv) {
 
     //todo kill all threads-children with wait()
 
+
+    if (err = pthread_join(thr, (void **) &status)) { /* Wait for thread */
+        perror_exit("pthread_join"); /* termination */
+        exit(1);
+    }
+
     delete circBuf;circBuf= nullptr;
     return 0;
 }
+
+
+
+
+
 
 
 
@@ -312,8 +330,8 @@ int read_from_others_requests_and_respond(int filedes, Protocol &prot , CS &shar
 
     if(flagGET_FILE){
 
-//        prot.recv_GET_FILE(filedes);
-//        prot.send_FILE(filedes);
+        prot.recv_GET_FILE(filedes);
+        prot.respond_to_GET_FILE(filedes);
 
     }
 

@@ -24,7 +24,9 @@ struct CS {
 
 struct thread_protocol{
 
-    void send_GET_FILE_LIST_and_recv_FILE_LIST(int sock/*,tuple gia th na diavasei*/);
+  void send_GET_FILE_LIST_and_recv_FILE_LIST(int sock/*,tuple gia th na diavasei*/);
+
+    void send_GET_FILE_and_recv(int sock, myString filePath, unsigned version);
 };
 
 void* worker_function(void* args);

@@ -84,3 +84,21 @@ circularBuffer::~circularBuffer() {
 //    }
 //    pthread_exit(0);
 //}
+info::info( myString &ip,  myString &port,  myString &pathName, unsigned int version) : ip(ip),
+                                                                                                       port(port),
+                                                                                                       pathName(
+                                                                                                               pathName),
+                                                                                                       version(version) {}
+
+info::info() {}
+
+bool info::operator==(const info &rhs) const {
+    return ip == rhs.ip &&
+           port == rhs.port &&
+           pathName == rhs.pathName &&
+           version == rhs.version;
+}
+
+bool info::operator!=(const info &rhs) const {
+    return !(rhs == *this);
+}

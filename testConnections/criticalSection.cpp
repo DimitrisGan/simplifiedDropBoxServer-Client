@@ -55,9 +55,29 @@ void thread_protocol::send_GET_FILE_LIST_and_recv_FILE_LIST(int sock) {
             perror_exit("read i-th ip in CLIENTS_LIST");
 
         cout << "VERSION = "<<version<<endl;
-
+        //todo na ftiaksw buffer pou na ta xwnei mesa + na paizw me ta versions =0 an den uparxei hdh
     }
     
 
     close(sock);
+}
+
+
+void thread_protocol::send_GET_FILE_and_recv(int sock ,myString filePath, unsigned version) {
+
+    myString getFileList("GET_FILE");
+
+    if (write(sock, getFileList.getMyStr() ,getFileList.size()) < 0)
+        perror_exit("write GET_FILE in GET_FILE");
+
+    if (write(sock, filePath.getMyStr() ,128) < 0)
+        perror_exit("write file_path_name in GET_FILE");
+
+    //todo FILE_NOT_FOUND
+    //todo FILE_UP_TO_DATE
+
+
+
+//    close(sock);
+
 }
