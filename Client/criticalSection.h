@@ -11,7 +11,7 @@
 #include "threadPool.h"
 
 
-linkedList<info> test;
+//linkedList<info> test;
 
 struct CS {
     linkedList<clientsTuple> clients_list; //todo tha ginei global gia na einai shared gia ola ta threads!!!

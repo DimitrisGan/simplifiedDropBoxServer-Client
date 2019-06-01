@@ -11,16 +11,25 @@ CS::CS(circularBuffer *circBuffer) : circBuffer(circBuffer) {}
 
 
 
-void* worker_function(void* args){
-
-
-
+void* worker_function(void* shared){
 
     cout << "GEIA SOU APO THREAD!!\n";
+    cout << "THREAD PRINT ATTEMPT #1"<<"\t";
+
+    cout << ((CS *)shared)->clients_list<<endl;
+
+    usleep(10);
+    cout << "THREAD PRINT ATTEMPT #2"<<"\t";
+    cout << ((CS *)shared)->clients_list<<endl;
+
+    usleep(10);
+    cout << "THREAD PRINT ATTEMPT #3"<<"\t";
+    cout << ((CS *)shared)->clients_list<<endl;
 
 
 
 
+//    pthread_exit(nullptr);
 
 
 

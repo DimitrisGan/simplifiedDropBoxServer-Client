@@ -1,7 +1,8 @@
 # Declaration of variables
 CC = g++
-CC_FLAGS = -Wall -w -o2  -std=c++11 -pthread
- 
+CC_FLAGS = -Wall -w -o2  -std=c++11
+LDFLAGS = -pthread
+
 # File names
 EXEC = dropbox_client
 SOURCES = $(wildcard *.cpp)
@@ -9,11 +10,11 @@ OBJECTS = $(SOURCES:.cpp=.o)
  
 # Main target
 $(EXEC): $(OBJECTS)
-	$(CC) $(OBJECTS) -o $(EXEC)
+	$(CC) $(LDFLAGS) $(OBJECTS) -o $(EXEC)
 
 # To obtain object files
 %.o: %.cpp 
-	$(CC) -c $(CC_FLAGS) $< -o $@  -lpthread
+	$(CC)  -c $(CC_FLAGS)  $< -o $@  
 
 # To remove generated files
 clean:

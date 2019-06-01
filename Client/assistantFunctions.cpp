@@ -237,8 +237,6 @@ void list_all_in_dir(myString path, linkedList<myString> &listDirList) {
 
         if (isDir ) { //if its a directory
             list_dir(item.getMyStr(), listDirList);
-//            list_all_in_dir(item, listDirList);
-
         }
     }
 }

@@ -14,13 +14,13 @@
 #include <netdb.h>	         /* gethostbyaddr */
 #include <stdlib.h>	         /* exit */
 #include <string.h>	         /* strlen */
+#include <pthread.h>   /* For threads  */
 
 
 #include "assistantFunctions.h"
 #include "socketManipulation.h"
 #include "clientProtocol.h"
 
-#include <pthread.h>   /* For threads  */
 
 
 using namespace std;
@@ -64,14 +64,6 @@ int main(int argc, char **argv) {
 
     Protocol prot(argmKeeper);
 
-//    cout << allFilesInInDir_list;
-//    for ( auto &item : allFilesInInDir_list) {
-//        cout << item<<endl;
-//
-//    }
-//    CS shared; //todo needs constructor
-
-
 
     int     i;
 
@@ -89,23 +81,17 @@ int main(int argc, char **argv) {
     prot.send_GET_CLIENTS(sock_writes_to_server_GET_CLIENTS);
 
 
-    pthread_t thr;
-    int err, status;
 
-    if (err = pthread_create(&thr, NULL, &worker_function, NULL)) { /* New thread */
-        perror_exit("pthread_create");
-        exit(1);
-    }
-    printf("I am original thread %ld and I created thread %ld\n",
-           pthread_self(), thr);
+    printf("I am original-main thread %ld \n",
+           pthread_self() );
 
-/*======    FROM HERE MAKE A NEW SOCKET FOR LISTENING   ======*/
+    //----------------- FROM HERE CREATE A NEW SOCKET FOR LISTENING   ------------------------
 
 
     int sock_to_listen = make_socket_and_bind(listenPort);
 
 
-/* Listen for connections */
+    /* Listen for connections */
 
     if (listen(sock_to_listen, 5) < 0) perror_exit("listen");
     printf("Listening for connections to port %d\n", listenPort);
@@ -115,6 +101,24 @@ int main(int argc, char **argv) {
     fd_set active_fd_set, read_fd_set;
     struct sockaddr_in other;
     socklen_t size;
+
+
+
+    //----------------- THREADS INITIALIZATION  ------------------------
+
+    int err, status;
+
+    int num_thr= argmKeeper.workerThreads.to_int();
+    pthread_t workerThrsIds_array[num_thr];
+
+    for (i=0 ; i<num_thr ; i++) {
+        if (err = pthread_create(workerThrsIds_array+i, NULL, &worker_function, (void *) &shared)) {/* Create a thread */
+            perror_exit("pthread_create");
+        }
+    }
+
+
+
 
 
 /* Initialize the set of active sockets. */
@@ -186,7 +190,7 @@ int main(int argc, char **argv) {
 
                     /* Data arriving on an already-connected socket. */
 
-                    if (read_from_others_requests_and_respond(i, prot,shared) < 0) {
+                    if (read_from_others_requests_and_respond(i, prot, shared) < 0) {
                         close(i);
                         FD_CLR (i, &active_fd_set);
                     }
@@ -207,13 +211,13 @@ int main(int argc, char **argv) {
     prot.send_LOG_OFF(sock_writes_to_server_LOG_OFF);
 
 
-    //todo kill all threads-children with wait()
+    //----------------- WAIT TO FINISH ALL THREADS  ------------------------
+    //
+    for (i=0 ; i<num_thr ; i++)
+        if (err = pthread_join(*(workerThrsIds_array+i), NULL)) { /* Wait for thread termination */
+            perror_exit("pthread_join");
+        }
 
-
-    if (err = pthread_join(thr, (void **) &status)) { /* Wait for thread */
-        perror_exit("pthread_join"); /* termination */
-        exit(1);
-    }
 
     delete circBuf;circBuf= nullptr;
     return 0;
@@ -227,11 +231,12 @@ int main(int argc, char **argv) {
 
 
 
+
+
+
+
 int read_from_others_requests_and_respond(int filedes, Protocol &prot , CS &shared)
 {
-    int diavasa=0;
-
-
 
 
     char buf[1];
