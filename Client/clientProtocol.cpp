@@ -193,9 +193,20 @@ int Protocol::recv_CLIENTS_LIST(int sock, linkedList<clientsTuple> &existingClie
 int Protocol::add_client(const clientsTuple &tupl , CS &shared ) {
     /*save them to the list of tuples if they dont already exist*/
 
+
+    if (pthread_mutex_lock(&shared.client_list_mtx))  /* Lock mutex */
+        perror_exit("pthread_mutex_lock");
+
+    printf("Thread %ld: Locked the mutex\n", pthread_self());
+
     if (! shared.clients_list.exists(tupl))
         shared.clients_list.insert_last(tupl);
 
+    if (pthread_mutex_unlock(&shared.client_list_mtx)) { /* Unlock mutex */
+        perror_exit("pthread_mutex_unlock");
+    }
+
+    printf("Thread %ld: Unlocked the mutex\n", pthread_self());
 
     return 0;
 }
@@ -222,11 +233,25 @@ int Protocol::recv_USER_OFF(int sock, clientsTuple &tupl) {
 
 int Protocol::remove_client(const clientsTuple &tupl , CS &shared) {
 
+    if (pthread_mutex_lock(&shared.client_list_mtx))  /* Lock mutex */
+        perror_exit("pthread_mutex_lock");
+
+    printf("Thread %ld: Locked the mutex\n", pthread_self());
+
     if (! shared.clients_list.exists(tupl) )
         perror_exit("Client doesn't exist to remove!");
 
     /*Remove the client that sent LOG_OFF*/
     shared.clients_list.deleteNodeByItem(tupl);
+
+
+    if (pthread_mutex_unlock(&shared.client_list_mtx)) { /* Unlock mutex */
+        perror_exit("pthread_mutex_unlock");
+    }
+
+    printf("Thread %ld: Unlocked the mutex\n", pthread_self());
+
+
     return 0;
 }
 

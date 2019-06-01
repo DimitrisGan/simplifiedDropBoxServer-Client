@@ -8,10 +8,13 @@
 
 #include "mylinkedList.h"
 #include "clientTuple.h"
-#include "threadPool.h"
+#include "circularBuffer.h"
+#include "assistantFunctions.h"
 
 
 //linkedList<info> test;
+
+
 
 struct CS {
     linkedList<clientsTuple> clients_list; //todo tha ginei global gia na einai shared gia ola ta threads!!!
@@ -19,9 +22,14 @@ struct CS {
 
     explicit CS(circularBuffer *circBuffer);
 
-    pthread_mutex_t mtx_for_circular_buf;
-    pthread_cond_t cond_nonempty;
-    pthread_cond_t cond_nonfull;
+    virtual ~CS();
+
+    pthread_mutex_t client_list_mtx;         /* Mutex for synchronization */
+
+//    lock_client_list();
+//    unlock_client_list();
+
+
 };
 
 
@@ -34,7 +42,7 @@ struct thread_protocol{
 
 };
 
-void* worker_function(void* args);
+void* worker_function(void* shared);
 
 
 

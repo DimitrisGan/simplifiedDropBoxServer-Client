@@ -4,11 +4,19 @@
 
 #include <assert.h>
 #include "criticalSection.h"
-#include "assistantFunctions.h"
 
 
-CS::CS(circularBuffer *circBuffer) : circBuffer(circBuffer) {}
+CS::CS(circularBuffer *circBuffer) : circBuffer(circBuffer) {
 
+    pthread_mutex_init(&this->client_list_mtx, NULL);
+
+}
+
+CS::~CS() {
+    if (pthread_mutex_destroy(&this->client_list_mtx)) { /* Destroy mutex */
+        perror_exit("pthread_mutex_destroy");
+    }
+}
 
 
 void* worker_function(void* shared){
@@ -16,15 +24,18 @@ void* worker_function(void* shared){
     cout << "GEIA SOU APO THREAD!!\n";
     cout << "THREAD PRINT ATTEMPT #1"<<"\t";
 
-    cout << ((CS *)shared)->clients_list<<endl;
+    thread_protocol thr;
 
-    usleep(10);
-    cout << "THREAD PRINT ATTEMPT #2"<<"\t";
-    cout << ((CS *)shared)->clients_list<<endl;
 
-    usleep(10);
-    cout << "THREAD PRINT ATTEMPT #3"<<"\t";
-    cout << ((CS *)shared)->clients_list<<endl;
+//    cout << ((CS *)shared)->clients_list<<endl;
+//
+//    usleep(10);
+//    cout << "THREAD PRINT ATTEMPT #2"<<"\t";
+//    cout << ((CS *)shared)->clients_list<<endl;
+//
+//    usleep(10);
+//    cout << "THREAD PRINT ATTEMPT #3"<<"\t";
+//    cout << ((CS *)shared)->clients_list<<endl;
 
 
 
@@ -32,6 +43,7 @@ void* worker_function(void* shared){
 //    pthread_exit(nullptr);
 
 
+    pthread_exit(0);
 
 }
 

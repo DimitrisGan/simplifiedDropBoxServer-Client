@@ -30,18 +30,24 @@ struct info{
 };
 
 struct circularBuffer{
-    info* buff;
+    info* data;
     int start;
     int end;
     int count;
+
+    int buffSize;
+
+    pthread_mutex_t circular_buf_mtx;
+    pthread_cond_t cond_nonempty;
+    pthread_cond_t cond_nonfull;
+
 
     explicit circularBuffer(int bufferSize);
     virtual ~circularBuffer();
 
 
-    //todo needs mutexes,condition variables
-
-
+    void place(info data);
+    info obtain();
 
 
 };
@@ -50,7 +56,6 @@ struct circularBuffer{
 
 
 
-//void initialize(pool_t * pool);
 //
 //
 //void * producer(void * ptr);

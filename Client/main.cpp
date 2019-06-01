@@ -41,6 +41,8 @@ void catchinterrupt(int signo){
 
 
 
+
+
 int main(int argc, char **argv) {
 
     static struct sigaction act;
@@ -81,10 +83,6 @@ int main(int argc, char **argv) {
     prot.send_GET_CLIENTS(sock_writes_to_server_GET_CLIENTS);
 
 
-
-    printf("I am original-main thread %ld \n",
-           pthread_self() );
-
     //----------------- FROM HERE CREATE A NEW SOCKET FOR LISTENING   ------------------------
 
 
@@ -105,6 +103,9 @@ int main(int argc, char **argv) {
 
 
     //----------------- THREADS INITIALIZATION  ------------------------
+    printf("Main Thread %ld running \n",pthread_self());
+
+
 
     int err, status;
 
@@ -112,7 +113,7 @@ int main(int argc, char **argv) {
     pthread_t workerThrsIds_array[num_thr];
 
     for (i=0 ; i<num_thr ; i++) {
-        if (err = pthread_create(workerThrsIds_array+i, NULL, &worker_function, (void *) &shared)) {/* Create a thread */
+        if (pthread_create(workerThrsIds_array+i, NULL, &worker_function, (void *) &shared)) {/* Create a thread */
             perror_exit("pthread_create");
         }
     }
@@ -214,13 +215,18 @@ int main(int argc, char **argv) {
     //----------------- WAIT TO FINISH ALL THREADS  ------------------------
     //
     for (i=0 ; i<num_thr ; i++)
-        if (err = pthread_join(*(workerThrsIds_array+i), NULL)) { /* Wait for thread termination */
+        if (pthread_join(*(workerThrsIds_array+i), nullptr)) { /* Wait for thread termination */
             perror_exit("pthread_join");
         }
 
 
+
+//    pthread_exit(NULL);
+
     delete circBuf;circBuf= nullptr;
     return 0;
+
+
 }
 
 
