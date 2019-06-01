@@ -33,6 +33,8 @@
 
 class Protocol{
     ArgumentsKeeper args;
+
+    linkedList<myString> initFilesInDir_list;
 //    int sock;
 
 

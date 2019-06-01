@@ -2,9 +2,9 @@
 // Created by dimitrisgan on 31/5/2019.
 //
 
-#include <assert.h>
 #include "criticalSection.h"
 #include "assistantFunctions.h"
+#include <assert.h>
 
 
 CS::CS(circularBuffer *circBuffer) : circBuffer(circBuffer) {}
@@ -48,7 +48,7 @@ void thread_protocol::send_GET_FILE_LIST_and_recv_FILE_LIST(int sock) {
         char buf[128];
         if (read(sock, buf, 128) < 0) //todo needs while () defensive programming
             perror_exit("read i-th ip in CLIENTS_LIST");
-
+        
         cout << "PATH = "<<buf<<endl;
         unsigned version;
         if (read(sock, &version, sizeof(unsigned)) < 0) //todo needs while () defensive programming
@@ -57,7 +57,7 @@ void thread_protocol::send_GET_FILE_LIST_and_recv_FILE_LIST(int sock) {
         cout << "VERSION = "<<version<<endl;
 
     }
-
+    
 
     close(sock);
 }

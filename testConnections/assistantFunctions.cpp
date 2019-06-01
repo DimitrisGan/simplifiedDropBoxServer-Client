@@ -230,14 +230,13 @@ void list_all_in_dir(myString path, linkedList<myString> &listDirList) {
 
     list_dir(path.getMyStr(), listDirList);
 
-//    myString prefixPath;prefixPath = path;prefixPath += "/";
+    myString prefixPath;prefixPath = path;prefixPath += "/";
     for ( auto &item : listDirList) {
-//        myString newPath;newPath = prefixPath;newPath+=item;
-        bool isDir = is_dir(item.getMyStr());
+        myString newPath;newPath = prefixPath;newPath+=item;
+        bool isDir = is_dir(newPath.getMyStr());
 
         if (isDir ) { //if its a directory
-            list_dir(item.getMyStr(), listDirList);
-//            list_all_in_dir(item, listDirList);
+            list_all_in_dir(newPath, listDirList);
 
         }
     }
@@ -245,8 +244,6 @@ void list_all_in_dir(myString path, linkedList<myString> &listDirList) {
 
 
 void list_dir(const char *path, linkedList<myString> &listDirList) {
-    myString currDir(".");
-    myString prevDir("..");
     struct dirent *entry;
     DIR *dir = opendir(path);
 
@@ -255,12 +252,7 @@ void list_dir(const char *path, linkedList<myString> &listDirList) {
     }
     while ((entry = readdir(dir)) != NULL) {
         myString file(entry->d_name);
-        if (file == currDir || file == prevDir)
-            continue;
-
-        myString pathFile(path);pathFile+="/";
-        pathFile+=file;
-        listDirList.insert_last(pathFile);
+        listDirList.insert_last(file);
     }
     closedir(dir);
 

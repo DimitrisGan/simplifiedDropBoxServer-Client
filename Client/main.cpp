@@ -57,12 +57,16 @@ int main(int argc, char **argv) {
     CS shared(circBuf);
 
     linkedList<myString> allFilesInInDir_list;
-//    list_dir(argmKeeper.inDir.getMyStr(), allFilesInInDir_list);
 
     list_all_in_dir(argmKeeper.inDir, allFilesInInDir_list);
 
-//    cout << allFilesInInDir_list;
     Protocol prot(argmKeeper);
+
+//    cout << allFilesInInDir_list;
+//    for ( auto &item : allFilesInInDir_list) {
+//        cout << item<<endl;
+//
+//    }
 //    CS shared; //todo needs constructor
 
 
@@ -256,11 +260,11 @@ int read_from_others_requests_and_respond(int filedes, Protocol &prot , CS &shar
             break;
         }
 
-        if (instruction == "GET_FILE") {
-            flagGET_FILE = true;
-//            cout << instruction;
-            break;
-        }
+//        if (instruction == "GET_FILE") {
+//            flagGET_FILE = true;
+////            cout << instruction;
+//            break;
+//        }
 
 
     }
