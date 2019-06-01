@@ -254,7 +254,7 @@ int read_from_others_requests_and_respond(int filedes, Protocol &prot , CS &shar
             break;
         }
 
-        if (instruction == "GET_FILE_LIST") { //TODO CHANGE IT!!
+        if (instruction == "1_GET_FILE_LIST") { //TODO CHANGE IT!!
             flagGET_FILE_LIST = true;
 //            cout << instruction;
             break;

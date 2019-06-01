@@ -27,7 +27,7 @@ void* worker_function(void* args){
 }
 
 void thread_protocol::send_GET_FILE_LIST_and_recv_FILE_LIST(int sock) {
-    myString getFileList("GET_FILE_LIST");
+    myString getFileList("1_GET_FILE_LIST");
 
     if (write(sock, getFileList.getMyStr() ,getFileList.size()) < 0)
         perror_exit("write i-th file_path_name in FILE_LIST");
