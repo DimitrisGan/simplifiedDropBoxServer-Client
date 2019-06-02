@@ -41,7 +41,7 @@ struct CS {
 
 struct thread_protocol{
 
-    void send_GET_FILE_LIST_and_recv_FILE_LIST(int sock, linkedList<info> &retNewPaths_list);
+    void send_GET_FILE_LIST_and_recv_FILE_LIST(uint32_t ipB, uint16_t portB, linkedList<info> &retNewPaths_list);
 
     void send_GET_FILE_and_recv(int sock, myString filePath, unsigned version);
 
@@ -50,7 +50,7 @@ struct thread_protocol{
 
 void* worker_function(void* shared);
 
-myString createNewDirName(myString ip,uint16_t port);
+myString createNewDirName(uint32_t ipB, uint16_t portB);
 
 myString createPathForNewDir (myString inDir , myString nameNewDir);
 

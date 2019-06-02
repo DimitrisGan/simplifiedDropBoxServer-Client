@@ -71,8 +71,7 @@ void* worker_function(void* shared){
             cout << "edw trww seg? 7\n";
 
 
-            myString ip; ip = convertBinaryIpToString(cbuff_item.ip);
-            myString newClientsDir; newClientsDir  = createNewDirName(ip,cbuff_item.port);
+            myString newClientsDir; newClientsDir  = createNewDirName(cbuff_item.ip ,cbuff_item.port);
             myString newClientsDirPath;newClientsDirPath = createPathForNewDir(  ((CS *)shared)->inputDir ,newClientsDir);
 
             cout << "edw trww seg? 8\n";
@@ -87,10 +86,16 @@ void* worker_function(void* shared){
 
             linkedList <info> newItems2place_list;
 
-            int sock_writes_FILE_LIST_and_recv_FILE_LIST= create_socket_and_connect(ip, cbuff_item.port);
 
-            thr.send_GET_FILE_LIST_and_recv_FILE_LIST(sock_writes_FILE_LIST_and_recv_FILE_LIST /*, linkedList <info>&*/ ,
+            thr.send_GET_FILE_LIST_and_recv_FILE_LIST(cbuff_item.ip , cbuff_item.port,
                                                       newItems2place_list);
+
+            for (auto &item : newItems2place_list) {
+                if (item.isFile()){}
+
+                cout <<"New paths are:\t";
+                cout<<item<<endl;
+            }
 
         }
 
@@ -114,9 +119,10 @@ void* worker_function(void* shared){
 
 }
 
-myString createNewDirName(myString ip, uint16_t port) {
-    myString portStr ; portStr = convertBInaryPortToString(port);
-    myString newClientsDirName = ip; newClientsDirName+="_";newClientsDirName+= portStr ;
+myString createNewDirName(uint32_t ipB, uint16_t portB) {
+    myString ipStr; ipStr = convertBinaryIpToString(ipB);
+    myString portStr ; portStr = convertBInaryPortToString(portB);
+    myString newClientsDirName = ipStr; newClientsDirName+="_";newClientsDirName+= portStr ;
 
     return newClientsDirName;
 }
@@ -131,8 +137,14 @@ myString createPathForNewDir(myString inDir, myString nameNewDir) {
 }
 
 
-void thread_protocol::send_GET_FILE_LIST_and_recv_FILE_LIST(int sock, linkedList<info> &retNewPaths_list) {
+void
+thread_protocol::send_GET_FILE_LIST_and_recv_FILE_LIST(uint32_t ipB, uint16_t portB, linkedList<info> &retNewPaths_list) {
     myString getFileList("1_GET_FILE_LIST");
+
+    myString ipStr; ipStr = convertBinaryIpToString(ipB);
+
+    int sock = create_socket_and_connect(ipStr, portB);
+
 
     cout<< "INFO_CLIENT-WORKER!::Send GET_FILE_LIST from send_GET_FILE_LIST_and_recv_FILE_LIST  to other client\n";
 
@@ -143,27 +155,32 @@ void thread_protocol::send_GET_FILE_LIST_and_recv_FILE_LIST(int sock, linkedList
     myString FILE_LIST("FILE_LIST");
     char ass[9];
     if (read(sock, ass, FILE_LIST.size()) < 0) //todo needs while () defensive programming
-        perror_exit("read i-th ip in CLIENTS_LIST");
+        perror_exit("read i-th ipB in CLIENTS_LIST");
 
     assert(FILE_LIST == ass);
 
     int n;
     if (read(sock, &n, sizeof(n)) < 0) //todo needs while () defensive programming
-        perror_exit("read i-th ip in CLIENTS_LIST");
+        perror_exit("read i-th ipB in CLIENTS_LIST");
 
 
     for (int i = 0; i < n ; ++i) {
         char buf[128];
         if (read(sock, buf, 128) < 0) //todo needs while () defensive programming
-            perror_exit("read i-th ip in CLIENTS_LIST");
+            perror_exit("read i-th ipB in CLIENTS_LIST");
 
         myString pathName(buf);
         cout << "PATH = "<<buf<<endl;
         unsigned version;
         if (read(sock, &version, sizeof(unsigned)) < 0) //todo needs while () defensive programming
-            perror_exit("read i-th ip in CLIENTS_LIST");
+            perror_exit("read i-th ipB in CLIENTS_LIST");
 
         cout << "VERSION = "<<version<<endl;
+
+
+        info info2add(ipB,portB,pathName,version);
+
+        retNewPaths_list.insert_last(info2add);
         //todo na ftiaksw buffer pou na ta xwnei mesa + na paizw me ta versions =0 an den uparxei hdh
 
         //TODO

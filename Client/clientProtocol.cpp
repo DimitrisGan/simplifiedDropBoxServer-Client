@@ -259,12 +259,13 @@ int Protocol::remove_client(const clientsTuple &tupl , CS &shared) {
 
     printf("Thread %ld: Unlocked the mutex\n", pthread_self());
 
+    //todo tha prepei na eidopoiithei kai to circBuffer..mporei kai oxi proxwrame
 
     return 0;
 }
 
 int Protocol::recv_GET_FILE_LIST(int sock) {
-    cout<< "INFO_CLIENT::Receive GET_FILE_LIST from another client - worker_thread\n";
+    cout<< "INFO_CLIENT::Receive GET_FILE_LIST from another client's - worker_thread\n";
 
     //TODO pithanon na th svhsw gt einai axreiasth
 //    this->respond_with_FILE_LIST(sock);
@@ -289,13 +290,15 @@ int Protocol::respond_with_FILE_LIST(int sock) {
     if (write(sock, &n ,sizeof(int)) < 0)
         perror_exit("write n in FILE_LIST");
 
-
+    myString deletePrefix = this->args.inDir; deletePrefix+="/";
     //todo stelnw FILE_LIST 128 bytes gia pathname ,
 
-    for (auto &filePath2send : this->initFilesInDir_list) {
+    for (auto &filePath : this->initFilesInDir_list) {
+        myString filePath2send = filePath;
+        filePath2send.removeSubstr(deletePrefix.getMyStr());
 
 //        char buf[128];
-//        buf = filePath2send.getMyStr();
+//        buf = filePath.getMyStr();
 
 
         if (write(sock, filePath2send.getMyStr() ,128) < 0)
@@ -304,10 +307,10 @@ int Protocol::respond_with_FILE_LIST(int sock) {
 
         unsigned version ;
 
-        if (is_regular_file(filePath2send.getMyStr())) { //if it's regular file
+        if (is_regular_file(filePath.getMyStr())) { //if it's regular file
 
             myString fileContent;
-            loadContextOfFile(filePath2send,fileContent); //load the content
+            loadContextOfFile(filePath,fileContent); //load the content
 
             version = myHash(fileContent); //and hash it to take the version
         }
