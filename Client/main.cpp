@@ -240,7 +240,7 @@ int main(int argc, char **argv) {
             perror_exit("pthread_cancel");
 
         cout << "GGGeia2\n";
-//        pthread_kill(thrId,9);
+        pthread_kill(thrId,9);
 
         if (pthread_join(thrId, nullptr))
             perror_exit("pthread_join");

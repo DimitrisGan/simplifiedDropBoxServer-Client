@@ -12,7 +12,6 @@
 #include "myString.h"
 #include "clientTuple.h"
 
-#define POOL_SIZE 6
 
 
 struct info{
@@ -37,6 +36,8 @@ struct info{
     bool isFile();
 
     bool isDir();
+
+    void setPathName(myString pathName);
 
     friend ostream &operator<<(ostream &os, const info &info1);
 

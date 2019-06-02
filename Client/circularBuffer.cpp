@@ -196,6 +196,10 @@ ostream &operator<<(ostream &os, const info &info1) {
     return os;
 }
 
+void info::setPathName(myString pathName) {
+    info::pathName = pathName;
+}
+
 //info info::operator=(info &right) {
 //    this->ip = right.ip;
 //    this->port =right.port;

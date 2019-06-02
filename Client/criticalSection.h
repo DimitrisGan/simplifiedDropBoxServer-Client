@@ -33,7 +33,6 @@ struct CS {
 //    lock_client_list();
 //    unlock_client_list();
 
-    void print();
 
 
 };
@@ -53,6 +52,7 @@ void* worker_function(void* shared);
 myString createNewDirName(uint32_t ipB, uint16_t portB);
 
 myString createPathForNewDir (myString inDir , myString nameNewDir);
+
 
 
 #endif //CLIENT_CRITICALSECTION_H

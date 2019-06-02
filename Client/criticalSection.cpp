@@ -90,8 +90,17 @@ void* worker_function(void* shared){
             thr.send_GET_FILE_LIST_and_recv_FILE_LIST(cbuff_item.ip , cbuff_item.port,
                                                       newItems2place_list);
 
+            //add the prefix ip_port/.. in all files
+            myString prefix = newClientsDirPath; prefix+="/";
+
             for (auto &item : newItems2place_list) {
-                if (item.isFile()){}
+
+//                addPrefix2list_of_file(item.pathName);
+                myString realPath = prefix; realPath+=item.pathName;
+                item.setPathName(realPath);
+
+
+//                if (item.exists()){}
 
                 cout <<"New paths are:\t";
                 cout<<item<<endl;
@@ -176,6 +185,7 @@ thread_protocol::send_GET_FILE_LIST_and_recv_FILE_LIST(uint32_t ipB, uint16_t po
             perror_exit("read i-th ipB in CLIENTS_LIST");
 
         cout << "VERSION = "<<version<<endl;
+
 
 
         info info2add(ipB,portB,pathName,version);
