@@ -14,6 +14,8 @@
 
 //linkedList<info> test;
 
+static volatile sig_atomic_t  quitThread=0;
+
 
 
 struct CS {

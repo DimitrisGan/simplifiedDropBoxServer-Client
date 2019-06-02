@@ -27,18 +27,25 @@ using namespace std;
 
 int read_from_others_requests_and_respond(int filedes, Protocol &prot ,CS &shared);
 
-static volatile sig_atomic_t quitFlag = 0;
+
+static volatile sig_atomic_t quitMain = 0;
+pthread_mutex_t quitMain_mtx;         /* Mutex for synchronization */
+
+
 
 
 //looks for ctrl-c which has a value of 2
 void catchinterrupt(int signo){
 
-    if (signo == SIGINT || signo == SIGQUIT) {
-        quitFlag=1;
+    if (signo == SIGINT ) {
+        quitMain=1;
+
+        quitThread =1;
+
+
     }
 
 }
-
 
 
 
@@ -50,6 +57,8 @@ int main(int argc, char **argv) {
     act.sa_flags = SA_SIGINFO;
     sigfillset(&(act.sa_mask));
     sigaction(SIGINT, &act, NULL);
+
+
 
 
     ArgumentsKeeper argmKeeper;
@@ -115,7 +124,9 @@ int main(int argc, char **argv) {
     for (i=0 ; i<num_thr ; i++) {
         if (pthread_create(workerThrsIds_array+i, NULL, &worker_function, (void *) &shared)) {/* Create a thread */
             perror_exit("pthread_create");
+            cout << workerThrsIds_array[i]<<endl;
         }
+
     }
 
 
@@ -130,10 +141,10 @@ int main(int argc, char **argv) {
 
 
 
-    while (quitFlag == 0)
+    while (quitMain == 0)
     {
 //        cout << "----------------> 1 \n";
-//        if ( quitFlag == 1){
+//        if ( quitMain == 1){
 //
 ////            for (i = 0; i < FD_SETSIZE; ++i) {
 ////                close(i);
@@ -189,6 +200,9 @@ int main(int argc, char **argv) {
                     FD_SET (newsock, &active_fd_set);
                 } else {
 
+                    if (quitMain){
+                        break;
+                    }
                     /* Data arriving on an already-connected socket. */
 
                     if (read_from_others_requests_and_respond(i, prot, shared) < 0) {
@@ -212,18 +226,56 @@ int main(int argc, char **argv) {
     prot.send_LOG_OFF(sock_writes_to_server_LOG_OFF);
 
 
+    cout << "main thread exited from loop\n";
     //----------------- WAIT TO FINISH ALL THREADS  ------------------------
     //
-    for (i=0 ; i<num_thr ; i++)
-        if (pthread_join(*(workerThrsIds_array+i), nullptr)) { /* Wait for thread termination */
+
+    for (auto &thrId : workerThrsIds_array) {
+
+        cout << "worker Id = "<<thrId<< endl;
+    }
+
+    for (auto &thrId : workerThrsIds_array) {
+
+        cout << "GGGeia1\n";
+        if (pthread_cancel(thrId))
+            perror_exit("pthread_cancel");
+
+        cout << "GGGeia2\n";
+        pthread_kill(thrId,9);
+
+        if (pthread_join(thrId, nullptr))
             perror_exit("pthread_join");
-        }
+
+
+
+
+        cout << "GGGeia3\n";
+
+
+        cout << "thread exits2!!!!!!!!\n";
+
+    }
+
+
+
+
+
+
+
+//    for (i=0 ; i<num_thr ; i++)
+//
+//        if (pthread_join(*(workerThrsIds_array+i), nullptr)) { /* Wait for thread termination */
+//            perror_exit("pthread_join");
+//        }
 
 
 
 //    pthread_exit(NULL);
 
+
     delete circBuf;circBuf= nullptr;
+    cout <<"END"<<endl;
     return 0;
 
 

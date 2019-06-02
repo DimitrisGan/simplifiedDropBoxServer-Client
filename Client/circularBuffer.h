@@ -27,6 +27,8 @@ struct info{
 
     bool operator!=(const info &rhs) const;
 
+
+
 };
 
 struct circularBuffer{
@@ -45,6 +47,8 @@ struct circularBuffer{
     explicit circularBuffer(int bufferSize);
     virtual ~circularBuffer();
 
+    bool isFull();
+    bool isEmpty();
 
     void place(info data);
     info obtain();

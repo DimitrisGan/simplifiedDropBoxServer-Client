@@ -15,6 +15,10 @@
 # define PERMS 0644 //set access p e r m i s s i o n s
 
 
+
+
+
+
 int loadContextOfFile(myString path , myString &context) {
 
     FILE *f = fopen(path.getMyStr(), "rb");

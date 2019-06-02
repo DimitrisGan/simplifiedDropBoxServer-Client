@@ -15,6 +15,8 @@ circularBuffer::circularBuffer(int bufferSize) {
     this->count = 0;
     this->buffSize = bufferSize;
 
+
+
     pthread_mutex_init(&this->circular_buf_mtx, NULL);
     pthread_cond_init(&cond_nonempty, 0);
     pthread_cond_init(&cond_nonfull, 0);
@@ -48,7 +50,7 @@ void circularBuffer::place(info data) {
     if (pthread_mutex_lock(&this->circular_buf_mtx))  /* Lock mutex */
         perror_exit("pthread_mutex_lock");
 
-    while (this->count >= this->buffSize) {
+    while (this->isFull()) {
         printf(">> Found circBuffer Full \n");
         pthread_cond_wait(&this->cond_nonfull, &this->circular_buf_mtx);
     }
@@ -64,35 +66,47 @@ void circularBuffer::place(info data) {
 
 info circularBuffer::obtain() {
     info data ;
-    pthread_mutex_lock(&this->circular_buf_mtx);
 
-    while (this->count <= 0) {
+    if (pthread_mutex_lock(&this->circular_buf_mtx))  /* Lock mutex */
+        perror_exit("pthread_mutex_lock");
+
+    while (this->isEmpty()) {
         printf(">> Found Buffer Empty \n");
         pthread_cond_wait(&cond_nonempty, &this->circular_buf_mtx);
     }
     data = this->data[this->start];
-    this->start = (this->start + 1) % POOL_SIZE;
+    this->start = (this->start + 1) % this->buffSize;
     this->count--;
 
-    pthread_mutex_unlock(&this->circular_buf_mtx);
+    if(pthread_mutex_unlock(&this->circular_buf_mtx))
+        perror_exit("pthread_mutex_lock");
+
     return data;
 }
 
-
-void * producer(/*void * ptr*/)
-{
-
-    //TODO LOGIKA OLO AUTO DE XREIAZETAI GT THA EXW ASUGXRONA AITHMATA POU THA THELOUN NA XWSOUN STO BUFFER
-    //TODO ISWS EDW NA TO XWSW APO TO client_list GENIKA SKEPSOU TO OTAN GURISEIS
-    while (num_of_items > 0) {
-        place(&pool, num_of_items);
-        printf("producer: %d\n", num_of_items);
-        num_of_items--;
-        pthread_cond_signal(&cond_nonempty);
-//        usleep(1000);
-    }
-    pthread_exit(0);
+bool circularBuffer::isFull() {
+    return  this->count >= this->buffSize;
 }
+
+bool circularBuffer::isEmpty() {
+    return this->count <= 0;
+}
+
+
+//void * producer(/*void * ptr*/)
+//{
+//
+//    //TODO LOGIKA OLO AUTO DE XREIAZETAI GT THA EXW ASUGXRONA AITHMATA POU THA THELOUN NA XWSOUN STO BUFFER
+//    //TODO ISWS EDW NA TO XWSW APO TO client_list GENIKA SKEPSOU TO OTAN GURISEIS
+//    while (num_of_items > 0) {
+//        place(&pool, num_of_items);
+//        printf("producer: %d\n", num_of_items);
+//        num_of_items--;
+//        pthread_cond_signal(&cond_nonempty);
+////        usleep(1000);
+//    }
+//    pthread_exit(0);
+//}
 
 //
 //

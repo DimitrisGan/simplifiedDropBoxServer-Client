@@ -25,7 +25,6 @@
 
 
 
-
 struct ArgumentsKeeper{
     myString inDir;
     myString portNum;

@@ -207,6 +207,12 @@ int Protocol::add_client(const clientsTuple &tupl , CS &shared ) {
     }
 
     printf("Thread %ld: Unlocked the mutex\n", pthread_self());
+    //==================================
+
+    info tuplInCircBuffer;
+
+    
+    shared.circBuffer->place(tuplInCircBuffer);
 
     return 0;
 }

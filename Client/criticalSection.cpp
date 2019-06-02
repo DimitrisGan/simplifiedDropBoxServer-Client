@@ -26,6 +26,9 @@ void* worker_function(void* shared){
 
     thread_protocol thr;
 
+    while (quitThread == 0) {
+
+
 
 //    cout << ((CS *)shared)->clients_list<<endl;
 //
@@ -40,8 +43,11 @@ void* worker_function(void* shared){
 
 
 
-//    pthread_exit(nullptr);
 
+
+//    pthread_exit(nullptr);
+    }
+    cout << "thread exits!!!!!!!!\n";
 
     pthread_exit(0);
 
