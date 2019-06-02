@@ -210,9 +210,11 @@ int Protocol::add_client(const clientsTuple &tupl , CS &shared ) {
     //==================================
 
     info tuplInCircBuffer;
+    tuplInCircBuffer.prepareNewClient(tupl);
+    cout << "edw trww seg? 1\n";
 
-    
     shared.circBuffer->place(tuplInCircBuffer);
+    cout << "edw trww seg? 2\n";
 
     return 0;
 }

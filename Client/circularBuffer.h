@@ -8,25 +8,39 @@
 #include <stdio.h> 		// from www.mario-konrad.ch
 #include <pthread.h>
 #include <unistd.h>
+#include <ostream>
 #include "myString.h"
+#include "clientTuple.h"
 
 #define POOL_SIZE 6
 
 
 struct info{
-    myString ip;
-    myString port;
+    uint32_t ip;
+    uint16_t port;
 
     myString pathName;
     unsigned version {0};
 
-    info( myString &ip,  myString &port,  myString &pathName, unsigned int version);
+    info(uint32_t ip, uint16_t port, myString &pathName, unsigned int version);
+
     info();
 
     bool operator==(const info &rhs) const;
 
     bool operator!=(const info &rhs) const;
 
+    void prepareNewClient(clientsTuple tupl);
+
+    bool isNewClient();
+    bool isFilePath();
+    bool isFile();
+
+    bool isDir();
+
+    friend ostream &operator<<(ostream &os, const info &info1);
+
+//    info operator=( info &right) ;   // for assign with myString
 
 
 };
@@ -52,6 +66,8 @@ struct circularBuffer{
 
     void place(info data);
     info obtain();
+
+    int size();
 
 
 };

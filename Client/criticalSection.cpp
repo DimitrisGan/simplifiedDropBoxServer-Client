@@ -4,13 +4,16 @@
 
 #include <assert.h>
 #include "criticalSection.h"
+#include "socketManipulation.h"
 
 
-CS::CS(circularBuffer *circBuffer) : circBuffer(circBuffer) {
+
+CS::CS(circularBuffer *circBuffer,  myString inputDir) : circBuffer(circBuffer), inputDir(inputDir) {
 
     pthread_mutex_init(&this->client_list_mtx, NULL);
 
 }
+
 
 CS::~CS() {
     if (pthread_mutex_destroy(&this->client_list_mtx)) { /* Destroy mutex */
@@ -19,14 +22,19 @@ CS::~CS() {
 }
 
 
+
 void* worker_function(void* shared){
 
     cout << "GEIA SOU APO THREAD!!\n";
     cout << "THREAD PRINT ATTEMPT #1"<<"\t";
 
     thread_protocol thr;
+//    int test= ((CS *)shared))
 
-    while (quitThread == 0) {
+    while (true/*quitThread == 0*/) {
+        cout << "edw trww seg? 3\n";
+
+        sleep(3);
 
 
 
@@ -41,6 +49,59 @@ void* worker_function(void* shared){
 //    cout << ((CS *)shared)->clients_list<<endl;
 
 
+        info cbuff_item;
+
+
+        cout << "CIRCLED BUFFER SIZE IS : "<< ((CS *)shared)->circBuffer->size()<<endl;
+
+        cout << "edw trww seg? 4\n";
+
+        cbuff_item = ((CS *)shared)->circBuffer->obtain();
+
+
+        cout <<"to cbuff_item exei times "<<cbuff_item<<endl;
+        cout << "edw trww seg? 5\n";
+
+
+
+        cout << "edw trww seg? 6\n";
+
+
+        if (cbuff_item.isNewClient()){
+            cout << "edw trww seg? 7\n";
+
+
+            myString ip; ip = convertBinaryIpToString(cbuff_item.ip);
+            myString newClientsDir; newClientsDir  = createNewDirName(ip,cbuff_item.port);
+            myString newClientsDirPath;newClientsDirPath = createPathForNewDir(  ((CS *)shared)->inputDir ,newClientsDir);
+
+            cout << "edw trww seg? 8\n";
+
+            createDirectory(newClientsDirPath.getMyStr());
+
+            cout << "edw trww seg? 9\n";
+
+
+            cout <<"WORKER::new Dir for new Client created in Path = "<<newClientsDirPath<<endl;
+
+
+            linkedList <info> newItems2place_list;
+
+            int sock_writes_FILE_LIST_and_recv_FILE_LIST= create_socket_and_connect(ip, cbuff_item.port);
+
+            thr.send_GET_FILE_LIST_and_recv_FILE_LIST(sock_writes_FILE_LIST_and_recv_FILE_LIST /*, linkedList <info>&*/ ,
+                                                      newItems2place_list);
+
+        }
+
+        if (cbuff_item.isFilePath()){
+
+        }
+
+        if (cbuff_item.isFile()){
+
+        }
+
 
 
 
@@ -53,8 +114,28 @@ void* worker_function(void* shared){
 
 }
 
-void thread_protocol::send_GET_FILE_LIST_and_recv_FILE_LIST(int sock) {
+myString createNewDirName(myString ip, uint16_t port) {
+    myString portStr ; portStr = convertBInaryPortToString(port);
+    myString newClientsDirName = ip; newClientsDirName+="_";newClientsDirName+= portStr ;
+
+    return newClientsDirName;
+}
+
+myString createPathForNewDir(myString inDir, myString nameNewDir) {
+    myString newClientsDirPath;newClientsDirPath=inDir;
+    newClientsDirPath+="/";
+    newClientsDirPath += nameNewDir;
+
+
+    return newClientsDirPath;
+}
+
+
+void thread_protocol::send_GET_FILE_LIST_and_recv_FILE_LIST(int sock, linkedList<info> &retNewPaths_list) {
     myString getFileList("1_GET_FILE_LIST");
+
+    cout<< "INFO_CLIENT-WORKER!::Send GET_FILE_LIST from send_GET_FILE_LIST_and_recv_FILE_LIST  to other client\n";
+
 
     if (write(sock, getFileList.getMyStr() ,getFileList.size()) < 0)
         perror_exit("write i-th file_path_name in FILE_LIST");
@@ -86,8 +167,7 @@ void thread_protocol::send_GET_FILE_LIST_and_recv_FILE_LIST(int sock) {
         //todo na ftiaksw buffer pou na ta xwnei mesa + na paizw me ta versions =0 an den uparxei hdh
 
         //TODO
-//        info infoTupl();
-//        if (test.)
+//        if (fileExist(this.)) //todo tha to valw sth worker synarthsh kai apo kei tha tsekarw an uparxei hdh gia na allaksw to version
     }
 
 

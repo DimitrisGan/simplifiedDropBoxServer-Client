@@ -145,6 +145,15 @@ myString getMyIpInStr() {
     return ip;
 }
 
+myString convertBInaryPortToString(uint16_t portB) {
+
+    char str[500];
+    sprintf(str, "%u", portB);
+    myString strPort(str);
+
+    return strPort;
+}
+
 
 
 

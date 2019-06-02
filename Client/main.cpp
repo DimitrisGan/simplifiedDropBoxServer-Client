@@ -59,15 +59,13 @@ int main(int argc, char **argv) {
     sigaction(SIGINT, &act, NULL);
 
 
-
-
     ArgumentsKeeper argmKeeper;
     argmParser(argc, argv , argmKeeper);
 
     argmKeeper.printArgs();
 
     circularBuffer *circBuf = new circularBuffer(argmKeeper.bufSize);
-    CS shared(circBuf);
+    CS shared(circBuf,argmKeeper.inDir);
 
     linkedList<myString> allFilesInInDir_list;
 
@@ -122,7 +120,7 @@ int main(int argc, char **argv) {
     pthread_t workerThrsIds_array[num_thr];
 
     for (i=0 ; i<num_thr ; i++) {
-        if (pthread_create(workerThrsIds_array+i, NULL, &worker_function, (void *) &shared)) {/* Create a thread */
+        if (pthread_create(workerThrsIds_array+i, NULL, &worker_function,  &shared)) {/* Create a thread */
             perror_exit("pthread_create");
             cout << workerThrsIds_array[i]<<endl;
         }

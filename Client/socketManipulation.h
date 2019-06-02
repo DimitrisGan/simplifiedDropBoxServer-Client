@@ -29,6 +29,8 @@ uint32_t convertStringIpToBinary(myString ip);
 myString
 convertBinaryIpToString(uint32_t ipB);
 
+myString
+convertBInaryPortToString(uint16_t portB);
 
 int
 make_socket_and_bind(uint16_t port);

@@ -60,6 +60,10 @@ void circularBuffer::place(info data) {
 
     if (pthread_mutex_unlock(&this->circular_buf_mtx))  /* Lock mutex */
         perror_exit("pthread_mutex_lock");
+
+
+    pthread_cond_signal(&this->cond_nonempty);
+
 }
 
 
@@ -67,6 +71,7 @@ void circularBuffer::place(info data) {
 info circularBuffer::obtain() {
     info data ;
 
+    cout << "obtain 1\n";
     if (pthread_mutex_lock(&this->circular_buf_mtx))  /* Lock mutex */
         perror_exit("pthread_mutex_lock");
 
@@ -74,12 +79,22 @@ info circularBuffer::obtain() {
         printf(">> Found Buffer Empty \n");
         pthread_cond_wait(&cond_nonempty, &this->circular_buf_mtx);
     }
+    cout << "obtain 2\n";
+
     data = this->data[this->start];
     this->start = (this->start + 1) % this->buffSize;
     this->count--;
 
     if(pthread_mutex_unlock(&this->circular_buf_mtx))
         perror_exit("pthread_mutex_lock");
+
+    cout << "obtain 3\n";
+
+    pthread_cond_signal(&cond_nonfull);
+
+    cout << "obtain 4\n";
+
+    cout << "obtain returns info: "<< data<<endl;
 
     return data;
 }
@@ -90,6 +105,10 @@ bool circularBuffer::isFull() {
 
 bool circularBuffer::isEmpty() {
     return this->count <= 0;
+}
+
+int circularBuffer::size() {
+    return this->count;
 }
 
 
@@ -123,13 +142,10 @@ bool circularBuffer::isEmpty() {
 
 
 
-info::info( myString &ip,  myString &port,  myString &pathName, unsigned int version) : ip(ip),
-                                                                                                       port(port),
-                                                                                                       pathName(
-                                                                                                               pathName),
-                                                                                                       version(version) {}
 
-info::info() {}
+info::info() {
+
+}
 
 bool info::operator==(const info &rhs) const {
     return ip == rhs.ip &&
@@ -141,3 +157,48 @@ bool info::operator==(const info &rhs) const {
 bool info::operator!=(const info &rhs) const {
     return !(rhs == *this);
 }
+
+void info::prepareNewClient(clientsTuple tupl) {
+
+
+    this->ip = tupl.ip;
+    this->port = tupl.port;
+
+    this->version = 0;
+    this->pathName ="None";
+}
+
+info::info(uint32_t ip, uint16_t port, myString &pathName, unsigned int version) : ip(ip), port(port),
+                                                                                         pathName(pathName),
+                                                                                         version(version) {}
+
+
+
+bool info::isNewClient() {
+    return (this->pathName == "None" && this->version == 0);
+}
+
+bool info::isFilePath() {
+    return (this->pathName != "None" && this->version == 0);
+}
+
+bool info::isFile() {
+    return (this->pathName != "None" && this->version != 0);
+}
+
+bool info::isDir() {
+    return (this->pathName != "None" && this->version == 1);
+}
+
+ostream &operator<<(ostream &os, const info &info1) {
+    os << "ip: " << info1.ip << " port: " << info1.port << " pathName: " << info1.pathName << " version: "
+       << info1.version;
+    return os;
+}
+
+//info info::operator=(info &right) {
+//    this->ip = right.ip;
+//    this->port =right.port;
+//    this->pathName = right.pathName;
+//    this->version = right.version;
+//}

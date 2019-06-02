@@ -22,7 +22,9 @@ struct CS {
     linkedList<clientsTuple> clients_list; //todo tha ginei global gia na einai shared gia ola ta threads!!!
     circularBuffer *circBuffer;
 
-    explicit CS(circularBuffer *circBuffer);
+    myString inputDir;
+
+    CS(circularBuffer *circBuffer,  myString inputDir);
 
     virtual ~CS();
 
@@ -31,13 +33,15 @@ struct CS {
 //    lock_client_list();
 //    unlock_client_list();
 
+    void print();
+
 
 };
 
 
 struct thread_protocol{
 
-    void send_GET_FILE_LIST_and_recv_FILE_LIST(int sock/*,tuple gia th na diavasei*/);
+    void send_GET_FILE_LIST_and_recv_FILE_LIST(int sock, linkedList<info> &retNewPaths_list);
 
     void send_GET_FILE_and_recv(int sock, myString filePath, unsigned version);
 
@@ -46,7 +50,9 @@ struct thread_protocol{
 
 void* worker_function(void* shared);
 
+myString createNewDirName(myString ip,uint16_t port);
 
+myString createPathForNewDir (myString inDir , myString nameNewDir);
 
 
 #endif //CLIENT_CRITICALSECTION_H
