@@ -362,12 +362,12 @@ int Protocol::respond_to_GET_FILE(int sock) {
                 perror_exit("write FILE_SIZE in GET_FILE");
 
             unsigned version1=1;
-            if (write(sock, &version1 , sizeof(version1)) < 0)
+            if (write(sock, &version1 , sizeof(unsigned)) < 0)
                 perror_exit("write version1 in GET_FILE");
 
 
             unsigned filesize=0;
-            if (write(sock, &filesize , sizeof(filesize)) < 0)
+            if (write(sock, &filesize , sizeof(unsigned)) < 0)
                 perror_exit("write fileSize in GET_FILE");
 
 
@@ -380,17 +380,17 @@ int Protocol::respond_to_GET_FILE(int sock) {
             loadContextOfFile(realPath,fileContent); //load the content
             int version_mine = myHash(fileContent); //and hash it to take the version_other
 
-            if (version_mine != version_other){ // send  FILE filesize byte0byte1..byten
+            if (version_mine != version_other){ //if has a previous version then send  FILE filesize byte0byte1..byten
 
                 myString fileHeader("FILE_SIZE");
                 if (write(sock, fileHeader.getMyStr() , fileHeader.size()) < 0)
                     perror_exit("write FILE_SIZE in GET_FILE");
 
-                if (write(sock, &version_mine , sizeof(version_mine)) < 0)
+                if (write(sock, &version_mine , sizeof(unsigned)) < 0)
                     perror_exit("write version in GET_FILE");
 
                 unsigned fileSize = fileContent.size();
-                if (write(sock, &fileSize , sizeof(fileSize)) < 0)
+                if (write(sock, &fileSize , sizeof(unsigned)) < 0)
                     perror_exit("write version1 in GET_FILE");
 
 

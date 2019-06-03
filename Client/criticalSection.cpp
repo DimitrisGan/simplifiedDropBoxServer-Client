@@ -268,21 +268,26 @@ void thread_protocol::send_GET_FILE_and_recv(info item,myString inDir) {
             perror_exit("read version in GET_FILE");
 
         unsigned size;
-        if (read(sock, &size, sizeof(size)) < 0) //todo needs while () defensive programming
+        if (read(sock, &size, sizeof(unsigned)) < 0) //todo needs while () defensive programming
             perror_exit("read size in GET_FILE");
 
 
-        if (versionGiven == 1 && size==0){ //is a dir
+        if (versionGiven == 1 && size == 0){ //is a dir
             createDirectory(item.pathName.getMyStr());
         }
+
         else{ //is a file
 
-            char contentBuf[size];
+            char contentBuf[size+1];
+            memset(contentBuf, 0, sizeof(contentBuf));
+
             if (read(sock, contentBuf, size) < 0) //todo needs while () defensive programming
                 perror_exit("read size in GET_FILE");
 
+            printf ("Content is : %s \n",contentBuf);
 
-            cout << "Content buffer po diavasa einia = "<<contentBuf<<endl;
+
+            cout << "Content buffer pou diavasa einia = "<<contentBuf<<endl;
             //create the file
             FILE *fp;
             /*writes in received file*/
