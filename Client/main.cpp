@@ -339,11 +339,11 @@ int read_from_others_requests_and_respond(int filedes, Protocol &prot , CS &shar
             break;
         }
 
-//        if (instruction == "GET_FILE") {
-//            flagGET_FILE = true;
-////            cout << instruction;
-//            break;
-//        }
+        if (instruction == "GET_FILE") {
+            flagGET_FILE = true;
+//            cout << instruction;
+            break;
+        }
 
 
     }

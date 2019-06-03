@@ -71,6 +71,7 @@ myString getPath(const myString &dirName, const myString &file );
 
 void createDirectory(char* path );
 int is_regular_file(const char *path);
+bool directoryExist(char *pathToDir);
 
 void listIdFiles(const char *path, linkedList<myString> &idFilesInDir);
 void addFileIdInCommon(const struct ArgumentsKeeper &argmKeeper); //1B

@@ -291,7 +291,6 @@ int Protocol::respond_with_FILE_LIST(int sock) {
         perror_exit("write n in FILE_LIST");
 
     myString deletePrefix = this->args.inDir; deletePrefix+="/";
-    //todo stelnw FILE_LIST 128 bytes gia pathname ,
 
     for (auto &filePath : this->initFilesInDir_list) {
         myString filePath2send = filePath;
@@ -330,26 +329,100 @@ int Protocol::respond_with_FILE_LIST(int sock) {
 }
 
 int Protocol::recv_GET_FILE(int sock) {
-    cout<< "INFO_CLIENT::Receive GET_FILE from another client - worker_thread\n";
+    cout<< "INFO_CLIENT::Receive GET_FILE #1 from another client - worker_thread\n";
 
     return 0;
 }
 
 int Protocol::respond_to_GET_FILE(int sock) {
+    cout<< "INFO_CLIENT::Receive GET_FILE #2 from another client - worker_thread\n";
+
 
     char buf[128];
     if (read(sock, buf, 128) < 0) //todo needs while () defensive programming
         perror_exit("read pathname in GET_FILE");
 
     myString pathNameAsked(buf);
-    unsigned version;
+    unsigned version_other;
 
-    if (read(sock, &version, sizeof(unsigned)) < 0) //todo needs while () defensive programming
-        perror_exit("read version in GET_FILE");
+    if (read(sock, &version_other, sizeof(unsigned)) < 0) //todo needs while () defensive programming
+        perror_exit("read version_other in GET_FILE");
 
-    cout << "path asked to give:\t"<< pathNameAsked<<endl;
-    cout << "version ?:\t"<<version<<endl;
 
+    myString realPath = this->args.inDir;   realPath+=pathNameAsked;
+
+    cout << "real path PROSOXH EDW :\t"<<realPath<<endl;
+    if (fileExist(realPath.getMyStr()) || directoryExist(realPath.getMyStr())){
+        if (is_dir(realPath.getMyStr())){ //if its dir
+            // send  FILE filesize byte0byte1..byten
+            //send version_other=1
+            //send bytes = 0
+            myString fileHeader("FILE_SIZE");
+            if (write(sock, fileHeader.getMyStr() , fileHeader.size()) < 0)
+                perror_exit("write FILE_SIZE in GET_FILE");
+
+            unsigned version1=1;
+            if (write(sock, &version1 , sizeof(version1)) < 0)
+                perror_exit("write version1 in GET_FILE");
+
+
+            unsigned filesize=0;
+            if (write(sock, &filesize , sizeof(filesize)) < 0)
+                perror_exit("write fileSize in GET_FILE");
+
+
+
+
+        }
+        else{ //is a file
+            //chech version_other with hash;
+            myString fileContent;
+            loadContextOfFile(realPath,fileContent); //load the content
+            int version_mine = myHash(fileContent); //and hash it to take the version_other
+
+            if (version_mine != version_other){ // send  FILE filesize byte0byte1..byten
+
+                myString fileHeader("FILE_SIZE");
+                if (write(sock, fileHeader.getMyStr() , fileHeader.size()) < 0)
+                    perror_exit("write FILE_SIZE in GET_FILE");
+
+                if (write(sock, &version_mine , sizeof(version_mine)) < 0)
+                    perror_exit("write version in GET_FILE");
+
+                unsigned fileSize = fileContent.size();
+                if (write(sock, &fileSize , sizeof(fileSize)) < 0)
+                    perror_exit("write version1 in GET_FILE");
+
+
+                if (write(sock, fileContent.getMyStr() , fileContent.size()) < 0)
+                    perror_exit("write byte in GET_FILE");
+
+
+
+            }
+
+
+            else{ //are equal so the file asked is up to date
+
+                myString fileUpToDate("FILE_UP_TO_DATE");
+                if (write(sock, fileUpToDate.getMyStr() ,fileUpToDate.size()) < 0)
+                    perror_exit("write FILE_UP_TO_DATE in GET_FILE");
+
+            }
+
+        }
+
+
+    }
+    else{ //means that doesn't exist the file so send FILE_NOT_FOUND
+        myString fileNotFound("FILE_NOT_FOUND");
+        if (write(sock, fileNotFound.getMyStr() ,fileNotFound.size()) < 0)
+            perror_exit("write FILE_NOT_FOUND in GET_FILE");
+
+    }
+
+
+    close(sock);
     return 0;
 }
 

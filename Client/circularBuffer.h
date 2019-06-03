@@ -39,6 +39,8 @@ struct info{
 
     void setPathName(myString pathName);
 
+    void setVersion(unsigned int version);
+
     friend ostream &operator<<(ostream &os, const info &info1);
 
 //    info operator=( info &right) ;   // for assign with myString

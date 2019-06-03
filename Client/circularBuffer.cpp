@@ -71,7 +71,6 @@ void circularBuffer::place(info data) {
 info circularBuffer::obtain() {
     info data ;
 
-    cout << "obtain 1\n";
     if (pthread_mutex_lock(&this->circular_buf_mtx))  /* Lock mutex */
         perror_exit("pthread_mutex_lock");
 
@@ -79,7 +78,6 @@ info circularBuffer::obtain() {
         printf(">> Found Buffer Empty \n");
         pthread_cond_wait(&cond_nonempty, &this->circular_buf_mtx);
     }
-    cout << "obtain 2\n";
 
     data = this->data[this->start];
     this->start = (this->start + 1) % this->buffSize;
@@ -88,11 +86,8 @@ info circularBuffer::obtain() {
     if(pthread_mutex_unlock(&this->circular_buf_mtx))
         perror_exit("pthread_mutex_lock");
 
-    cout << "obtain 3\n";
 
     pthread_cond_signal(&cond_nonfull);
-
-    cout << "obtain 4\n";
 
     cout << "obtain returns info: "<< data<<endl;
 
@@ -198,6 +193,10 @@ ostream &operator<<(ostream &os, const info &info1) {
 
 void info::setPathName(myString pathName) {
     info::pathName = pathName;
+}
+
+void info::setVersion(unsigned int version) {
+    info::version = version;
 }
 
 //info info::operator=(info &right) {

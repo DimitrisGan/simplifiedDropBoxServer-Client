@@ -25,28 +25,10 @@ CS::~CS() {
 
 void* worker_function(void* shared){
 
-    cout << "GEIA SOU APO THREAD!!\n";
-    cout << "THREAD PRINT ATTEMPT #1"<<"\t";
-
     thread_protocol thr;
 //    int test= ((CS *)shared))
 
     while (true/*quitThread == 0*/) {
-        cout << "edw trww seg? 3\n";
-
-        sleep(3);
-
-
-
-//    cout << ((CS *)shared)->clients_list<<endl;
-//
-//    usleep(10);
-//    cout << "THREAD PRINT ATTEMPT #2"<<"\t";
-//    cout << ((CS *)shared)->clients_list<<endl;
-//
-//    usleep(10);
-//    cout << "THREAD PRINT ATTEMPT #3"<<"\t";
-//    cout << ((CS *)shared)->clients_list<<endl;
 
 
         info cbuff_item;
@@ -54,31 +36,25 @@ void* worker_function(void* shared){
 
         cout << "CIRCLED BUFFER SIZE IS : "<< ((CS *)shared)->circBuffer->size()<<endl;
 
-        cout << "edw trww seg? 4\n";
 
         cbuff_item = ((CS *)shared)->circBuffer->obtain();
 
 
         cout <<"to cbuff_item exei times "<<cbuff_item<<endl;
-        cout << "edw trww seg? 5\n";
 
 
 
-        cout << "edw trww seg? 6\n";
 
 
         if (cbuff_item.isNewClient()){
-            cout << "edw trww seg? 7\n";
 
 
             myString newClientsDir; newClientsDir  = createNewDirName(cbuff_item.ip ,cbuff_item.port);
             myString newClientsDirPath;newClientsDirPath = createPathForNewDir(  ((CS *)shared)->inputDir ,newClientsDir);
 
-            cout << "edw trww seg? 8\n";
-
+            ///todo mhpws thelei na tsekarw an yparxei hdh exist(newClientsDirPath)
             createDirectory(newClientsDirPath.getMyStr());
 
-            cout << "edw trww seg? 9\n";
 
 
             cout <<"WORKER::new Dir for new Client created in Path = "<<newClientsDirPath<<endl;
@@ -93,6 +69,8 @@ void* worker_function(void* shared){
             //add the prefix ip_port/.. in all files
             myString prefix = newClientsDirPath; prefix+="/";
 
+            cout <<"#1 items are:\t";
+            cout<<newItems2place_list<<endl;
             for (auto &item : newItems2place_list) {
 
 //                addPrefix2list_of_file(item.pathName);
@@ -100,19 +78,22 @@ void* worker_function(void* shared){
                 item.setPathName(realPath);
 
 
-//                if (item.exists()){}
+                if (! fileExist(realPath.getMyStr())){
+                    item.setVersion(0);
+                }
 
-                cout <<"New paths are:\t";
+                cout <<"#2 new items are:\t";
                 cout<<item<<endl;
+
+                ((CS *)shared)->circBuffer->place(item);
+
             }
 
         }
 
         if (cbuff_item.isFilePath()){
 
-        }
-
-        if (cbuff_item.isFile()){
+            thr.send_GET_FILE_and_recv(cbuff_item,((CS *)shared)->inputDir);
 
         }
 
@@ -179,12 +160,10 @@ thread_protocol::send_GET_FILE_LIST_and_recv_FILE_LIST(uint32_t ipB, uint16_t po
             perror_exit("read i-th ipB in CLIENTS_LIST");
 
         myString pathName(buf);
-        cout << "PATH = "<<buf<<endl;
+
         unsigned version;
         if (read(sock, &version, sizeof(unsigned)) < 0) //todo needs while () defensive programming
             perror_exit("read i-th ipB in CLIENTS_LIST");
-
-        cout << "VERSION = "<<version<<endl;
 
 
 
@@ -201,21 +180,129 @@ thread_protocol::send_GET_FILE_LIST_and_recv_FILE_LIST(uint32_t ipB, uint16_t po
     close(sock);
 }
 
-void thread_protocol::send_GET_FILE_and_recv(int sock ,myString filePath, unsigned version) {
+void thread_protocol::send_GET_FILE_and_recv(info item,myString inDir) {
 
     myString getFileList("GET_FILE");
+
+    myString prefix;prefix = createNewDirName(item.ip,item.port);
+
+    myString path2send  = item.pathName;
+    path2send.removeSubstr(inDir);path2send.removeSubstr("/");path2send.removeSubstr(prefix);
+    myString ipStr; ipStr = convertBinaryIpToString(item.ip);
+
+
+
+
+    int sock = create_socket_and_connect(ipStr, item.port);
+
+
 
     if (write(sock, getFileList.getMyStr() ,getFileList.size()) < 0)
         perror_exit("write GET_FILE in GET_FILE");
 
-    if (write(sock, filePath.getMyStr() ,128) < 0)
+
+    if (write(sock, path2send.getMyStr() ,128) < 0)
         perror_exit("write file_path_name in GET_FILE");
 
+
+    if (! fileExist(item.pathName.getMyStr()) ) { //if the file doesn't exist send version = 0 to obtain the file
+
+
+        unsigned zero =0;
+        if (write(sock, &zero, sizeof(item.version)) < 0)
+            perror_exit("write version in GET_FILE");
+    }
+
+
+
+    //-------------------- RECEIVE --------------------
+    //todo FILE_SIZE
     //todo FILE_NOT_FOUND
     //todo FILE_UP_TO_DATE
 
+    char buf[1];
+    myString instruction("");
+    bool flagFILE_UP_TO_DATE    = false;
+    bool flagFILE_SIZE          = false;
+    bool flagFILE_NOT_FOUND     = false;
+
+    while(read(sock, buf, 1) > 0) {  /* Receive 1 char */
+//        printf("diavasa %d bytes\n", ++diavasa);
+
+        instruction += buf;
+
+//        cout << "To instruction exei timh = " << instruction << endl;
+
+        if (instruction == "FILE_UP_TO_DATE") {
+            flagFILE_UP_TO_DATE = true;
+            break;
+        }
+
+        if (instruction == "FILE_SIZE") {
+            flagFILE_SIZE = true;
+//            cout << instruction;
+            break;
+        }
+
+        if (instruction == "FILE_NOT_FOUND") {
+            flagFILE_NOT_FOUND = true;
+//            cout << instruction;
+            break;
+        }
 
 
-//    close(sock);
+    }
+
+    if (flagFILE_UP_TO_DATE){
+        cout<< "INFO_CLIENT-WORKER::Received FILE_UP_TO_DATE for file: "<<item.pathName<<endl;
+    }
+
+    if (flagFILE_NOT_FOUND){
+        cout<< "INFO_CLIENT-WORKER::Received FILE_NOT_FOUND for file: "<<item.pathName<<endl;
+    }
+
+    if (flagFILE_SIZE){
+
+        unsigned versionGiven;
+        if (read(sock, &versionGiven, sizeof(versionGiven)) < 0) //todo needs while () defensive programming
+            perror_exit("read version in GET_FILE");
+
+        unsigned size;
+        if (read(sock, &size, sizeof(size)) < 0) //todo needs while () defensive programming
+            perror_exit("read size in GET_FILE");
+
+
+        if (versionGiven == 1 && size==0){ //is a dir
+            createDirectory(item.pathName.getMyStr());
+        }
+        else{ //is a file
+
+            char contentBuf[size];
+            if (read(sock, contentBuf, size) < 0) //todo needs while () defensive programming
+                perror_exit("read size in GET_FILE");
+
+
+            cout << "Content buffer po diavasa einia = "<<contentBuf<<endl;
+            //create the file
+            FILE *fp;
+            /*writes in received file*/
+            fp = fopen(item.pathName.getMyStr(), "a"); //creates OR appends the file in mirror dir
+            fprintf(fp, "%s", contentBuf); //writes the content of the file
+            fclose(fp);
+
+
+
+        }
+
+
+
+
+
+
+    }
+
+
+
+    close(sock);
 
 }

@@ -42,7 +42,7 @@ struct thread_protocol{
 
     void send_GET_FILE_LIST_and_recv_FILE_LIST(uint32_t ipB, uint16_t portB, linkedList<info> &retNewPaths_list);
 
-    void send_GET_FILE_and_recv(int sock, myString filePath, unsigned version);
+    void send_GET_FILE_and_recv(info item,myString inDir);
 
 
 };
