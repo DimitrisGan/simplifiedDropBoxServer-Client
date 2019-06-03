@@ -112,7 +112,7 @@ public:
     friend std::istream& operator>> (std::istream& is, myString& s);
 
 
-    char& operator[] (unsigned j);
+    char operator[] (unsigned j);
 
 
     myString& operator+= (const myString& s);

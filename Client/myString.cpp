@@ -27,7 +27,7 @@ bool myString::substrExist( const myString &substr) const {
 
 
 
-char& myString::operator[] (unsigned j)
+char myString::operator[] (unsigned j)
 {
     if (j >= this->len) {
         std::cerr << "INVALID INDEX IN MYSTRING IN [] OPERATOR " <<endl;
@@ -97,7 +97,9 @@ myString::myString(const char *sptr)  {
 myString::myString (char c)
 {
     this->len = 1;
-    this->myStr   = new char(c);
+    this->myStr   = new char[2];
+    this->myStr[0] = c;
+    this->myStr[1]='\0';
 }
 
 

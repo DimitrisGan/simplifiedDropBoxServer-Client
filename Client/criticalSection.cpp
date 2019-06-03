@@ -69,7 +69,6 @@ void* worker_function(void* shared){
             //add the prefix ip_port/.. in all files
             myString prefix = newClientsDirPath; prefix+="/";
 
-            cout <<"#1 items are:\t";
             cout<<newItems2place_list<<endl;
             for (auto &item : newItems2place_list) {
 
@@ -82,8 +81,6 @@ void* worker_function(void* shared){
                     item.setVersion(0);
                 }
 
-                cout <<"#2 new items are:\t";
-                cout<<item<<endl;
 
                 ((CS *)shared)->circBuffer->place(item);
 
@@ -127,6 +124,47 @@ myString createPathForNewDir(myString inDir, myString nameNewDir) {
 }
 
 
+
+// This assumes buffer is at least x bytes long,
+// and that the socket is blocking.
+void ReadXBytes(int socket, unsigned int x, void* buffer ,const char* error_m)
+{
+    int bytesRead = 0;
+    int result;
+    while (bytesRead < x)
+    {
+        result = static_cast<int>(read(socket, buffer + bytesRead , x - bytesRead));
+
+        if (result < 1 )
+        {
+            // Throw your error.
+            perror_exit(error_m);
+
+        }
+
+        bytesRead += result;
+    }
+}
+
+void getAllHigherPaths(myString path2break, linkedList<myString> &retAllPaths_list) {
+
+    myString subPath("");/*subPath = path2break.getMyStr()[0];*/
+    for (int i = 0; i < path2break.size(); ++i) {
+
+        if (path2break.getMyStr()[i] != '/' ){
+            myString ch(path2break.getMyStr()[i]);
+            subPath+= ch;
+        }
+        if (path2break.getMyStr()[i] == '/' ){
+            myString ch(path2break.getMyStr()[i]);
+
+            retAllPaths_list.insert_last(subPath);
+            subPath+=ch;
+        }
+    }
+}
+
+
 void
 thread_protocol::send_GET_FILE_LIST_and_recv_FILE_LIST(uint32_t ipB, uint16_t portB, linkedList<info> &retNewPaths_list) {
     myString getFileList("1_GET_FILE_LIST");
@@ -156,9 +194,9 @@ thread_protocol::send_GET_FILE_LIST_and_recv_FILE_LIST(uint32_t ipB, uint16_t po
 
     for (int i = 0; i < n ; ++i) {
         char buf[128];
-        if (read(sock, buf, 128) < 0) //todo needs while () defensive programming
-            perror_exit("read i-th ipB in CLIENTS_LIST");
-
+//        if (read(sock, buf, 128) < 0) //todo needs while () defensive programming
+//            perror_exit("read i-th ipB in CLIENTS_LIST");
+        ReadXBytes(sock,128,buf,"read i-th ipB in CLIENTS_LIST");
         myString pathName(buf);
 
         unsigned version;
@@ -182,6 +220,7 @@ thread_protocol::send_GET_FILE_LIST_and_recv_FILE_LIST(uint32_t ipB, uint16_t po
 
 void thread_protocol::send_GET_FILE_and_recv(info item,myString inDir) {
 
+    cout << "seg #1\n";
     myString getFileList("GET_FILE");
 
     myString prefix;prefix = createNewDirName(item.ip,item.port);
@@ -213,6 +252,12 @@ void thread_protocol::send_GET_FILE_and_recv(info item,myString inDir) {
             perror_exit("write version in GET_FILE");
     }
 
+    cout << "seg #2\n";
+
+    linkedList <myString> allPaths;
+    getAllHigherPaths( item.pathName,allPaths);
+
+    cout << "EDWWWWWWWWWW \t "<<allPaths<<endl;
 
 
     //-------------------- RECEIVE --------------------
@@ -272,6 +317,7 @@ void thread_protocol::send_GET_FILE_and_recv(info item,myString inDir) {
             perror_exit("read size in GET_FILE");
 
 
+
         if (versionGiven == 1 && size == 0){ //is a dir
             createDirectory(item.pathName.getMyStr());
         }
@@ -281,19 +327,19 @@ void thread_protocol::send_GET_FILE_and_recv(info item,myString inDir) {
             char contentBuf[size+1];
             memset(contentBuf, 0, sizeof(contentBuf));
 
-            if (read(sock, contentBuf, size) < 0) //todo needs while () defensive programming
-                perror_exit("read size in GET_FILE");
+            ReadXBytes(sock, size, contentBuf ,"read content in GET_FILE");
 
-            printf ("Content is : %s \n",contentBuf);
+//            printf ("Content is : %s \n",contentBuf);
 
 
-            cout << "Content buffer pou diavasa einia = "<<contentBuf<<endl;
+//            cout << "Content buffer pou diavasa einia = "<<contentBuf<<endl;
             //create the file
             FILE *fp;
             /*writes in received file*/
-            fp = fopen(item.pathName.getMyStr(), "a"); //creates OR appends the file in mirror dir
+            fp = fopen(item.pathName.getMyStr(), "w"); //creates OR appends the file in mirror dir
             fprintf(fp, "%s", contentBuf); //writes the content of the file
             fclose(fp);
+
 
 
 

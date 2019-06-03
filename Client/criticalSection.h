@@ -54,5 +54,11 @@ myString createNewDirName(uint32_t ipB, uint16_t portB);
 myString createPathForNewDir (myString inDir , myString nameNewDir);
 
 
+// This assumes buffer is at least x bytes long,
+// and that the socket is blocking.
+void ReadXBytes(int socket, unsigned int x, void* buffer ,const char* error_m);
+
+
+void getAllHigherPaths(myString path2break ,linkedList<myString> & retAllPaths_list);
 
 #endif //CLIENT_CRITICALSECTION_H
