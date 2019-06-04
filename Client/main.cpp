@@ -235,11 +235,9 @@ int main(int argc, char **argv) {
 
     for (auto &thrId : workerThrsIds_array) {
 
-        cout << "GGGeia1\n";
         if (pthread_cancel(thrId))
             perror_exit("pthread_cancel");
 
-        cout << "GGGeia2\n";
         pthread_kill(thrId,9);
 
         if (pthread_join(thrId, nullptr))

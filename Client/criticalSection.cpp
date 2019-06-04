@@ -41,13 +41,13 @@ void* worker_function(void* shared){
         info cbuff_item;
 
 
-        cout << "CIRCLED BUFFER SIZE IS : "<< ((CS *)shared)->circBuffer->size()<<endl;
+//        cout << "CIRCLED BUFFER SIZE IS : "<< ((CS *)shared)->circBuffer->size()<<endl;
 
 
         cbuff_item = ((CS *)shared)->circBuffer->obtain();
 
 
-        cout <<"to cbuff_item exei times "<<cbuff_item<<endl;
+//        cout <<"to cbuff_item exei times "<<cbuff_item<<endl;
 
 
 
@@ -66,15 +66,13 @@ void* worker_function(void* shared){
 //                perror_exit("pthread_mutex_lock mkdir_mtx");
 
 
-            if (! fileExist(newClientsDirPath.getMyStr()))
+            if (! directoryExist(newClientsDirPath.getMyStr()))
                 createDirectory(newClientsDirPath.getMyStr());
 
 
 //            if (pthread_mutex_unlock(&((CS *)shared)->mkdir_mtx))  /* unLock mutex */
 //                perror_exit("pthread_mutex_unlock mkdir_mtx");
 
-
-            cout <<"WORKER::new Dir for new Client created in Path = "<<newClientsDirPath<<endl;
 
 
             linkedList <info> newItems2place_list;
@@ -86,7 +84,6 @@ void* worker_function(void* shared){
             //add the prefix ip_port/.. in all files
             myString prefix = newClientsDirPath; prefix+="/";
 
-            cout<<newItems2place_list<<endl;
             for (auto &item : newItems2place_list) {
 
 //                addPrefix2list_of_file(item.pathName);
@@ -117,7 +114,6 @@ void* worker_function(void* shared){
 
 //    pthread_exit(nullptr);
     }
-    cout << "thread exits!!!!!!!!\n";
 
     pthread_exit(0);
 
@@ -199,9 +195,12 @@ thread_protocol::send_GET_FILE_LIST_and_recv_FILE_LIST(uint32_t ipB, uint16_t po
         perror_exit("write i-th file_path_name in FILE_LIST");
 
     myString FILE_LIST("FILE_LIST");
-    char ass[9];
-    if (read(sock, ass, FILE_LIST.size()) < 0) //todo needs while () defensive programming
-        perror_exit("read i-th ipB in CLIENTS_LIST");
+    char ass[FILE_LIST.size()+1];   memset(ass, 0, sizeof(ass));
+    ReadXBytes(sock,FILE_LIST.size(),ass,"read FILE_LIST in CLIENTS_LIST");
+//    if (read(sock, ass, FILE_LIST.size()) < 0) { //todo needs while () defensive programming
+//        cout << "ass = "<<ass<<endl;
+//        perror_exit("read FILE_LIST in CLIENTS_LIST");
+//    }
 
     assert(FILE_LIST == ass);
 
@@ -221,7 +220,7 @@ thread_protocol::send_GET_FILE_LIST_and_recv_FILE_LIST(uint32_t ipB, uint16_t po
         if (read(sock, &version, sizeof(unsigned)) < 0) //todo needs while () defensive programming
             perror_exit("read i-th ipB in CLIENTS_LIST");
 
-
+        cout << "VERSION POU ELAVA ======= "<<version<<endl;
 
         info info2add(ipB,portB,pathName,version);
 
@@ -238,10 +237,9 @@ thread_protocol::send_GET_FILE_LIST_and_recv_FILE_LIST(uint32_t ipB, uint16_t po
 
 void thread_protocol::send_GET_FILE_and_recv(info item, myString inDir, void *shared) {
 
-    cout << "seg #1\n";
     myString getFileList("GET_FILE");
 
-    myString prefix;prefix = createNewDirName(item.ip,item.port);
+    prefix = createNewDirName(item.ip,item.port);
 
     myString path2send  = item.pathName;
     path2send.removeSubstr(inDir);path2send.removeSubstr("/");path2send.removeSubstr(prefix);
@@ -262,7 +260,7 @@ void thread_protocol::send_GET_FILE_and_recv(info item, myString inDir, void *sh
         perror_exit("write file_path_name in GET_FILE");
 
 
-    if (! fileExist(item.pathName.getMyStr()) ) { //if the file doesn't exist send version = 0 to obtain the file
+    if (! fileExist(item.pathName.getMyStr()) && ! directoryExist(item.pathName.getMyStr()) ) { //if the file doesn't exist send version = 0 to obtain the file
 
 
         unsigned zero =0;
@@ -290,7 +288,6 @@ void thread_protocol::send_GET_FILE_and_recv(info item, myString inDir, void *sh
 
     }
 
-    cout << "seg #2\n";
 
     linkedList <myString> allPaths;
     getAllHigherPaths( item.pathName,allPaths);
@@ -299,7 +296,6 @@ void thread_protocol::send_GET_FILE_and_recv(info item, myString inDir, void *sh
 //        if (pthread_mutex_lock(&((CS *)shared)->mkdir_mtx))  /* Lock mutex */
 //            perror_exit("pthread_mutex_lock mkdir_mtx");
 
-        cout << "SUB PATH ===== "<< subPath<<endl;
         while (! directoryExist(subPath.getMyStr())){
 //            if (! fileExist(subPath.getMyStr())){ //if the dir doesnt exist create it
 //                createDirectory(subPath.getMyStr());
@@ -324,7 +320,6 @@ void thread_protocol::send_GET_FILE_and_recv(info item, myString inDir, void *sh
     //todo edw tha koitaw ana upoPath an o fakelos yparxei ...an den yparxei ton ftiaxnw
     //todo ama yparxei tote ola komple de trexei tpt
 
-//    cout << "EDWWWWWWWWWW \t "<<allPaths<<endl;
 
 
     //-------------------- RECEIVE --------------------
@@ -339,11 +334,9 @@ void thread_protocol::send_GET_FILE_and_recv(info item, myString inDir, void *sh
     bool flagFILE_NOT_FOUND     = false;
 
     while(read(sock, buf, 1) > 0) {  /* Receive 1 char */
-//        printf("diavasa %d bytes\n", ++diavasa);
 
         instruction += buf;
 
-//        cout << "To instruction exei timh = " << instruction << endl;
 
         if (instruction == "FILE_UP_TO_DATE") {
             flagFILE_UP_TO_DATE = true;
@@ -352,13 +345,11 @@ void thread_protocol::send_GET_FILE_and_recv(info item, myString inDir, void *sh
 
         if (instruction == "FILE_SIZE") {
             flagFILE_SIZE = true;
-//            cout << instruction;
             break;
         }
 
         if (instruction == "FILE_NOT_FOUND") {
             flagFILE_NOT_FOUND = true;
-//            cout << instruction;
             break;
         }
 
@@ -393,7 +384,7 @@ void thread_protocol::send_GET_FILE_and_recv(info item, myString inDir, void *sh
 //
 //
             while (! directoryExist(item.pathName.getMyStr())){
-            if (! fileExist(item.pathName.getMyStr())){ //if the dir doesnt exist create it
+            if (! directoryExist(item.pathName.getMyStr())){ //if the dir doesnt exist create it
                 createDirectory(item.pathName.getMyStr());
             }
 //                nanosleep();
@@ -415,10 +406,7 @@ void thread_protocol::send_GET_FILE_and_recv(info item, myString inDir, void *sh
 
             ReadXBytes(sock, size, contentBuf ,"read content in GET_FILE");
 
-//            printf ("Content is : %s \n",contentBuf);
 
-
-//            cout << "Content buffer pou diavasa einia = "<<contentBuf<<endl;
             //create the file
             FILE *fp;
             /*writes in received file*/
@@ -430,8 +418,6 @@ void thread_protocol::send_GET_FILE_and_recv(info item, myString inDir, void *sh
 
 
         }
-
-
 
 
 

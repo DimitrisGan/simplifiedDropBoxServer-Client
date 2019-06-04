@@ -8,7 +8,6 @@ Protocol::Protocol(ArgumentsKeeper args) : args(args) {
 
     list_all_in_dir(args.inDir, this->initFilesInDir_list);
 
-    cout << initFilesInDir_list;
 }
 
 
@@ -211,10 +210,8 @@ int Protocol::add_client(const clientsTuple &tupl , CS &shared ) {
 
     info tuplInCircBuffer;
     tuplInCircBuffer.prepareNewClient(tupl);
-    cout << "edw trww seg? 1\n";
 
     shared.circBuffer->place(tuplInCircBuffer);
-    cout << "edw trww seg? 2\n";
 
     return 0;
 }
@@ -377,9 +374,12 @@ int Protocol::respond_to_GET_FILE(int sock) {
             //chech version_other with hash;
             myString fileContent;
             loadContextOfFile(realPath,fileContent); //load the content
-            int version_mine = myHash(fileContent); //and hash it to take the version_other
+            unsigned  version_mine = myHash(fileContent); //and hash it to take the version_other
 
             if (version_mine != version_other){ //if has a previous version then send  FILE filesize byte0byte1..byten
+
+                cout << "version mine === "<<version_mine<<"\t";
+                cout << "version other === "<<version_other<<"\n";
 
                 myString fileHeader("FILE_SIZE");
                 if (write(sock, fileHeader.getMyStr() , fileHeader.size()) < 0)

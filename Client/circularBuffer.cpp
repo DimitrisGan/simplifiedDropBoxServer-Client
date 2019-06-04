@@ -89,7 +89,7 @@ info circularBuffer::obtain() {
 
     pthread_cond_signal(&cond_nonfull);
 
-    cout << "obtain returns info: "<< data<<endl;
+//    cout << "obtain returns info: "<< data<<endl;
 
     return data;
 }
