@@ -63,6 +63,12 @@ make_socket_and_bind(uint16_t port)
     name.sin_family = AF_INET;  /* Internet domain */
     name.sin_port = htons (port);   /* The given port */
     name.sin_addr.s_addr = htonl (INADDR_ANY);
+
+
+    int enable = 1;
+    if (setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int)) < 0)
+        perror_exit("setsockopt(SO_REUSEADDR) failed");
+
     /* Bind socket to address */
     if (bind (sock, (struct sockaddr *) &name, sizeof (name)) < 0)
     {

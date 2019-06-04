@@ -248,7 +248,7 @@ int main(int argc, char **argv) {
 
 
 
-        cout << "GGGeia3\n";
+
 
 
         cout << "thread exits2!!!!!!!!\n";
@@ -256,6 +256,15 @@ int main(int argc, char **argv) {
     }
 
 
+    for (i = 0; i < FD_SETSIZE; ++i) {
+                close(i);
+                FD_CLR (i, &active_fd_set);
+            }
+            FD_ZERO (&active_fd_set);
+
+
+
+    close(sock_to_listen);
 
 
 

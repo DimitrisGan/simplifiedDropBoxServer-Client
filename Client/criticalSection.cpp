@@ -5,7 +5,7 @@
 #include <assert.h>
 #include "criticalSection.h"
 #include "socketManipulation.h"
-
+#include "hashFunction.h"
 
 
 CS::CS(circularBuffer *circBuffer,  myString inputDir) : circBuffer(circBuffer), inputDir(inputDir) {
@@ -269,6 +269,26 @@ void thread_protocol::send_GET_FILE_and_recv(info item, myString inDir, void *sh
         if (write(sock, &zero, sizeof(item.version)) < 0)
             perror_exit("write version in GET_FILE");
     }
+    else{ //means that the file/dir exists
+
+        if (is_dir(item.pathName.getMyStr())){
+            unsigned one = 1;
+            if (write(sock, &one, sizeof(item.version)) < 0)
+                perror_exit("write version in GET_FILE");
+        }
+        else{ //is_regular_file
+            myString fileContent;
+            loadContextOfFile(item.pathName,fileContent); //load the content
+
+            int version = myHash(fileContent); //and hash it to take the version
+
+            if (write(sock, &version, sizeof(item.version)) < 0)
+                perror_exit("write version in GET_FILE");
+
+        }
+
+
+    }
 
     cout << "seg #2\n";
 
@@ -279,10 +299,15 @@ void thread_protocol::send_GET_FILE_and_recv(info item, myString inDir, void *sh
 //        if (pthread_mutex_lock(&((CS *)shared)->mkdir_mtx))  /* Lock mutex */
 //            perror_exit("pthread_mutex_lock mkdir_mtx");
 
-
-        if (! fileExist(subPath.getMyStr())){ //if the dir doesnt exist create it
-            createDirectory(subPath.getMyStr());
+        cout << "SUB PATH ===== "<< subPath<<endl;
+        while (! directoryExist(subPath.getMyStr())){
+//            if (! fileExist(subPath.getMyStr())){ //if the dir doesnt exist create it
+//                createDirectory(subPath.getMyStr());
+//            }
+//                nanosleep();
+                    usleep(1);
         }
+
 
 //        if (pthread_mutex_unlock(&((CS *)shared)->mkdir_mtx))  /* Lock mutex */
 //            perror_exit("pthread_mutex_unlock mkdir_mtx");
@@ -295,6 +320,7 @@ void thread_protocol::send_GET_FILE_and_recv(info item, myString inDir, void *sh
 
 
 
+    //todo edw tha koitaw ana upoPath an o fakelos yparxei ...an den yparxei ton ftiaxnw
     //todo edw tha koitaw ana upoPath an o fakelos yparxei ...an den yparxei ton ftiaxnw
     //todo ama yparxei tote ola komple de trexei tpt
 
@@ -366,9 +392,14 @@ void thread_protocol::send_GET_FILE_and_recv(info item, myString inDir, void *sh
 //
 //
 //
-//            if (! fileExist(item.pathName.getMyStr())){ //if the dir doesnt exist create it
-//                createDirectory(item.pathName.getMyStr());
-//            }
+            while (! directoryExist(item.pathName.getMyStr())){
+            if (! fileExist(item.pathName.getMyStr())){ //if the dir doesnt exist create it
+                createDirectory(item.pathName.getMyStr());
+            }
+//                nanosleep();
+                usleep(1);
+            }
+
 //
 //            if (pthread_mutex_unlock(&((CS *)shared)->mkdir_mtx))  /* Lock mutex */
 //                perror_exit("pthread_mutex_unlock mkdir_mtx");
