@@ -351,7 +351,6 @@ int Protocol::respond_to_GET_FILE(int sock) {
 
     myString realPath = this->args.inDir;   realPath+=pathNameAsked;
 
-    cout << "real path PROSOXH EDW :\t"<<realPath<<endl;
     if (fileExist(realPath.getMyStr()) || directoryExist(realPath.getMyStr())){
         if (is_dir(realPath.getMyStr())){ //if its dir
             // send  FILE filesize byte0byte1..byten

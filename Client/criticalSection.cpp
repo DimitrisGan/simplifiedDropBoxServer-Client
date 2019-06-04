@@ -12,11 +12,18 @@ CS::CS(circularBuffer *circBuffer,  myString inputDir) : circBuffer(circBuffer),
 
     pthread_mutex_init(&this->client_list_mtx, NULL);
 
+    pthread_mutex_init(&this->mkdir_mtx, NULL);
+
+
 }
 
 
 CS::~CS() {
     if (pthread_mutex_destroy(&this->client_list_mtx)) { /* Destroy mutex */
+        perror_exit("pthread_mutex_destroy");
+    }
+
+    if (pthread_mutex_destroy(&this->mkdir_mtx)) { /* Destroy mutex */
         perror_exit("pthread_mutex_destroy");
     }
 }
@@ -53,8 +60,18 @@ void* worker_function(void* shared){
             myString newClientsDirPath;newClientsDirPath = createPathForNewDir(  ((CS *)shared)->inputDir ,newClientsDir);
 
             ///todo mhpws thelei na tsekarw an yparxei hdh exist(newClientsDirPath)
-            createDirectory(newClientsDirPath.getMyStr());
 
+
+//            if (pthread_mutex_lock(&((CS *)shared)->mkdir_mtx))  /* Lock mutex */
+//                perror_exit("pthread_mutex_lock mkdir_mtx");
+
+
+            if (! fileExist(newClientsDirPath.getMyStr()))
+                createDirectory(newClientsDirPath.getMyStr());
+
+
+//            if (pthread_mutex_unlock(&((CS *)shared)->mkdir_mtx))  /* unLock mutex */
+//                perror_exit("pthread_mutex_unlock mkdir_mtx");
 
 
             cout <<"WORKER::new Dir for new Client created in Path = "<<newClientsDirPath<<endl;
@@ -90,7 +107,7 @@ void* worker_function(void* shared){
 
         if (cbuff_item.isFilePath()){
 
-            thr.send_GET_FILE_and_recv(cbuff_item,((CS *)shared)->inputDir);
+            thr.send_GET_FILE_and_recv(cbuff_item, ((CS *) shared)->inputDir, &shared);
 
         }
 
@@ -162,6 +179,7 @@ void getAllHigherPaths(myString path2break, linkedList<myString> &retAllPaths_li
             subPath+=ch;
         }
     }
+
 }
 
 
@@ -218,7 +236,7 @@ thread_protocol::send_GET_FILE_LIST_and_recv_FILE_LIST(uint32_t ipB, uint16_t po
     close(sock);
 }
 
-void thread_protocol::send_GET_FILE_and_recv(info item,myString inDir) {
+void thread_protocol::send_GET_FILE_and_recv(info item, myString inDir, void *shared) {
 
     cout << "seg #1\n";
     myString getFileList("GET_FILE");
@@ -256,8 +274,31 @@ void thread_protocol::send_GET_FILE_and_recv(info item,myString inDir) {
 
     linkedList <myString> allPaths;
     getAllHigherPaths( item.pathName,allPaths);
+    for (auto &subPath : allPaths) {
 
-    cout << "EDWWWWWWWWWW \t "<<allPaths<<endl;
+//        if (pthread_mutex_lock(&((CS *)shared)->mkdir_mtx))  /* Lock mutex */
+//            perror_exit("pthread_mutex_lock mkdir_mtx");
+
+
+        if (! fileExist(subPath.getMyStr())){ //if the dir doesnt exist create it
+            createDirectory(subPath.getMyStr());
+        }
+
+//        if (pthread_mutex_unlock(&((CS *)shared)->mkdir_mtx))  /* Lock mutex */
+//            perror_exit("pthread_mutex_unlock mkdir_mtx");
+
+
+
+
+
+    }
+
+
+
+    //todo edw tha koitaw ana upoPath an o fakelos yparxei ...an den yparxei ton ftiaxnw
+    //todo ama yparxei tote ola komple de trexei tpt
+
+//    cout << "EDWWWWWWWWWW \t "<<allPaths<<endl;
 
 
     //-------------------- RECEIVE --------------------
@@ -319,7 +360,21 @@ void thread_protocol::send_GET_FILE_and_recv(info item,myString inDir) {
 
 
         if (versionGiven == 1 && size == 0){ //is a dir
-            createDirectory(item.pathName.getMyStr());
+
+//            if (pthread_mutex_lock(&((CS *)shared)->mkdir_mtx))  /* Lock mutex */
+//                perror_exit("pthread_mutex_lock mkdir_mtx");
+//
+//
+//
+//            if (! fileExist(item.pathName.getMyStr())){ //if the dir doesnt exist create it
+//                createDirectory(item.pathName.getMyStr());
+//            }
+//
+//            if (pthread_mutex_unlock(&((CS *)shared)->mkdir_mtx))  /* Lock mutex */
+//                perror_exit("pthread_mutex_unlock mkdir_mtx");
+
+
+
         }
 
         else{ //is a file
@@ -336,7 +391,7 @@ void thread_protocol::send_GET_FILE_and_recv(info item,myString inDir) {
             //create the file
             FILE *fp;
             /*writes in received file*/
-            fp = fopen(item.pathName.getMyStr(), "w"); //creates OR appends the file in mirror dir
+            fp = fopen(item.pathName.getMyStr(), "a"); //creates OR appends the file in mirror dir
             fprintf(fp, "%s", contentBuf); //writes the content of the file
             fclose(fp);
 

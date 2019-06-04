@@ -30,6 +30,8 @@ struct CS {
 
     pthread_mutex_t client_list_mtx;         /* Mutex for synchronization */
 
+    pthread_mutex_t mkdir_mtx;
+
 //    lock_client_list();
 //    unlock_client_list();
 
@@ -42,7 +44,7 @@ struct thread_protocol{
 
     void send_GET_FILE_LIST_and_recv_FILE_LIST(uint32_t ipB, uint16_t portB, linkedList<info> &retNewPaths_list);
 
-    void send_GET_FILE_and_recv(info item,myString inDir);
+    void send_GET_FILE_and_recv(info item, myString inDir, void *shared);
 
 
 };

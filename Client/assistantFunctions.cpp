@@ -12,7 +12,6 @@
 # include <unistd.h>
 #include <sys/types.h>
 
-# define PERMS 0644 //set access p e r m i s s i o n s
 
 
 
@@ -365,11 +364,21 @@ bool fileExist(char* path){
 void createDirectory(char* path ){
 //    int mkdir(const char *pathname, mode_t mode); from man 2 mkdir
 
+    cout << " ----> CREATING DIRECTORY : "<<path<<endl;
     int result = mkdir(path, 0777);
+
+
     if (result){
-        std::cerr << "ERROR IN CREATING THE DIRECTORY :"<< path <<endl;
-        exit(1);
+        cout << "timh result============================ "<<result<<endl;
+        if(result == EEXIST){
+            //just ignore it
+        }else {
+            std::cerr << "ERROR IN CREATING THE DIRECTORY :" << path << endl;
+            exit(1);
+        }
     }
+
+
 
 }
 

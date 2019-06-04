@@ -1,6 +1,6 @@
 # Declaration of variables
 CC = g++
-CC_FLAGS = -Wall -w -o2  -std=c++11
+CC_FLAGS = -Wall -w -o  -std=c++11
 LDFLAGS = -pthread
 
 # File names
