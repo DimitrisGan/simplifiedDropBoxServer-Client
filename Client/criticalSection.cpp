@@ -10,9 +10,13 @@
 
 CS::CS(circularBuffer *circBuffer,  myString inputDir) : circBuffer(circBuffer), inputDir(inputDir) {
 
+    this->stop =false;
+
     pthread_mutex_init(&this->client_list_mtx, NULL);
 
     pthread_mutex_init(&this->mkdir_mtx, NULL);
+
+    pthread_mutex_init(&this->stop_mtw, NULL);
 
 
 }
@@ -26,31 +30,41 @@ CS::~CS() {
     if (pthread_mutex_destroy(&this->mkdir_mtx)) { /* Destroy mutex */
         perror_exit("pthread_mutex_destroy");
     }
+
+    if (pthread_mutex_destroy(&this->stop_mtw)) { /* Destroy mutex */
+        perror_exit("pthread_mutex_destroy");
+    }
+
 }
 
+bool CS::isStopTime() {
+    bool flagStop = false;
+
+    if (pthread_mutex_lock(&this->stop_mtw))  /* Lock mutex */
+        perror_exit("pthread_mutex_lock");
+
+    if (this->stop)
+        flagStop = true;
+
+    if (pthread_mutex_unlock(&this->stop_mtw))  /* Unlock mutex */
+        perror_exit("pthread_mutex_unlock");
+
+
+    return flagStop;
+}
 
 
 void* worker_function(void* shared){
 
     thread_protocol thr;
-//    int test= ((CS *)shared))
 
-    while (true/*quitThread == 0*/) {
+    while (true) {
 
 
         info cbuff_item;
 
 
-//        cout << "CIRCLED BUFFER SIZE IS : "<< ((CS *)shared)->circBuffer->size()<<endl;
-
-
         cbuff_item = ((CS *)shared)->circBuffer->obtain();
-
-
-//        cout <<"to cbuff_item exei times "<<cbuff_item<<endl;
-
-
-
 
 
         if (cbuff_item.isNewClient()){

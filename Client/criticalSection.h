@@ -20,9 +20,12 @@ static volatile sig_atomic_t  quitThread=0;
 bool clientStillExist(void *shared, info cbuff_item);
 
 
+
 struct CS {
     linkedList<clientsTuple> clients_list; //todo tha ginei global gia na einai shared gia ola ta threads!!!
     circularBuffer *circBuffer;
+
+    bool stop;
 
     myString inputDir;
 
@@ -37,6 +40,9 @@ struct CS {
 //    lock_client_list();
 //    unlock_client_list();
 
+    pthread_mutex_t stop_mtw;
+
+    bool isStopTime();
 
 
 };

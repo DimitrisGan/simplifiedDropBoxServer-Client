@@ -28,7 +28,7 @@ using namespace std;
 int read_from_others_requests_and_respond(int filedes, Protocol &prot ,CS &shared);
 
 
-static volatile sig_atomic_t quitMain = 0;
+static volatile sig_atomic_t quitFlag = 0;
 pthread_mutex_t quitMain_mtx;         /* Mutex for synchronization */
 
 
@@ -38,9 +38,11 @@ pthread_mutex_t quitMain_mtx;         /* Mutex for synchronization */
 void catchinterrupt(int signo){
 
     if (signo == SIGINT ) {
-        quitMain=1;
+        quitFlag=1;
 
         quitThread =1;
+
+
 
 
     }
@@ -73,7 +75,6 @@ int main(int argc, char **argv) {
 
     Protocol prot(argmKeeper);
 
-
     int     i;
 
     uint16_t serverPort,listenPort;
@@ -81,6 +82,7 @@ int main(int argc, char **argv) {
     listenPort = static_cast<uint16_t>(argmKeeper.portNum.to_int());
 
 
+    //----------------- SEND LOG_ON & GET_CLIENTS TO SERVER   ------------------------
     int sock_writes_to_server_LOG_ON = create_socket_and_connect(argmKeeper.serverIp,serverPort);
 
     prot.send_LOG_ON(sock_writes_to_server_LOG_ON);
@@ -110,11 +112,6 @@ int main(int argc, char **argv) {
 
 
     //----------------- THREADS INITIALIZATION  ------------------------
-    printf("Main Thread %ld running \n",pthread_self());
-
-
-
-    int err, status;
 
     int num_thr= argmKeeper.workerThreads.to_int();
     pthread_t workerThrsIds_array[num_thr];
@@ -137,47 +134,24 @@ int main(int argc, char **argv) {
     FD_SET (sock_to_listen, &active_fd_set);
 
 
+    while (true) {
 
-
-    while (quitMain == 0)
-    {
-//        cout << "----------------> 1 \n";
-//        if ( quitMain == 1){
-//
-////            for (i = 0; i < FD_SETSIZE; ++i) {
-////                close(i);
-////                FD_CLR (i, &active_fd_set);
-////            }
-//            FD_ZERO (&active_fd_set);
-//
-//
-//            close(sock_to_listen);
-//            break;
-//        }
-
-/* Block until input arrives on one or more active sockets. */
-
-//        cout << "----------------> 1a \n";
-
-        read_fd_set = active_fd_set;
-//        cout << "----------------> 1b \n";
-
-
-
-        int select_retval = select (FD_SETSIZE, &read_fd_set, NULL, NULL, NULL);
-//        if (select (FD_SETSIZE, &read_fd_set, NULL, NULL, NULL) < 0)
-//        if (select_retval < 0)
-//            perror_exit("select");
-
-//        cout << "----------------> 1c \n";
-
-        if (select_retval == EINTR){
+        if (quitFlag){
             break;
         }
 
 
+/* Block until input arrives on one or more active sockets. */
 
-/* Service all the sockets with input pending. */
+        read_fd_set = active_fd_set;
+        int select_retval = select (FD_SETSIZE, &read_fd_set, NULL, NULL, NULL);
+
+        if (select_retval == EINTR || quitFlag){
+            break;
+        }
+
+
+        /* Service all the sockets with input pending. */
 
         for (i = 0; i < FD_SETSIZE; ++i) {
 
@@ -185,20 +159,15 @@ int main(int argc, char **argv) {
                 if (i == sock_to_listen) {
 
                     /* Connection request on original socket. */
-
                     int newsock;
                     size = sizeof(other);
                     newsock = accept(sock_to_listen, (struct sockaddr *) &other, &size);
 
-
-//                    fprintf(stderr,
-//                            "Other: connect from host %s, port %d.\n",
-//                            inet_ntoa(other.sin_addr),
-//                            ntohs(other.sin_port));
+//                    fprintf(stderr,"Other: connect from host %s, port %d.\n", inet_ntoa(other.sin_addr), ntohs(other.sin_port));
                     FD_SET (newsock, &active_fd_set);
                 } else {
 
-                    if (quitMain){
+                    if (quitFlag){
                         break;
                     }
                     /* Data arriving on an already-connected socket. */
@@ -214,24 +183,36 @@ int main(int argc, char **argv) {
 
     }
 
-
+    //----------------- CLEAN UP EVERYTHING LEFT    ------------------------
+    for (i = 0; i < FD_SETSIZE; ++i) {
+        close(i);
+        FD_CLR (i, &active_fd_set);
+    }
     FD_ZERO (&active_fd_set);
+
     close(sock_to_listen);
 
-/*from here send LOG_OFF and terminate*/
+    /*from here send LOG_OFF and terminate*/
+
+    //----------------- SEND LOG_OFF & TERMINTATE   ------------------------
 
     int sock_writes_to_server_LOG_OFF = create_socket_and_connect(argmKeeper.serverIp,serverPort);
     prot.send_LOG_OFF(sock_writes_to_server_LOG_OFF);
 
 
-    cout << "main thread exited from loop\n";
+
     //----------------- WAIT TO FINISH ALL THREADS  ------------------------
-    //
 
-    for (auto &thrId : workerThrsIds_array) {
+    if (pthread_mutex_lock(&shared.stop_mtw))  /* Lock mutex */
+        perror_exit("pthread_mutex_lock");
 
-        cout << "worker Id = "<<thrId<< endl;
-    }
+    shared.stop = true;
+
+    if (pthread_mutex_unlock(&shared.stop_mtw))  /* Unlock mutex */
+        perror_exit("pthread_mutex_unlock");
+
+
+
 
     for (auto &thrId : workerThrsIds_array) {
 
@@ -240,47 +221,16 @@ int main(int argc, char **argv) {
 
         pthread_kill(thrId,9);
 
-        if (pthread_join(thrId, nullptr))
-            perror_exit("pthread_join");
-
-
-
-
-
-
-
-        cout << "thread exits2!!!!!!!!\n";
+//        if (pthread_join(thrId, nullptr))
+//            perror_exit("pthread_join");
 
     }
 
-
-    for (i = 0; i < FD_SETSIZE; ++i) {
-                close(i);
-                FD_CLR (i, &active_fd_set);
-            }
-            FD_ZERO (&active_fd_set);
-
-
-
-    close(sock_to_listen);
-
-
-
-
-
-//    for (i=0 ; i<num_thr ; i++)
-//
-//        if (pthread_join(*(workerThrsIds_array+i), nullptr)) { /* Wait for thread termination */
-//            perror_exit("pthread_join");
-//        }
-
-
-
-//    pthread_exit(NULL);
-
-
     delete circBuf;circBuf= nullptr;
+
     cout <<"END"<<endl;
+    fflush(stdout);
+
     return 0;
 
 
@@ -358,25 +308,25 @@ int read_from_others_requests_and_respond(int filedes, Protocol &prot , CS &shar
     cout << "INFO::Instruction read = " << instruction << endl;
 
 
-     if (flagUSER_ON) {
-         clientsTuple newClient;
-         prot.recv_USER_ON(filedes,newClient);
-         prot.add_client(newClient,shared);
+    if (flagUSER_ON) {
+        clientsTuple newClient;
+        prot.recv_USER_ON(filedes,newClient);
+        prot.add_client(newClient,shared);
 
-         cout <<"Printing the list after USER_ON: \t";
-         cout << shared.clients_list<<endl;
+        cout <<"Printing the list after USER_ON: \t";
+        cout << shared.clients_list<<endl;
 
-     }
+    }
 
-     if (flagCLIENT_LIST){
-         linkedList <clientsTuple> existingClients_list;
-         prot.recv_CLIENTS_LIST(filedes ,existingClients_list );
-         prot.add_list_of_existing_clients(existingClients_list,shared);
+    if (flagCLIENT_LIST){
+        linkedList <clientsTuple> existingClients_list;
+        prot.recv_CLIENTS_LIST(filedes ,existingClients_list );
+        prot.add_list_of_existing_clients(existingClients_list,shared);
 
-         cout <<"Printing the list after CLIENT_LIST: \t";
-         cout << shared.clients_list<<endl;
+        cout <<"Printing the list after CLIENT_LIST: \t";
+        cout << shared.clients_list<<endl;
 
-     }
+    }
 
     if (flagUSER_OFF) {
         clientsTuple client2remove;
