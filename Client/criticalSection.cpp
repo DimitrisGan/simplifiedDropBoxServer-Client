@@ -56,24 +56,12 @@ void* worker_function(void* shared){
         if (cbuff_item.isNewClient()){
 
 
-            myString newClientsDir; newClientsDir  = createNewDirName(cbuff_item.ip ,cbuff_item.port);
+            myString newClientsDir; newClientsDir  = newDirName(cbuff_item.ip, cbuff_item.port);
             myString newClientsDirPath;newClientsDirPath = createPathForNewDir(  ((CS *)shared)->inputDir ,newClientsDir);
-
-            ///todo mhpws thelei na tsekarw an yparxei hdh exist(newClientsDirPath)
-
-
-//            if (pthread_mutex_lock(&((CS *)shared)->mkdir_mtx))  /* Lock mutex */
-//                perror_exit("pthread_mutex_lock mkdir_mtx");
 
 
             if (! directoryExist(newClientsDirPath.getMyStr()))
                 createDirectory(newClientsDirPath.getMyStr());
-
-
-//            if (pthread_mutex_unlock(&((CS *)shared)->mkdir_mtx))  /* unLock mutex */
-//                perror_exit("pthread_mutex_unlock mkdir_mtx");
-
-
 
             linkedList <info> newItems2place_list;
 
@@ -86,7 +74,6 @@ void* worker_function(void* shared){
 
             for (auto &item : newItems2place_list) {
 
-//                addPrefix2list_of_file(item.pathName);
                 myString realPath = prefix; realPath+=item.pathName;
                 item.setPathName(realPath);
 
@@ -94,7 +81,6 @@ void* worker_function(void* shared){
                 if (! fileExist(realPath.getMyStr())){
                     item.setVersion(0);
                 }
-
 
                 ((CS *)shared)->circBuffer->place(item);
 
@@ -104,7 +90,14 @@ void* worker_function(void* shared){
 
         if (cbuff_item.isFilePath()){
 
-            thr.send_GET_FILE_and_recv(cbuff_item, ((CS *) shared)->inputDir, &shared);
+            if (clientStillExist(shared,cbuff_item)){ //if clients still exist in system the proceed
+                thr.send_GET_FILE_and_recv(cbuff_item, ((CS *) shared)->inputDir, &shared);
+            } //else no need to do anything becauce client is out
+            else{
+                //do nothing..
+            }
+
+
 
         }
 
@@ -119,7 +112,30 @@ void* worker_function(void* shared){
 
 }
 
-myString createNewDirName(uint32_t ipB, uint16_t portB) {
+
+bool clientStillExist(void *shared, info cbuff_item) {
+    bool flagExist = false;
+    if (pthread_mutex_lock(&((CS *) shared)->client_list_mtx))  /* Lock mutex */
+        perror_exit("pthread_mutex_lock");
+
+
+    clientsTuple tupl(cbuff_item.ip, cbuff_item.port);
+    if (((CS *) shared)->clients_list.exists(tupl)) { //clients still exists
+        flagExist = true;
+    } else { //client doesnt exist anymore
+
+    }
+
+    if (pthread_mutex_unlock(&((CS *) shared)->client_list_mtx)) { /* Unlock mutex */
+        perror_exit("pthread_mutex_unlock");
+    }
+
+    return flagExist;
+}
+
+
+
+myString newDirName(uint32_t ipB, uint16_t portB) {
     myString ipStr; ipStr = convertBinaryIpToString(ipB);
     myString portStr ; portStr = convertBInaryPortToString(portB);
     myString newClientsDirName = ipStr; newClientsDirName+="_";newClientsDirName+= portStr ;
@@ -179,6 +195,8 @@ void getAllHigherPaths(myString path2break, linkedList<myString> &retAllPaths_li
 }
 
 
+
+
 void
 thread_protocol::send_GET_FILE_LIST_and_recv_FILE_LIST(uint32_t ipB, uint16_t portB, linkedList<info> &retNewPaths_list) {
     myString getFileList("1_GET_FILE_LIST");
@@ -211,8 +229,7 @@ thread_protocol::send_GET_FILE_LIST_and_recv_FILE_LIST(uint32_t ipB, uint16_t po
 
     for (int i = 0; i < n ; ++i) {
         char buf[128];
-//        if (read(sock, buf, 128) < 0) //todo needs while () defensive programming
-//            perror_exit("read i-th ipB in CLIENTS_LIST");
+
         ReadXBytes(sock,128,buf,"read i-th ipB in CLIENTS_LIST");
         myString pathName(buf);
 
@@ -220,15 +237,12 @@ thread_protocol::send_GET_FILE_LIST_and_recv_FILE_LIST(uint32_t ipB, uint16_t po
         if (read(sock, &version, sizeof(unsigned)) < 0) //todo needs while () defensive programming
             perror_exit("read i-th ipB in CLIENTS_LIST");
 
-        cout << "VERSION POU ELAVA ======= "<<version<<endl;
 
         info info2add(ipB,portB,pathName,version);
 
         retNewPaths_list.insert_last(info2add);
-        //todo na ftiaksw buffer pou na ta xwnei mesa + na paizw me ta versions =0 an den uparxei hdh
 
-        //TODO
-//        if (fileExist(this.)) //todo tha to valw sth worker synarthsh kai apo kei tha tsekarw an uparxei hdh gia na allaksw to version
+
     }
 
 
@@ -239,13 +253,11 @@ void thread_protocol::send_GET_FILE_and_recv(info item, myString inDir, void *sh
 
     myString getFileList("GET_FILE");
 
-    prefix = createNewDirName(item.ip,item.port);
+    myString prefix;prefix = newDirName(item.ip, item.port);
 
     myString path2send  = item.pathName;
     path2send.removeSubstr(inDir);path2send.removeSubstr("/");path2send.removeSubstr(prefix);
     myString ipStr; ipStr = convertBinaryIpToString(item.ip);
-
-
 
 
     int sock = create_socket_and_connect(ipStr, item.port);

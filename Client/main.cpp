@@ -180,7 +180,7 @@ int main(int argc, char **argv) {
 /* Service all the sockets with input pending. */
 
         for (i = 0; i < FD_SETSIZE; ++i) {
-//            cout << "2 \n";
+
             if (FD_ISSET (i, &read_fd_set)) {
                 if (i == sock_to_listen) {
 

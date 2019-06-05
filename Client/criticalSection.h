@@ -17,6 +17,8 @@
 static volatile sig_atomic_t  quitThread=0;
 
 
+bool clientStillExist(void *shared, info cbuff_item);
+
 
 struct CS {
     linkedList<clientsTuple> clients_list; //todo tha ginei global gia na einai shared gia ola ta threads!!!
@@ -51,7 +53,7 @@ struct thread_protocol{
 
 void* worker_function(void* shared);
 
-myString createNewDirName(uint32_t ipB, uint16_t portB);
+myString newDirName(uint32_t ipB, uint16_t portB);
 
 myString createPathForNewDir (myString inDir , myString nameNewDir);
 
