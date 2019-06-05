@@ -466,7 +466,7 @@ std::ostream & operator<<(std::ostream & os, const linkedList<T>& rhs)
 
 template<class T>
 l_node<T> *linkedList<T>::createNode(T data) {
-    //todo an dothei gia data recordsBucket object anti gia ptr trww seg ston destructor tou recordsBucket
+
     l_node<T> *temp = new l_node<T>(data);
 
 

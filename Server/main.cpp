@@ -24,12 +24,6 @@ int
 read_request_from_client_and_respond(int filedes, Protocol &prot);
 
 
-//int
-//send_to_client(){}
-//
-//int broadcast_to_clients{}
-
-
 
 int main(int argc, char **argv) {
 
@@ -77,13 +71,8 @@ int main(int argc, char **argv) {
                     size = sizeof(clientname);
                     newsock = accept(sock, (struct sockaddr *) &clientname, &size);
                     if (newsock < 0)
-                       perror_exit("accept");
-
-
-//                    fprintf(stderr,
-//                            "Server: connect from host %s, port %d.\n",
-//                            inet_ntoa(clientname.sin_addr),
-//                            ntohs(clientname.sin_port));
+                        perror_exit("accept");
+                    //fprintf(stderr,"Server: connect from host %s, port %d.\n",inet_ntoa(clientname.sin_addr),ntohs(clientname.sin_port));
                     FD_SET (newsock, &active_fd_set);
                 } else {
                     /* Data arriving on an already-connected socket. */
@@ -115,10 +104,7 @@ read_request_from_client_and_respond(int filedes, Protocol &prot)
     bool flagLOG_OFF    = false;
 
     while(read(filedes, buf, 1) > 0) {  /* Receive 1 char */
-//        printf("diavasa %d bytes\n", ++diavasa);
-
         instruction += buf;
-//        cout << instruction<<endl;
 
         if (instruction == "LOG_ON") {
             flagLOG_ON = true;
@@ -147,16 +133,14 @@ read_request_from_client_and_respond(int filedes, Protocol &prot)
 
     }
     if (flagGET_CLIENTS) {
-        //https://piazza.com/class/js1lfr8hs4jj7?cid=273
 
         prot.recv_GET_CLIENTS(filedes, tupl);
         /*now add the new client to the list*/
-        usleep(1);
         prot.send_CLIENTS_LIST(tupl);
         prot.add_newClient(tupl);
 
 
-        cout <<">Clients_list after LOG_ON & GET_CLIENTS: \t";
+        cout <<">Clients_list after LOG_ON & GET_CLIENTS:\t";
         cout << prot.clients_list<<endl;
 
 
@@ -165,25 +149,18 @@ read_request_from_client_and_respond(int filedes, Protocol &prot)
         prot.recv_LOG_OFF(filedes, tupl);
         /* first remove the client from list to not broadcast to it the USER_OFF */
         if (! prot.remove_client(tupl) ) //client was deleted successfully from the lsit
-            prot.broadcast_USER_OFF(tupl); //todo CHANGE IT TO SEND ERROR_IP_PORT_NOT_FOUND_IN_LIST
+            prot.broadcast_USER_OFF(tupl);
         else //client wasnt found in the list
             cout << "ERROR_IP_PORT_NOT_FOUND_IN_LIST" <<endl;
 
-        cout <<">Clients_list after LOG_OFF: \t";
+        cout <<">Clients_list after LOG_OFF:\t";
         cout << prot.clients_list<<endl;
 
     }
 
-
-
     return -1;
 
 }
-
-
-
-
-
 
 
 

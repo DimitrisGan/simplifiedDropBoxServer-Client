@@ -25,29 +25,19 @@
 class Protocol{
     ArgumentsKeeper args;
 
-
-//    int sock;
-
-//    linkedList<myTuple> tupl_list;
-
-
-    int send_header(int sock); //header = ip,port
-
-
     int recv_header(int filedes,clientsTuple &tupl); //header = ip,port
 
 public:
 
     linkedList <clientsTuple> clients_list;
 
-
     explicit Protocol( ArgumentsKeeper args);
 
     int recv_LOG_ON(int filedes, clientsTuple & tupl);
 
     int recv_GET_CLIENTS(int filedes, clientsTuple &tupl);
-    int send_CLIENTS_LIST(const clientsTuple & tupl);
 
+    int send_CLIENTS_LIST(const clientsTuple & tupl);
 
     int recv_LOG_OFF(int filedes, clientsTuple &tupl);
 

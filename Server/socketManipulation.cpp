@@ -8,9 +8,6 @@
 myString convertBinaryIpToString(uint32_t ipB){
     myString ipStr;
 
-//    uint32_t  afterCastIp = ntohl(ipB);
-
-//    struct sockaddr_in name;
     struct sockaddr_in sa;
 
     char str[INET_ADDRSTRLEN];
@@ -25,9 +22,7 @@ myString convertBinaryIpToString(uint32_t ipB){
 }
 
 
-
-int
-make_socket_and_bind(uint16_t port)
+int make_socket_and_bind(uint16_t port)
 {
     int sock;
     struct sockaddr_in name;
@@ -46,7 +41,7 @@ make_socket_and_bind(uint16_t port)
     name.sin_addr.s_addr = htonl (INADDR_ANY);
 
     int enable = 1;
-    if (setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int)) < 0)
+    if (setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int)) < 0) /*to avoid bind errors in next runs*/
         perror_exit("setsockopt(SO_REUSEADDR) failed");
 
 
@@ -70,8 +65,6 @@ int create_socket_and_connect(myString ip,uint16_t port){
     if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0)
         perror_exit("socket");
 
-/* Connect to the client. */
-//cout <<"port ==== "<<port<<endl;
     init_sockaddr(&client, ip.getMyStr() , port);
 
 
@@ -85,19 +78,15 @@ int create_socket_and_connect(myString ip,uint16_t port){
 }
 
 
-
-void
-init_sockaddr (struct sockaddr_in *name,
-               const char *hostname,
-               uint16_t port)
+void init_sockaddr (struct sockaddr_in *name,
+                    const char *hostname,
+                    uint16_t port)
 {
     struct hostent *hostinfo;
 
-
-
     name->sin_family = AF_INET;
     name->sin_port = htons (port);
-//    name->sin_port = port;
+
     hostinfo = gethostbyname (hostname);
     if (hostinfo == NULL)
     {

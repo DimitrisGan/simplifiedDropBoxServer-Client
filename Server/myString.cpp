@@ -109,7 +109,7 @@ myString::myString(unsigned num) {
         totalDigits ++;
     }
     this->len = totalDigits;
-    this->myStr   = new char[len+1]; //todo mallon to +1 einai lathos
+    this->myStr   = new char[len+1];
 
 
     // convert num to string [buf]

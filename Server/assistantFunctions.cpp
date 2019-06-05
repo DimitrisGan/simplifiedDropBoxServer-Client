@@ -8,22 +8,6 @@
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 void print_ip(unsigned int ip)
 {
     unsigned char bytes[4];
@@ -109,28 +93,6 @@ void getNewlyAddedIdsList(linkedList<myString> newIdsFilesList ,linkedList<myStr
 
 
 
-void trackNewIdFiles(linkedList<myString> prevStateFilesList, linkedList<myString> currStateFileList,
-                     linkedList<myString> &newFilesList, const myString &filename) {
-
-    for ( auto &file : currStateFileList) {
-        if (! prevStateFilesList.exists(file) && file!= filename){ //if ti doesn't exist then push it in the newFilesList
-            newFilesList.insert_last(file);
-        }
-    }
-}
-
-
-
-bool removeFile(const char *path){
-    if (remove(path) == 0) {
-        printf("Deleted successfully!\n");
-        return false;
-    }
-    else{
-        printf("Unable to delete the file\n");
-        return true;
-    }
-}
 
 void cropBullets(linkedList<myString> &listDirList){
 
@@ -164,84 +126,6 @@ void list_dir(const char *path, linkedList<myString> &listDirList) {
     closedir(dir);
 
     cropBullets(listDirList);
-
-}
-
-
-bool isIdFile(const myString &fileName){
-    myString ext(".id");
-    return fileName.substrExist(ext);
-}
-
-bool isFiFoFile(const myString &fileName){
-    myString ext(".fifo");
-    return fileName.substrExist(ext);
-}
-
-void listIdFiles(const char *path, linkedList<myString> &idFilesInDir) {
-
-    linkedList<myString> listDirList;
-
-    list_dir(path, listDirList);
-
-    for ( auto &fileName : listDirList) {
-        if (isIdFile(fileName)){
-            idFilesInDir.insert_last(fileName);
-        }
-    }
-
-}
-
-
-    myString getPath(const myString &dirName, const myString &file ) {
-
-    myString slash("/");
-//    myString dot(".");
-    myString path ;
-    path =/*slash +*/ dirName ;path+= slash + file  ;
-    return path;
-}
-
-
-void addFileIdInCommon(const struct ArgumentsKeeper &argmKeeper){
-
-//    myString extension(".id");
-//
-//    myString filename;myString pathToCreate;
-//    filename = argmKeeper.id ;
-//    filename+= extension;
-//    pathToCreate =  getPath(argmKeeper.commonDir , filename);
-//    int filedes;
-//
-//    if (fileExist(pathToCreate.getMyStr())){ //check if file *.id already exists
-//
-//        std::cerr << "ERROR FILE: "<<pathToCreate<<" ALREADY EXISTS"<<endl;
-//        exit(FILE_ID_ALREADY_EXIST);
-//
-//    }
-//
-//    if (( filedes = open(pathToCreate.getMyStr(), O_WRONLY|O_CREAT|O_TRUNC, PERMS) ) == -1) {
-//        perror ( " creating " ) ;
-//        exit (1) ;
-//    }
-//    else{
-////        printf ( " Managed to get to the file successfully \n" ) ;
-//
-//    }
-//
-//
-//
-//    //todo write inside file and put it in the right directory
-//
-//
-//
-//    pid_t procId = getpid () ;
-//    cout <<"Client #" <<argmKeeper.id << " has process Id #" << procId<<endl;
-//
-//    write ( filedes , &procId , sizeof(procId) ) ;
-//
-//    close(filedes);
-
 
 }
 
@@ -293,35 +177,6 @@ bool directoryExist(char *pathToDir){
 
 
 
-
-void handleInputDirectories(const struct ArgumentsKeeper &argmKeeper){
-
-//    bool flagInputDir = directoryExist(argmKeeper.inDir.getMyStr());
-//    bool flagCommon = directoryExist(argmKeeper.commonDir.getMyStr());
-//    bool flagMirror = directoryExist(argmKeeper.mirrorDir.getMyStr());
-//
-//    if (!flagInputDir){
-//        std::cerr << "INPUT DIRECTORY ["<< argmKeeper.inDir <<"] DOESNT EXIST"<<endl;
-//        exit(INPUT_DIR_NOT_EXIST);
-//    }
-//
-//    if (flagMirror){
-//        std::cerr << "MIRROR DIRECTORY ["<< argmKeeper.mirrorDir <<"] EXIST ALREADY"<<endl;
-//        std::cerr << "THERE IS MIGHT ANOTHER CLIENT THAT HAS ALREADY CREATED IT AND USES IT"<<endl;
-//        exit(MIRROR_DIR_ALREADY_EXIST);
-//    }
-//
-//    createDirectory(argmKeeper.mirrorDir.getMyStr()); //create mirror directory
-//
-//    if (flagCommon == 0){ //if common dir doesnt exist [which means is the first client]
-//        createDirectory(argmKeeper.commonDir.getMyStr()); //create it
-//
-//    }
-
-
-}
-
-
 void argmParser(int &argc, char **argv, struct ArgumentsKeeper &argmKeeper){
 
     bool flagP=false;
@@ -332,7 +187,6 @@ void argmParser(int &argc, char **argv, struct ArgumentsKeeper &argmKeeper){
         if (argv[i] == nullptr ){break;}
 
 
-
         if(strcmp(argv[i],"-p")==0 && !flagP && argv[i + 1] != nullptr){
             argmKeeper.portNumber = argv[++i];
             flagP = true;
@@ -340,14 +194,12 @@ void argmParser(int &argc, char **argv, struct ArgumentsKeeper &argmKeeper){
             continue;
         }
 
-
         if(strcmp(argv[i],"-p")==0 && !flagP && argv[i + 1] != nullptr){
             argmKeeper.portNumber = argv[++i];
             flagP = true;
             i++;
             continue;
         }
-
 
         fprintf(stderr, "Unknown argument OR not given argument for flag: %s\n", argv[i]);
         exit(UNKNOWN_CMDARGUMENT);
@@ -358,7 +210,6 @@ void argmParser(int &argc, char **argv, struct ArgumentsKeeper &argmKeeper){
         fprintf(stderr,"Not given argument \n");
         exit(UNKNOWN_CMDARGUMENT);
     }
-
 
 }
 
@@ -525,17 +376,6 @@ void trimNoise(char* str){ //noise considered '\n' ,whitespace and '\r'
 }
 
 
-
-void ArgumentsKeeper::printArgs() {
-
-//    cout << "~~~~   Arguments Given    ~~~~~"<<endl;
-//    cout << "clientId (-n) :\t" << id <<endl;
-//    cout << "common Dir (-c) :\t" << commonDir <<endl;
-//    cout << "input Dir (-i) :\t" << inDir <<endl;
-//    cout << "mirror Dir (-m) :\t" << mirrorDir <<endl;
-//    cout << "buffer Size (-b) :\t" << bufSize <<endl;
-//    cout << "log File (-l) :\t" << logFile <<endl;
-}
 
 ArgumentsKeeper::ArgumentsKeeper(const ArgumentsKeeper &right) {
     this->portNumber = right.portNumber;

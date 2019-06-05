@@ -5,46 +5,11 @@
 #include "serverProtocol.h"
 
 
-void start_session(myString buffer2send){
-
-    cout << "anoigw session-socket gia na milhsw ston client\n";
-
-}
-
-
-
-
-//======================================================
 
 Protocol::Protocol(ArgumentsKeeper args) : args(args) {}
 
 
-int Protocol::send_header(int sock) {
-
-//    struct sockaddr_in sa;
-//
-//    myString myIp;myIp = getMyIpInStr();
-//
-//    cout << "H IP MOU FILARAKI EINAI H : "<<myIp<<endl;
-//
-//    uint32_t ipInbinary = convertStringIpToBinary(myIp);
-//
-//
-//    if (write(sock, &ipInbinary , sizeof(uint32_t)) < 0)
-//        perror_exit("write IP in LOG_ON");
-//
-//
-//    uint16_t portBinary = htons(static_cast<uint16_t>(this->args.portNum.to_int()));
-//
-//    if (write(sock, &portBinary , sizeof(uint16_t)) < 0)
-//        perror_exit("write PORT in LOG_ON");
-
-
-    return 0;
-}
-
 int Protocol::recv_header(int filedes, clientsTuple &tupl) {
-
 
     uint32_t ipAddr;
     if (read(filedes, &ipAddr, sizeof(uint32_t)) < 0) //todo needs while () defensive programming
@@ -53,7 +18,6 @@ int Protocol::recv_header(int filedes, clientsTuple &tupl) {
     uint16_t  readClientsPort;
     if (read(filedes, &readClientsPort, sizeof(uint16_t)) < 0) //todo needs while () defensive programming
         perror_exit("read port in LOG ON");
-
 
     uint32_t retIp;
     uint16_t retPort;
@@ -64,10 +28,8 @@ int Protocol::recv_header(int filedes, clientsTuple &tupl) {
     tupl.port   = retPort;
 
 
-
     return 0;
 }
-
 
 
 int Protocol::recv_LOG_ON(int filedes, clientsTuple &tupl) {
@@ -80,24 +42,15 @@ int Protocol::recv_LOG_ON(int filedes, clientsTuple &tupl) {
 }
 
 
-
 int Protocol::add_newClient(const clientsTuple & tupl) {
 
     /*save them to the list of tuples if they dont already exist*/
-
     if (! this->clients_list.exists(tupl))
         this->clients_list.insert_last(tupl);
 
 
     return 0;
 }
-
-
-//////////////////////////////////////////////////
-
-
-
-
 
 
 int Protocol::broadcast_USER_ON(const clientsTuple &tupl) {
@@ -110,8 +63,7 @@ int Protocol::broadcast_USER_ON(const clientsTuple &tupl) {
 
     for (auto &clientExist : this->clients_list) {
 
-//        TODO PUT OUT OF COMMENTS!!!
-//        if (clientExist == newClientToAnnounce)
+//        if (clientExist == newClientToAnnounce) //no need
 //            continue;
 
         ipStr = convertBinaryIpToString(clientExist.ip);
@@ -142,6 +94,7 @@ int Protocol::broadcast_USER_ON(const clientsTuple &tupl) {
     return 0;
 }
 
+
 int Protocol::recv_GET_CLIENTS(int filedes, clientsTuple &tupl)
 {
     cout<< "INFO_SERVER::Receive GET_CLIENTS\n";
@@ -152,8 +105,6 @@ int Protocol::recv_GET_CLIENTS(int filedes, clientsTuple &tupl)
     close(filedes);
     return 0;
 }
-
-
 
 
 int Protocol::send_CLIENTS_LIST(const clientsTuple & tupl) {
@@ -186,16 +137,9 @@ int Protocol::send_CLIENTS_LIST(const clientsTuple & tupl) {
 
         ipStr = convertBinaryIpToString(clientExist.ip);
 
-//        printf("message will be sent to client with ip:: %s \n",ipStr.getMyStr());
-//        printf(" and port:: %d \n",clientExist.port);
-
-
-
         uint32_t ipToSend = htonl(clientExist.ip);
         if (write(newsock, &ipToSend , sizeof(uint32_t)) < 0)
             perror_exit("write  IP in CLIENT_LIST");
-
-//        cout <<"portToSend  ---> "<< clientExist.port <<endl;
 
         uint16_t portToSend = htons(clientExist.port);
 
@@ -213,27 +157,14 @@ int Protocol::send_CLIENTS_LIST(const clientsTuple & tupl) {
 int Protocol::recv_LOG_OFF(int filedes, clientsTuple &tupl) {
 
     cout<< "INFO_SERVER::Receive LOG_OFF\n";
-//    cout<< "FROM CLIENT:: "<< tupl << "\n";
-
 
     recv_header(filedes, tupl);
-
-
 
     return 0;
 }
 
 
-
-
-
-
-
-
-
 int Protocol::broadcast_USER_OFF(clientsTuple &tupl) {
-    //TODO KANEI BROADCAST PANTOU KAI O CLIENT POU VLEPEI OTI AFORA TON IDIO APLA TO AGNOEI
-    //TODO OPOTE STELNW KAI TO <IP,PORT>
 
     cout<< "INFO_SERVER::Broadcast USER_OFF\n";
 
@@ -247,11 +178,6 @@ int Protocol::broadcast_USER_OFF(clientsTuple &tupl) {
 //            continue;
 
         ipStr = convertBinaryIpToString(clientExist.ip);
-        printf(" and port:: %d \n",clientExist.ip);
-
-
-//        printf("message will be sent to client with ip:: %s \n",ipStr.getMyStr());
-//        printf(" and port:: %d \n",clientExist.port);
 
         int newsock = create_socket_and_connect(ipStr,clientExist.port);
 
