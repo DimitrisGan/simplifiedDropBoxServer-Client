@@ -43,8 +43,6 @@ struct info{
 
     friend ostream &operator<<(ostream &os, const info &info1);
 
-//    info operator=( info &right) ;   // for assign with myString
-
 
 };
 
@@ -74,19 +72,6 @@ struct circularBuffer{
 
 
 };
-
-//void initializeWorkerThreads(workerThrsIds_array);
-
-
-
-//
-//
-//void * producer(void * ptr);
-//void place(pool_t * pool, int data);
-//
-//
-//void * consumer(void * ptr);
-//int obtain(pool_t * pool);
 
 
 #endif //CLIENT_THREADPOOL_H

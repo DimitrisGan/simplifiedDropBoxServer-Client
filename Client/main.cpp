@@ -64,7 +64,7 @@ int main(int argc, char **argv) {
     ArgumentsKeeper argmKeeper;
     argmParser(argc, argv , argmKeeper);
 
-    argmKeeper.printArgs();
+//    argmKeeper.p`rintArgs();
 
     circularBuffer *circBuf = new circularBuffer(argmKeeper.bufSize);
     CS shared(circBuf,argmKeeper.inDir);
@@ -228,8 +228,6 @@ int main(int argc, char **argv) {
 
     delete circBuf;circBuf= nullptr;
 
-    cout <<"END"<<endl;
-    fflush(stdout);
 
     return 0;
 
@@ -239,13 +237,7 @@ int main(int argc, char **argv) {
 
 
 
-
-
-
-
-
-
-
+//=================================================================
 
 
 int read_from_others_requests_and_respond(int filedes, Protocol &prot , CS &shared)
@@ -267,11 +259,9 @@ int read_from_others_requests_and_respond(int filedes, Protocol &prot , CS &shar
 
 
     while(read(filedes, buf, 1) > 0) {  /* Receive 1 char */
-//        printf("diavasa %d bytes\n", ++diavasa);
 
         instruction += buf;
 
-//        cout << "To instruction exei timh = " << instruction << endl;
 
         if (instruction == "USER_ON") {
             flagUSER_ON = true;
@@ -280,32 +270,28 @@ int read_from_others_requests_and_respond(int filedes, Protocol &prot , CS &shar
 
         if (instruction == "CLIENT_LIST") {
             flagCLIENT_LIST = true;
-//            cout << instruction;
             break;
         }
 
         if (instruction == "USER_OFF") {
             flagUSER_OFF = true;
-//            cout << instruction;
             break;
         }
 
         if (instruction == "1_GET_FILE_LIST") { //TODO CHANGE IT!!
             flagGET_FILE_LIST = true;
-//            cout << instruction;
             break;
         }
 
         if (instruction == "GET_FILE") {
             flagGET_FILE = true;
-//            cout << instruction;
             break;
         }
 
 
     }
 
-    cout << "INFO::Instruction read = " << instruction << endl;
+//    cout << "INFO::Instruction read = " << instruction << endl;
 
 
     if (flagUSER_ON) {
@@ -313,8 +299,8 @@ int read_from_others_requests_and_respond(int filedes, Protocol &prot , CS &shar
         prot.recv_USER_ON(filedes,newClient);
         prot.add_client(newClient,shared);
 
-        cout <<"Printing the list after USER_ON: \t";
-        cout << shared.clients_list<<endl;
+//        cout <<"Printing the list after USER_ON: \t";
+//        cout << shared.clients_list<<endl;
 
     }
 
@@ -323,8 +309,8 @@ int read_from_others_requests_and_respond(int filedes, Protocol &prot , CS &shar
         prot.recv_CLIENTS_LIST(filedes ,existingClients_list );
         prot.add_list_of_existing_clients(existingClients_list,shared);
 
-        cout <<"Printing the list after CLIENT_LIST: \t";
-        cout << shared.clients_list<<endl;
+//        cout <<"Printing the list after CLIENT_LIST: \t";
+//        cout << shared.clients_list<<endl;
 
     }
 
@@ -333,8 +319,8 @@ int read_from_others_requests_and_respond(int filedes, Protocol &prot , CS &shar
         prot.recv_USER_OFF(filedes,client2remove);
         prot.remove_client(client2remove,shared);
 
-        cout <<"Printing the list after USER_OFF: \t";
-        cout << shared.clients_list<<endl;
+//        cout <<"Printing the list after USER_OFF: \t";
+//        cout << shared.clients_list<<endl;
 
     }
 
@@ -352,7 +338,6 @@ int read_from_others_requests_and_respond(int filedes, Protocol &prot , CS &shar
         prot.respond_to_GET_FILE(filedes);
 
     }
-
 
 
     return -1;

@@ -111,15 +111,8 @@ void* worker_function(void* shared){
                 //do nothing..
             }
 
-
-
         }
 
-
-
-
-
-//    pthread_exit(nullptr);
     }
 
     pthread_exit(0);
@@ -220,7 +213,7 @@ thread_protocol::send_GET_FILE_LIST_and_recv_FILE_LIST(uint32_t ipB, uint16_t po
     int sock = create_socket_and_connect(ipStr, portB);
 
 
-    cout<< "INFO_CLIENT-WORKER!::Send GET_FILE_LIST from send_GET_FILE_LIST_and_recv_FILE_LIST  to other client\n";
+    //cout<< "INFO_CLIENT-WORKER!::Send GET_FILE_LIST from send_GET_FILE_LIST_and_recv_FILE_LIST  to other client\n";
 
 
     if (write(sock, getFileList.getMyStr() ,getFileList.size()) < 0)
@@ -229,10 +222,7 @@ thread_protocol::send_GET_FILE_LIST_and_recv_FILE_LIST(uint32_t ipB, uint16_t po
     myString FILE_LIST("FILE_LIST");
     char ass[FILE_LIST.size()+1];   memset(ass, 0, sizeof(ass));
     ReadXBytes(sock,FILE_LIST.size(),ass,"read FILE_LIST in CLIENTS_LIST");
-//    if (read(sock, ass, FILE_LIST.size()) < 0) { //todo needs while () defensive programming
-//        cout << "ass = "<<ass<<endl;
-//        perror_exit("read FILE_LIST in CLIENTS_LIST");
-//    }
+
 
     assert(FILE_LIST == ass);
 
@@ -259,7 +249,6 @@ thread_protocol::send_GET_FILE_LIST_and_recv_FILE_LIST(uint32_t ipB, uint16_t po
 
     }
 
-
     close(sock);
 }
 
@@ -275,7 +264,6 @@ void thread_protocol::send_GET_FILE_and_recv(info item, myString inDir, void *sh
 
 
     int sock = create_socket_and_connect(ipStr, item.port);
-
 
 
     if (write(sock, getFileList.getMyStr() ,getFileList.size()) < 0)
@@ -308,50 +296,19 @@ void thread_protocol::send_GET_FILE_and_recv(info item, myString inDir, void *sh
 
             if (write(sock, &version, sizeof(item.version)) < 0)
                 perror_exit("write version in GET_FILE");
-
         }
 
-
     }
-
 
     linkedList <myString> allPaths;
     getAllHigherPaths( item.pathName,allPaths);
     for (auto &subPath : allPaths) {
-
-//        if (pthread_mutex_lock(&((CS *)shared)->mkdir_mtx))  /* Lock mutex */
-//            perror_exit("pthread_mutex_lock mkdir_mtx");
-
-        while (! directoryExist(subPath.getMyStr())){
-//            if (! fileExist(subPath.getMyStr())){ //if the dir doesnt exist create it
-//                createDirectory(subPath.getMyStr());
-//            }
-//                nanosleep();
-                    usleep(1);
-        }
-
-
-//        if (pthread_mutex_unlock(&((CS *)shared)->mkdir_mtx))  /* Lock mutex */
-//            perror_exit("pthread_mutex_unlock mkdir_mtx");
-
-
-
-
-
+        /*for every subdir from upper layer that is not created wait until it will*/
+        while (! directoryExist(subPath.getMyStr()))
+            usleep(1);
     }
 
-
-
-    //todo edw tha koitaw ana upoPath an o fakelos yparxei ...an den yparxei ton ftiaxnw
-    //todo edw tha koitaw ana upoPath an o fakelos yparxei ...an den yparxei ton ftiaxnw
-    //todo ama yparxei tote ola komple de trexei tpt
-
-
-
     //-------------------- RECEIVE --------------------
-    //todo FILE_SIZE
-    //todo FILE_NOT_FOUND
-    //todo FILE_UP_TO_DATE
 
     char buf[1];
     myString instruction("");
@@ -362,7 +319,6 @@ void thread_protocol::send_GET_FILE_and_recv(info item, myString inDir, void *sh
     while(read(sock, buf, 1) > 0) {  /* Receive 1 char */
 
         instruction += buf;
-
 
         if (instruction == "FILE_UP_TO_DATE") {
             flagFILE_UP_TO_DATE = true;
@@ -378,7 +334,6 @@ void thread_protocol::send_GET_FILE_and_recv(info item, myString inDir, void *sh
             flagFILE_NOT_FOUND = true;
             break;
         }
-
 
     }
 
@@ -401,27 +356,14 @@ void thread_protocol::send_GET_FILE_and_recv(info item, myString inDir, void *sh
             perror_exit("read size in GET_FILE");
 
 
-
         if (versionGiven == 1 && size == 0){ //is a dir
 
-//            if (pthread_mutex_lock(&((CS *)shared)->mkdir_mtx))  /* Lock mutex */
-//                perror_exit("pthread_mutex_lock mkdir_mtx");
-//
-//
-//
-            while (! directoryExist(item.pathName.getMyStr())){
+
             if (! directoryExist(item.pathName.getMyStr())){ //if the dir doesnt exist create it
                 createDirectory(item.pathName.getMyStr());
             }
-//                nanosleep();
-                usleep(1);
-            }
 
-//
-//            if (pthread_mutex_unlock(&((CS *)shared)->mkdir_mtx))  /* Lock mutex */
-//                perror_exit("pthread_mutex_unlock mkdir_mtx");
-
-
+            usleep(1);
 
         }
 
@@ -432,7 +374,6 @@ void thread_protocol::send_GET_FILE_and_recv(info item, myString inDir, void *sh
 
             ReadXBytes(sock, size, contentBuf ,"read content in GET_FILE");
 
-
             //create the file
             FILE *fp;
             /*writes in received file*/
@@ -440,17 +381,9 @@ void thread_protocol::send_GET_FILE_and_recv(info item, myString inDir, void *sh
             fprintf(fp, "%s", contentBuf); //writes the content of the file
             fclose(fp);
 
-
-
-
         }
 
-
-
-
     }
-
-
 
     close(sock);
 

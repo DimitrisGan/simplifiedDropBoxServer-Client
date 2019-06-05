@@ -62,19 +62,10 @@ void perror_exit(const char *message);
 
 int remove_directory(const char *path);
 
-void getNewlyAddedIdsList(linkedList<myString> newIdsFilesList ,linkedList<myString>& newIdsList);
-
-void trackNewIdFiles(linkedList<myString> prevStateFilesList, linkedList<myString> currStateFileList,
-                     linkedList<myString> &newFilesList, const myString &filename);
-bool removeFile(const char *path);
-myString getPath(const myString &dirName, const myString &file );
 
 void createDirectory(char* path );
 int is_regular_file(const char *path);
 bool directoryExist(char *pathToDir);
-
-void listIdFiles(const char *path, linkedList<myString> &idFilesInDir);
-void addFileIdInCommon(const struct ArgumentsKeeper &argmKeeper); //1B
 
 void handleInputDirectories(const struct ArgumentsKeeper &argmKeeper); //1A
 bool fileExist(char* path);

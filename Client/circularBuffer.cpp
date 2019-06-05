@@ -37,13 +37,6 @@ circularBuffer::~circularBuffer() {
 }
 
 
-//
-//void initialize(pool_t * pool) {
-//    pool->start = 0;
-//    pool->end = -1;
-//    pool->count = 0;
-//}
-
 
 void circularBuffer::place(info data) {
 
@@ -67,7 +60,6 @@ void circularBuffer::place(info data) {
 }
 
 
-
 info circularBuffer::obtain() {
     info data ;
 
@@ -75,7 +67,7 @@ info circularBuffer::obtain() {
         perror_exit("pthread_mutex_lock");
 
     while (this->isEmpty()) {
-        printf(">> Found Buffer Empty \n");
+//        printf(">> Found Buffer Empty \n");
         pthread_cond_wait(&cond_nonempty, &this->circular_buf_mtx);
     }
 
@@ -105,36 +97,6 @@ bool circularBuffer::isEmpty() {
 int circularBuffer::size() {
     return this->count;
 }
-
-
-//void * producer(/*void * ptr*/)
-//{
-//
-//    //TODO LOGIKA OLO AUTO DE XREIAZETAI GT THA EXW ASUGXRONA AITHMATA POU THA THELOUN NA XWSOUN STO BUFFER
-//    //TODO ISWS EDW NA TO XWSW APO TO client_list GENIKA SKEPSOU TO OTAN GURISEIS
-//    while (num_of_items > 0) {
-//        place(&pool, num_of_items);
-//        printf("producer: %d\n", num_of_items);
-//        num_of_items--;
-//        pthread_cond_signal(&cond_nonempty);
-////        usleep(1000);
-//    }
-//    pthread_exit(0);
-//}
-
-//
-//
-//void * consumer(void * ptr)
-//{
-//    while (num_of_items > 0 || pool.count > 0) {
-//        printf("consumer: %d\n", obtain(&pool));
-//        pthread_cond_signal(&cond_nonfull);
-//        usleep(500000);
-//    }
-//    pthread_exit(0);
-//}
-
-
 
 
 
@@ -168,7 +130,6 @@ info::info(uint32_t ip, uint16_t port, myString &pathName, unsigned int version)
                                                                                          version(version) {}
 
 
-
 bool info::isNewClient() {
     return (this->pathName == "None" && this->version == 0);
 }
@@ -199,9 +160,3 @@ void info::setVersion(unsigned int version) {
     info::version = version;
 }
 
-//info info::operator=(info &right) {
-//    this->ip = right.ip;
-//    this->port =right.port;
-//    this->pathName = right.pathName;
-//    this->version = right.version;
-//}

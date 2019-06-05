@@ -12,7 +12,7 @@ Protocol::Protocol(ArgumentsKeeper args) : args(args) {
 
 
 int Protocol::recv_USER_ON(int sock , clientsTuple &tupl){
-    cout<< "INFO_CLIENT::Receive USER_ON from server\n";
+//    cout<< "INFO_CLIENT::Receive USER_ON from server\n";
 
 
     uint32_t ipAddr;
@@ -41,7 +41,7 @@ int Protocol::recv_USER_ON(int sock , clientsTuple &tupl){
 
 
 int Protocol::send_LOG_ON(int sock) {
-    cout<< "INFO_CLIENT::Send LOG_ON to server\n";
+//    cout<< "INFO_CLIENT::Send LOG_ON to server\n";
 
 
     myString logOn("LOG_ON");
@@ -108,7 +108,7 @@ int Protocol::recv_header(int filedes, clientsTuple &tupl) {
 
 
 int Protocol::send_GET_CLIENTS(int sock) {
-    cout<< "INFO_CLIENT::Send GET_CLIENTS to server\n";
+//    cout<< "INFO_CLIENT::Send GET_CLIENTS to server\n";
 
 
     myString getClients("GET_CLIENTS");
@@ -150,7 +150,7 @@ int Protocol::send_LOG_OFF(int sock) {
 
 int Protocol::recv_CLIENTS_LIST(int sock, linkedList<clientsTuple> &existingClients_list) {
 
-    cout<< "INFO_CLIENT::Receive CLIENTS_LIST from server\n";
+//    cout<< "INFO_CLIENT::Receive CLIENTS_LIST from server\n";
 
 
     int N;
@@ -196,7 +196,6 @@ int Protocol::add_client(const clientsTuple &tupl , CS &shared ) {
     if (pthread_mutex_lock(&shared.client_list_mtx))  /* Lock mutex */
         perror_exit("pthread_mutex_lock");
 
-    printf("Thread %ld: Locked the mutex\n", pthread_self());
 
     if (! shared.clients_list.exists(tupl))
         shared.clients_list.insert_last(tupl);
@@ -205,7 +204,6 @@ int Protocol::add_client(const clientsTuple &tupl , CS &shared ) {
         perror_exit("pthread_mutex_unlock");
     }
 
-    printf("Thread %ld: Unlocked the mutex\n", pthread_self());
     //==================================
 
     info tuplInCircBuffer;
@@ -226,8 +224,7 @@ int Protocol::add_list_of_existing_clients(linkedList<clientsTuple> &existingCli
 
 int Protocol::recv_USER_OFF(int sock, clientsTuple &tupl) {
 
-
-    cout<< "INFO_CLIENT::Receive USER_OFF from server\n";
+//    cout<< "INFO_CLIENT::Receive USER_OFF from server\n";
 
 
     recv_header(sock, tupl);
@@ -241,31 +238,24 @@ int Protocol::remove_client(const clientsTuple &tupl , CS &shared) {
     if (pthread_mutex_lock(&shared.client_list_mtx))  /* Lock mutex */
         perror_exit("pthread_mutex_lock");
 
-    printf("Thread %ld: Locked the mutex\n", pthread_self());
 
     if (! shared.clients_list.exists(tupl) )
         perror_exit("Client doesn't exist to remove!");
 
-    /*Remove the client that sent LOG_OFF*/
-    shared.clients_list.deleteNodeByItem(tupl);
+    shared.clients_list.deleteNodeByItem(tupl); /*Remove the client that sent LOG_OFF*/
 
 
     if (pthread_mutex_unlock(&shared.client_list_mtx)) { /* Unlock mutex */
         perror_exit("pthread_mutex_unlock");
     }
 
-    printf("Thread %ld: Unlocked the mutex\n", pthread_self());
-
-    //todo tha prepei na eidopoiithei kai to circBuffer..mporei kai oxi proxwrame
 
     return 0;
 }
 
-int Protocol::recv_GET_FILE_LIST(int sock) {
-    cout<< "INFO_CLIENT::Receive GET_FILE_LIST from another client's - worker_thread\n";
 
-    //TODO pithanon na th svhsw gt einai axreiasth
-//    this->respond_with_FILE_LIST(sock);
+int Protocol::recv_GET_FILE_LIST(int sock) {
+//    cout<< "INFO_CLIENT::Receive GET_FILE_LIST from another client's - worker_thread\n";
     return 0;
 }
 
@@ -273,7 +263,7 @@ int Protocol::recv_GET_FILE_LIST(int sock) {
 
 
 int Protocol::respond_with_FILE_LIST(int sock) {
-    cout<< "INFO_CLIENT::Send/respond FILE_LIST from another client - worker_thread\n";
+//    cout<< "INFO_CLIENT::Send/respond FILE_LIST from another client - worker_thread\n";
 
     myString fileList("FILE_LIST");
 
@@ -292,10 +282,6 @@ int Protocol::respond_with_FILE_LIST(int sock) {
     for (auto &filePath : this->initFilesInDir_list) {
         myString filePath2send = filePath;
         filePath2send.removeSubstr(deletePrefix.getMyStr());
-
-//        char buf[128];
-//        buf = filePath.getMyStr();
-
 
         if (write(sock, filePath2send.getMyStr() ,128) < 0)
             perror_exit("write i-th file_path_name in FILE_LIST");
@@ -321,18 +307,19 @@ int Protocol::respond_with_FILE_LIST(int sock) {
     }
 
 
-
     return 0;
 }
 
+
+
 int Protocol::recv_GET_FILE(int sock) {
-    cout<< "INFO_CLIENT::Receive GET_FILE #1 from another client - worker_thread\n";
+//    cout<< "INFO_CLIENT::Receive GET_FILE #1 from another client - worker_thread\n";
 
     return 0;
 }
 
 int Protocol::respond_to_GET_FILE(int sock) {
-    cout<< "INFO_CLIENT::Receive GET_FILE #2 from another client - worker_thread\n";
+//    cout<< "INFO_CLIENT::Receive GET_FILE #2 from another client - worker_thread\n";
 
 
     char buf[128];
@@ -378,8 +365,6 @@ int Protocol::respond_to_GET_FILE(int sock) {
 
             if (version_mine != version_other){ //if has a previous version then send  FILE filesize byte0byte1..byten
 
-                cout << "version mine === "<<version_mine<<"\t";
-                cout << "version other === "<<version_other<<"\n";
 
                 myString fileHeader("FILE_SIZE");
                 if (write(sock, fileHeader.getMyStr() , fileHeader.size()) < 0)
@@ -424,61 +409,5 @@ int Protocol::respond_to_GET_FILE(int sock) {
     close(sock);
     return 0;
 }
-
-
-
-//
-//int Protocol::respond_with_FILE_LIST(int sock) {
-//    cout<< "INFO_CLIENT::Send/respond FILE_LIST from another client - worker_thread\n";
-//
-//    myString fileList("FILE_LIST");
-//
-//
-//    /*write FILE_LIST*/
-//    if (write(sock,fileList.getMyStr(), fileList.size()) < 0)
-//        perror_exit("write  FILE_LIST in FILE_LIST");
-//
-//    int n = this->initFilesInDir_list.getSize();
-//    /*write n = number of file names*/
-//    if (write(sock, &n ,sizeof(int)) < 0)
-//        perror_exit("write n in FILE_LIST");
-//
-//
-//    //todo stelnw FILE_LIST 128 bytes gia pathname ,
-//
-//    for (auto &filePath2send : this->initFilesInDir_list) {
-//
-////        char buf[128];
-////        buf = filePath2send.getMyStr();
-//
-//
-//        if (write(sock, filePath2send.getMyStr() ,128) < 0)
-//            perror_exit("write i-th file_path_name in FILE_LIST");
-//
-//
-//        unsigned version ;
-//
-//        if (is_dir(filePath2send.getMyStr())) { //if it's dir then version = 1
-//
-//            version = 1;
-//        }
-//        else{   //if it's regular file
-//            myString fileContent;
-//            loadContextOfFile(filePath2send,fileContent); //load the content
-//
-//            version = myHash(fileContent); //and hash it to take the version
-//            cout << "version after hash = "<<version <<endl;
-//        }
-//
-//        if (write(sock, &version ,sizeof(version)) < 0)
-//            perror_exit("write i-th version in FILE_LIST");
-//
-//
-//    }
-//
-//
-//    return 0;
-//}
-
 
 

@@ -63,16 +63,16 @@ void perror_exit(const char *message) {
 
 //=========================================================
 
-myString zip_it(myString IP , myString port){
-    myString zip("<");
-    zip = IP + "," + port + ">";
-    return zip;
-}
-
-void unzip_it(myString toUnzip,myString& IP ,myString& port){
-//    toUnzip
-//todo
-}
+//myString zip_it(myString IP , myString port){
+//    myString zip("<");
+//    zip = IP + "," + port + ">";
+//    return zip;
+//}
+//
+//void unzip_it(myString toUnzip,myString& IP ,myString& port){
+////    toUnzip
+////todo
+//}
 
 
 // Returns hostname for the local computer
@@ -169,26 +169,6 @@ int remove_directory(const char *path)
 }
 
 
-void getNewlyAddedIdsList(linkedList<myString> newIdsFilesList ,linkedList<myString>& newIdsList){
-
-    for (auto idFile : newIdsFilesList) {
-        idFile.removeSubstr(".id");
-        newIdsList.insert_last(idFile);
-    }
-}
-
-
-
-
-void trackNewIdFiles(linkedList<myString> prevStateFilesList, linkedList<myString> currStateFileList,
-                     linkedList<myString> &newFilesList, const myString &filename) {
-
-    for ( auto &file : currStateFileList) {
-        if (! prevStateFilesList.exists(file) && file!= filename){ //if ti doesn't exist then push it in the newFilesList
-            newFilesList.insert_last(file);
-        }
-    }
-}
 
 
 
@@ -270,31 +250,6 @@ void list_dir(const char *path, linkedList<myString> &listDirList) {
 }
 
 
-bool isIdFile(const myString &fileName){
-    myString ext(".id");
-    return fileName.substrExist(ext);
-}
-
-bool isFiFoFile(const myString &fileName){
-    myString ext(".fifo");
-    return fileName.substrExist(ext);
-}
-
-void listIdFiles(const char *path, linkedList<myString> &idFilesInDir) {
-
-    linkedList<myString> listDirList;
-
-    list_dir(path, listDirList);
-
-    for ( auto &fileName : listDirList) {
-        if (isIdFile(fileName)){
-            idFilesInDir.insert_last(fileName);
-        }
-    }
-
-}
-
-
     myString getPath(const myString &dirName, const myString &file ) {
 
     myString slash("/");
@@ -302,50 +257,6 @@ void listIdFiles(const char *path, linkedList<myString> &idFilesInDir) {
     myString path ;
     path =/*slash +*/ dirName ;path+= slash + file  ;
     return path;
-}
-
-
-void addFileIdInCommon(const struct ArgumentsKeeper &argmKeeper){
-/*
-
-    myString extension(".id");
-
-    myString filename;myString pathToCreate;
-    filename = argmKeeper.id ;
-    filename+= extension;
-    pathToCreate =  getPath(argmKeeper.commonDir , filename);
-    int filedes;
-
-    if (fileExist(pathToCreate.getMyStr())){ //check if file *.id already exists
-
-        std::cerr << "ERROR FILE: "<<pathToCreate<<" ALREADY EXISTS"<<endl;
-        exit(FILE_ID_ALREADY_EXIST);
-
-    }
-
-    if (( filedes = open(pathToCreate.getMyStr(), O_WRONLY|O_CREAT|O_TRUNC, PERMS) ) == -1) {
-        perror ( " creating " ) ;
-        exit (1) ;
-    }
-    else{
-//        printf ( " Managed to get to the file successfully \n" ) ;
-
-    }
-
-
-
-    //todo write inside file and put it in the right directory
-
-
-
-    pid_t procId = getpid () ;
-    cout <<"Client #" <<argmKeeper.id << " has process Id #" << procId<<endl;
-
-    write ( filedes , &procId , sizeof(procId) ) ;
-
-    close(filedes);
-*/
-
 }
 
 
@@ -364,12 +275,12 @@ bool fileExist(char* path){
 void createDirectory(char* path ){
 //    int mkdir(const char *pathname, mode_t mode); from man 2 mkdir
 
-    cout << " ----> CREATING DIRECTORY : "<<path<<endl;
+//    cout << " ----> CREATING DIRECTORY : "<<path<<endl;
     int result = mkdir(path, 0777);
 
 
     if (result){
-        cout << "timh result============================ "<<result<<endl;
+
         if(result == EEXIST){
             //just ignore it
         }else {
@@ -406,33 +317,6 @@ bool directoryExist(char *pathToDir){
 
 
 
-
-void handleInputDirectories(const struct ArgumentsKeeper &argmKeeper){
-
-  /*  bool flagInputDir = directoryExist(argmKeeper.inDir.getMyStr());
-    bool flagCommon = directoryExist(argmKeeper.commonDir.getMyStr());
-    bool flagMirror = directoryExist(argmKeeper.mirrorDir.getMyStr());
-
-    if (!flagInputDir){
-        std::cerr << "INPUT DIRECTORY ["<< argmKeeper.inDir <<"] DOESNT EXIST"<<endl;
-        exit(INPUT_DIR_NOT_EXIST);
-    }
-
-    if (flagMirror){
-        std::cerr << "MIRROR DIRECTORY ["<< argmKeeper.mirrorDir <<"] EXIST ALREADY"<<endl;
-        std::cerr << "THERE IS MIGHT ANOTHER CLIENT THAT HAS ALREADY CREATED IT AND USES IT"<<endl;
-        exit(MIRROR_DIR_ALREADY_EXIST);
-    }
-
-    createDirectory(argmKeeper.mirrorDir.getMyStr()); //create mirror directory
-
-    if (flagCommon == 0){ //if common dir doesnt exist [which means is the first client]
-        createDirectory(argmKeeper.commonDir.getMyStr()); //create it
-
-    }
-*/
-
-}
 
 
 void argmParser(int &argc, char **argv, struct ArgumentsKeeper &argmKeeper){
@@ -707,7 +591,7 @@ void ArgumentsKeeper::printArgs() {
 
 
 
-ArgumentsKeeper::ArgumentsKeeper() {}
+ArgumentsKeeper::ArgumentsKeeper() = default;
 
 //ArgumentsKeeper::ArgumentsKeeper(const ArgumentsKeeper &right) {
 //
