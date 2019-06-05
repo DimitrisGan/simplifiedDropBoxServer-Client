@@ -15,9 +15,6 @@
 
 
 
-
-
-
 int loadContextOfFile(myString path , myString &context) {
 
     FILE *f = fopen(path.getMyStr(), "rb");
@@ -39,7 +36,6 @@ int loadContextOfFile(myString path , myString &context) {
 
 
 
-
 void print_ip(unsigned int ip)
 {
     unsigned char bytes[4];
@@ -52,7 +48,6 @@ void print_ip(unsigned int ip)
 
 
 
-
 void perror_exit(const char *message) {
     myString head("ERROR::");
     myString errorMessage;errorMessage=head+message;
@@ -60,6 +55,98 @@ void perror_exit(const char *message) {
     perror(errorMessage.getMyStr());
     exit(EXIT_FAILURE);
 }
+
+
+void argmParser(int &argc, char **argv, struct ArgumentsKeeper &argmKeeper){
+
+    bool flagDirName=false;
+    bool flagPortNum=false;
+    bool flagWorkerThreads=false;
+    bool flagbufferSize=false;
+    bool flagServerPort=false;
+    bool flagServerIp=false;
+
+    int i=1;
+    while (i < argc ) {
+        if (argv[i] == nullptr ){break;}
+
+        if(strcmp(argv[i],"-d")==0 && !flagDirName && argv[i + 1] != nullptr){
+            argmKeeper.inDir = argv[++i];
+            flagDirName = true;
+            i++;
+            continue;
+        }
+
+        if(strcmp(argv[i],"-p")==0 && !flagPortNum && argv[i + 1] != nullptr){
+            argmKeeper.portNum = argv[++i];
+            flagPortNum = true;
+            i++;
+            continue;
+        }
+
+        if(strcmp(argv[i],"-w")==0 && !flagWorkerThreads && argv[i + 1] != nullptr){
+            argmKeeper.workerThreads = argv[++i];
+            flagWorkerThreads = true;
+            i++;
+            continue;
+        }
+
+        if(strcmp(argv[i],"-b")==0 && !flagbufferSize && argv[i + 1] != nullptr){
+            if (! isNumber(argv[++i])) {fprintf(stderr, "ARGUMENT : %s IS NOT A NUMBER\n", argv[i]);exit(UNKNOWN_CMDARGUMENT);}
+            argmKeeper.bufSize = atoi(argv[i]);
+            flagbufferSize = true;
+            i++;
+            continue;
+        }
+
+        if(strcmp(argv[i],"-sp")==0 && !flagServerPort && argv[i + 1] != nullptr){
+
+            argmKeeper.serverPort = argv[++i];
+            flagServerPort = true;
+            i++;
+            continue;
+        }
+
+        if(strcmp(argv[i],"-sip")==0 && !flagServerIp && argv[i + 1] != nullptr){
+            argmKeeper.serverIp = argv[++i];
+            flagServerIp = true;
+            i++;
+            continue;
+        }
+
+        fprintf(stderr, "Unknown argument OR not given argument for flag: %s\n", argv[i]);
+        exit(UNKNOWN_CMDARGUMENT);
+
+    }
+
+    if (!flagDirName){
+        cout << "Provide directory name : ";
+        cin >> argmKeeper.inDir ;
+    }
+    if (!flagPortNum){
+        cout << "Provide port number: ";
+        cin >> argmKeeper.portNum;
+    }
+    if (!flagWorkerThreads){
+        cout << "Provide number of worker threads: ";
+        cin >> argmKeeper.workerThreads;
+    }
+    if (!flagbufferSize){
+        cout << "Provide buffer Size : ";
+        cin >> argmKeeper.bufSize;
+    }
+    if (!flagServerPort){
+        cout << "Provide server port : ";
+        cin >> argmKeeper.serverPort;
+    }
+    if (!flagServerIp ){
+        cout << "Provide server ip : ";
+        cin >> argmKeeper.serverIp;
+
+    }
+
+}
+
 
 //=========================================================
 
@@ -71,7 +158,6 @@ void perror_exit(const char *message) {
 //
 //void unzip_it(myString toUnzip,myString& IP ,myString& port){
 ////    toUnzip
-////todo
 //}
 
 
@@ -107,13 +193,21 @@ void checkIPbuffer(char *IPbuffer)
 }
 
 
+void list_all_in_dir(myString path, linkedList<myString> &listDirList) {
+
+    list_dir(path.getMyStr(), listDirList);
+
+    for ( auto &item : listDirList) {
+        bool isDir = is_dir(item.getMyStr());
+
+        if (isDir ) { //if its a directory
+            list_dir(item.getMyStr(), listDirList);
+        }
+    }
+}
 
 
-//=================================================================
-//=================================================================
-//=================================================================
-//=================================================================
-//=================================================================
+//=============================================
 
 /* Call unlink or rmdir on the path, as appropriate. */
 int remove_directory(const char *path)
@@ -209,20 +303,6 @@ bool is_dir(const char* path) {
     return retVal;
 }
 
-void list_all_in_dir(myString path, linkedList<myString> &listDirList) {
-
-    list_dir(path.getMyStr(), listDirList);
-
-//    myString prefixPath;prefixPath = path;prefixPath += "/";
-    for ( auto &item : listDirList) {
-//        myString newPath;newPath = prefixPath;newPath+=item;
-        bool isDir = is_dir(item.getMyStr());
-
-        if (isDir ) { //if its a directory
-            list_dir(item.getMyStr(), listDirList);
-        }
-    }
-}
 
 
 void list_dir(const char *path, linkedList<myString> &listDirList) {
@@ -250,7 +330,7 @@ void list_dir(const char *path, linkedList<myString> &listDirList) {
 }
 
 
-    myString getPath(const myString &dirName, const myString &file ) {
+myString getPath(const myString &dirName, const myString &file ) {
 
     myString slash("/");
 //    myString dot(".");
@@ -318,100 +398,6 @@ bool directoryExist(char *pathToDir){
 
 
 
-
-void argmParser(int &argc, char **argv, struct ArgumentsKeeper &argmKeeper){
-
-    bool flagDirName=false;
-    bool flagPortNum=false;
-    bool flagWorkerThreads=false;
-    bool flagbufferSize=false;
-    bool flagServerPort=false;
-    bool flagServerIp=false;
-
-    int i=1;
-    while (i < argc ) {
-        if (argv[i] == nullptr ){break;}
-
-        if(strcmp(argv[i],"-d")==0 && !flagDirName && argv[i + 1] != nullptr){
-            argmKeeper.inDir = argv[++i];
-            flagDirName = true;
-            i++;
-            continue;
-        }
-
-        if(strcmp(argv[i],"-p")==0 && !flagPortNum && argv[i + 1] != nullptr){
-            argmKeeper.portNum = argv[++i];
-            flagPortNum = true;
-            i++;
-            continue;
-        }
-
-        if(strcmp(argv[i],"-w")==0 && !flagWorkerThreads && argv[i + 1] != nullptr){
-            argmKeeper.workerThreads = argv[++i];
-            flagWorkerThreads = true;
-            i++;
-            continue;
-        }
-
-        if(strcmp(argv[i],"-b")==0 && !flagbufferSize && argv[i + 1] != nullptr){
-            if (! isNumber(argv[++i])) {fprintf(stderr, "ARGUMENT : %s IS NOT A NUMBER\n", argv[i]);exit(UNKNOWN_CMDARGUMENT);}
-            argmKeeper.bufSize = atoi(argv[i]);
-            flagbufferSize = true;
-            i++;
-            continue;
-        }
-
-        if(strcmp(argv[i],"-sp")==0 && !flagServerPort && argv[i + 1] != nullptr){
-//            if (! isNumber(argv[++i])) {fprintf(stderr, "ARGUMENT : %s IS NOT A NUMBER\n", argv[i]);exit(UNKNOWN_CMDARGUMENT);}
-//            argmKeeper.serverPort = atoi(argv[i]);
-            argmKeeper.serverPort = argv[++i];
-            flagServerPort = true;
-            i++;
-            continue;
-        }
-
-        if(strcmp(argv[i],"-sip")==0 && !flagServerIp && argv[i + 1] != nullptr){
-            argmKeeper.serverIp = argv[++i];
-            flagServerIp = true;
-            i++;
-            continue;
-        }
-
-        fprintf(stderr, "Unknown argument OR not given argument for flag: %s\n", argv[i]);
-        exit(UNKNOWN_CMDARGUMENT);
-
-    }
-
-
-    if (!flagDirName){
-        cout << "Provide directory name : ";
-        cin >> argmKeeper.inDir ;
-
-    }
-    if (!flagPortNum){
-
-        cout << "Provide port number: ";
-        cin >> argmKeeper.portNum;
-    }
-    if (!flagWorkerThreads){
-        cout << "Provide number of worker threads: ";
-        cin >> argmKeeper.workerThreads;
-    }
-    if (!flagbufferSize){
-        cout << "Provide buffer Size : ";
-        cin >> argmKeeper.bufSize;
-    }
-    if (!flagServerPort){
-        cout << "Provide server port : ";
-        cin >> argmKeeper.serverPort;
-    }
-    if (!flagServerIp ){
-        cout << "Provide server ip : ";
-        cin >> argmKeeper.serverIp;
-
-    }
-
-}
 
 
 

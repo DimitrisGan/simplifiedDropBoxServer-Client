@@ -23,7 +23,7 @@ struct info{
 
     info(uint32_t ip, uint16_t port, myString &pathName, unsigned int version);
 
-    info();
+    info() = default;
 
     bool operator==(const info &rhs) const;
 
@@ -34,7 +34,6 @@ struct info{
     bool isNewClient();
     bool isFilePath();
     bool isFile();
-
     bool isDir();
 
     void setPathName(myString pathName);

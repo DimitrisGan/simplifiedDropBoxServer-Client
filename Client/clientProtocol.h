@@ -35,8 +35,6 @@ class Protocol{
     ArgumentsKeeper args;
 
     linkedList<myString> initFilesInDir_list;
-//    int sock;
-
 
     int send_header(int sock); //header = ip,port
 
@@ -44,8 +42,6 @@ class Protocol{
 
 
 public:
-
-//    linkedList<clientsTuple> clients_list; //todo tha ginei global gia na einai shared gia ola ta threads!!!
 
 
     explicit Protocol(ArgumentsKeeper args);
@@ -60,11 +56,9 @@ public:
     int recv_CLIENTS_LIST(int sock , linkedList <clientsTuple> &existingClients_list);
     int add_list_of_existing_clients(linkedList<clientsTuple> &existingClients_list , CS &shared);
 
-
     int send_LOG_OFF(int sock);
     int recv_USER_OFF(int sock , clientsTuple &tupl); /*clients that quits*/
     int remove_client(const clientsTuple &tupl , CS &shared);
-
 
     /*Request and responds from/to worker threads from others clients */
     int recv_GET_FILE_LIST(int sock);
@@ -73,7 +67,7 @@ public:
     int recv_GET_FILE(int sock);
     int respond_to_GET_FILE(int sock);
 
-
+    bool isMe(const clientsTuple &tupl);
 };
 
 

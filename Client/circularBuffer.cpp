@@ -16,7 +16,6 @@ circularBuffer::circularBuffer(int bufferSize) {
     this->buffSize = bufferSize;
 
 
-
     pthread_mutex_init(&this->circular_buf_mtx, NULL);
     pthread_cond_init(&cond_nonempty, 0);
     pthread_cond_init(&cond_nonfull, 0);
@@ -78,13 +77,13 @@ info circularBuffer::obtain() {
     if(pthread_mutex_unlock(&this->circular_buf_mtx))
         perror_exit("pthread_mutex_lock");
 
-
     pthread_cond_signal(&cond_nonfull);
 
 //    cout << "obtain returns info: "<< data<<endl;
 
     return data;
 }
+
 
 bool circularBuffer::isFull() {
     return  this->count >= this->buffSize;
@@ -98,11 +97,6 @@ int circularBuffer::size() {
     return this->count;
 }
 
-
-
-info::info() {
-
-}
 
 bool info::operator==(const info &rhs) const {
     return ip == rhs.ip &&
@@ -126,8 +120,8 @@ void info::prepareNewClient(clientsTuple tupl) {
 }
 
 info::info(uint32_t ip, uint16_t port, myString &pathName, unsigned int version) : ip(ip), port(port),
-                                                                                         pathName(pathName),
-                                                                                         version(version) {}
+                                                                                   pathName(pathName),
+                                                                                   version(version) {}
 
 
 bool info::isNewClient() {
@@ -159,4 +153,6 @@ void info::setPathName(myString pathName) {
 void info::setVersion(unsigned int version) {
     info::version = version;
 }
+
+
 

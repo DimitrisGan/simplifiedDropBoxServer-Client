@@ -22,7 +22,7 @@ bool clientStillExist(void *shared, info cbuff_item);
 
 
 struct CS {
-    linkedList<clientsTuple> clients_list; //todo tha ginei global gia na einai shared gia ola ta threads!!!
+    linkedList<clientsTuple> clients_list;
     circularBuffer *circBuffer;
 
     bool stop;
@@ -37,7 +37,7 @@ struct CS {
 
     pthread_mutex_t mkdir_mtx;
 
-//    lock_client_list();
+//    lock_client_list();F
 //    unlock_client_list();
 
     pthread_mutex_t stop_mtw;

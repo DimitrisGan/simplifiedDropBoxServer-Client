@@ -122,6 +122,7 @@ init_sockaddr (struct sockaddr_in *name,
         fprintf (stderr, "Unknown host %s.\n", hostname);
         exit (EXIT_FAILURE);
     }
+
     name->sin_addr = *(struct in_addr *) hostinfo->h_addr;
 }
 

@@ -71,7 +71,7 @@ void* worker_function(void* shared){
 
 
             myString newClientsDir; newClientsDir  = newDirName(cbuff_item.ip, cbuff_item.port);
-            myString newClientsDirPath;newClientsDirPath = createPathForNewDir(  ((CS *)shared)->inputDir ,newClientsDir);
+            myString newClientsDirPath("./") ;newClientsDirPath = createPathForNewDir(  ((CS *)shared)->inputDir ,newClientsDir);
 
 
             if (! directoryExist(newClientsDirPath.getMyStr()))
@@ -92,7 +92,7 @@ void* worker_function(void* shared){
                 item.setPathName(realPath);
 
 
-                if (! fileExist(realPath.getMyStr())){
+                if (! fileExist(realPath.getMyStr()) && ! directoryExist(realPath.getMyStr())){
                     item.setVersion(0);
                 }
 
@@ -160,7 +160,6 @@ myString createPathForNewDir(myString inDir, myString nameNewDir) {
 }
 
 
-
 // This assumes buffer is at least x bytes long,
 // and that the socket is blocking.
 void ReadXBytes(int socket, unsigned int x, void* buffer ,const char* error_m)
@@ -171,7 +170,7 @@ void ReadXBytes(int socket, unsigned int x, void* buffer ,const char* error_m)
     {
         result = static_cast<int>(read(socket, buffer + bytesRead , x - bytesRead));
 
-        if (result < 1 )
+        if (result < 0 )
         {
             // Throw your error.
             perror_exit(error_m);
@@ -232,9 +231,10 @@ thread_protocol::send_GET_FILE_LIST_and_recv_FILE_LIST(uint32_t ipB, uint16_t po
 
 
     for (int i = 0; i < n ; ++i) {
-        char buf[128];
+        char buf[128]; memset(buf, 0, sizeof(buf));
 
-        ReadXBytes(sock,128,buf,"read i-th ipB in CLIENTS_LIST");
+
+        ReadXBytes(sock, sizeof(buf),buf,"read i-th ipB in CLIENTS_LIST");
         myString pathName(buf);
 
         unsigned version;
