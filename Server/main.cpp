@@ -156,7 +156,7 @@ read_request_from_client_and_respond(int filedes, Protocol &prot)
         prot.add_newClient(tupl);
 
 
-        cout <<"Printing the list after LOG_ON & GET_CLIENTS: \t";
+        cout <<">Clients_list after LOG_ON & GET_CLIENTS: \t";
         cout << prot.clients_list<<endl;
 
 
@@ -169,7 +169,7 @@ read_request_from_client_and_respond(int filedes, Protocol &prot)
         else //client wasnt found in the list
             cout << "ERROR_IP_PORT_NOT_FOUND_IN_LIST" <<endl;
 
-        cout <<"Printing the list after LOG_OFF: \t";
+        cout <<">Clients_list after LOG_OFF: \t";
         cout << prot.clients_list<<endl;
 
     }

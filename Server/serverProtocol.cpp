@@ -115,13 +115,12 @@ int Protocol::broadcast_USER_ON(const clientsTuple &tupl) {
 //            continue;
 
         ipStr = convertBinaryIpToString(clientExist.ip);
-        printf(" and port:: %d \n",clientExist.ip);
 
 
-        printf("message will be sent to client with ip:: %s \n",ipStr.getMyStr());
-        printf(" and port:: %d \n",clientExist.port);
+//        printf("message will be sent to client with ip:: %s \n",ipStr.getMyStr());
+//        printf(" and port:: %d \n",clientExist.port);
 
-        cout << "SEND USER_ON to client--> ip: " << ipStr << " port: " << clientExist.port<<endl;
+//        cout << "SEND USER_ON to client--> ip: " << ipStr << " port: " << clientExist.port<<endl;
 
         int newsock = create_socket_and_connect(ipStr,clientExist.port);
 
@@ -132,10 +131,7 @@ int Protocol::broadcast_USER_ON(const clientsTuple &tupl) {
         if (write(newsock, &ipToSend , sizeof(uint32_t)) < 0)
             perror_exit("write  IP");
 
-        cout <<"portToSend prin ---> "<< tupl.port <<endl;
-
         uint16_t portToSend = htons(tupl.port);
-        cout <<"portToSend meta ---> "<< portToSend <<endl;
 
         if (write(newsock, &portToSend , sizeof(uint16_t)) < 0)
             perror_exit("write  PORT");
@@ -157,25 +153,19 @@ int Protocol::recv_GET_CLIENTS(int filedes, clientsTuple &tupl)
     return 0;
 }
 
-/////////////////////===================================
-/////////////////////===================================
-/////////////////////===================================
-/////////////////////===================================
+
+
 
 int Protocol::send_CLIENTS_LIST(const clientsTuple & tupl) {
-
-    cout<< "INFO_SERVER::Send CLIENT_LIST\n";
-
-    myString clientList("CLIENT_LIST");
-
-
     myString ipStr;
     ipStr = convertBinaryIpToString(tupl.ip);
 
 
-    int newsock = create_socket_and_connect(ipStr,tupl.port);
+    cout<< "INFO_SERVER::Send CLIENT_LIST to client with ip: "<<ipStr<<" & port: "<< tupl.port<<"\n";
 
-    cout << "SEND CLIENT_LIST to client--> ip: " << ipStr << " port: " << tupl.port<<endl;
+    myString clientList("CLIENT_LIST");
+
+    int newsock = create_socket_and_connect(ipStr,tupl.port);
 
 
     if (write(newsock,clientList.getMyStr(), clientList.size()) < 0)
@@ -196,8 +186,8 @@ int Protocol::send_CLIENTS_LIST(const clientsTuple & tupl) {
 
         ipStr = convertBinaryIpToString(clientExist.ip);
 
-        printf("message will be sent to client with ip:: %s \n",ipStr.getMyStr());
-        printf(" and port:: %d \n",clientExist.port);
+//        printf("message will be sent to client with ip:: %s \n",ipStr.getMyStr());
+//        printf(" and port:: %d \n",clientExist.port);
 
 
 
@@ -205,7 +195,7 @@ int Protocol::send_CLIENTS_LIST(const clientsTuple & tupl) {
         if (write(newsock, &ipToSend , sizeof(uint32_t)) < 0)
             perror_exit("write  IP in CLIENT_LIST");
 
-        cout <<"portToSend  ---> "<< clientExist.port <<endl;
+//        cout <<"portToSend  ---> "<< clientExist.port <<endl;
 
         uint16_t portToSend = htons(clientExist.port);
 
@@ -260,8 +250,8 @@ int Protocol::broadcast_USER_OFF(clientsTuple &tupl) {
         printf(" and port:: %d \n",clientExist.ip);
 
 
-        printf("message will be sent to client with ip:: %s \n",ipStr.getMyStr());
-        printf(" and port:: %d \n",clientExist.port);
+//        printf("message will be sent to client with ip:: %s \n",ipStr.getMyStr());
+//        printf(" and port:: %d \n",clientExist.port);
 
         int newsock = create_socket_and_connect(ipStr,clientExist.port);
 
@@ -273,10 +263,8 @@ int Protocol::broadcast_USER_OFF(clientsTuple &tupl) {
         if (write(newsock, &ipToSend , sizeof(uint32_t)) < 0)
             perror_exit("write  IP in USER_OFF");
 
-        cout <<"portToSend prin ---> "<< tupl.port <<endl;
 
         uint16_t portToSend = htons(tupl.port);
-        cout <<"portToSend meta ---> "<< portToSend <<endl;
 
         if (write(newsock, &portToSend , sizeof(uint16_t)) < 0)
             perror_exit("write  PORT in USER_OFF");
